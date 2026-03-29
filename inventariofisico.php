@@ -375,7 +375,7 @@ if ($result = mysqli_query($conn, $query)) {
                             <div class="page"></div>
                         </div><br>
                         <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                        <div class="FechaI">-</div>
+                        <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                     </div>
                 </div>
                 <div class="encabezado">
@@ -732,7 +732,7 @@ if ($result = mysqli_query($conn, $query)) {
                     <div class="page"></div>
                 </div><br>
                 <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                <div class="FechaI">-</div>
+                <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
             </div>
         </div>
         <div class="encabezado">
@@ -817,10 +817,8 @@ if ($result = mysqli_query($conn, $query)) {
         <?php
         // coalesce(if(round((b.cantidad-floor(b.cantidad))*a.CantP1,3)<>0,concat(round((b.cantidad-floor(b.cantidad))*a.CantP1,3)),''),0)
         $compa = $_POST["CompanyActual"];
-        $name = "InventarioFisicoTomaDeInventario";
-
         ?>
-        <input type="hidden" name="Name" value="<?php echo $name; ?>" />
+        <input type="hidden" name="Name" value="InventarioFisicoTomaDeInventario" />
         <input type="hidden" name="CompanyActual" value="<?php echo $compa; ?>" />
         <input type="hidden" name="vas" value="toma" />
     </form>

@@ -202,7 +202,7 @@ if ($_POST['CIdPlan'] == '0000000019') {
                     <div class="page"></div>
                 </div><br>
                 <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                <div class="FechaI">-</div>
+                <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
             </div>
         </div>
         <div class="encabezado">
@@ -413,7 +413,7 @@ if ($_POST['CIdPlan'] == '0000000019') {
                                             <div class="page"></div>
                                         </div><br>
                                         <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                                        <div class="FechaI">-</div>
+                                        <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                                     </div>
                                 </div>
 
@@ -443,6 +443,7 @@ if ($_POST['CIdPlan'] == '0000000019') {
                         $totalMonto = $totalMonto + $row["Monto"];
                         $totalUtil = $totalUtil + $row["util"];
                     }
+                    mysqli_free_result($result);
                 }
                     ?>
                     <div class="encabezado" style="visibility:hidden;  font-size: 2px;">

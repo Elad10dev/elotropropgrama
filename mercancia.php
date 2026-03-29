@@ -1,42 +1,7 @@
 <?php
 include "ambiente.php";
 $conn = ConectarConsultas();
-$CompanyData = [];
-$sql = "
-		select
-			checkventanega,
-			VisualizaPrecio,
-			LitP01,
-			LitP02,
-			LitP03,
-			LitP04,
-			LitP05,
-			LitP06,
-			LitP07,
-			LitP08,
-			LitP09,
-			LitP10,
-			LitCosto,
-			1 as Tasa1,
-			FactorDolarCash as Tasa2,
-			FactorDolarPaypal as Tasa3,
-			FactorDolarZelle as Tasa4,
-			FactorDolar5 as Tasa5,
-			FactorDolar6 as Tasa6,
-			FactorDolar7 as Tasa7
-		from
-					PosUpCompany
-		where
-			Id =" . $_POST["CompanyActual"]  . "
-		";
-if ($result = mysqli_query($conn, $sql)) {
-	while ($row = mysqli_fetch_assoc($result)) {
-		$CompanyData = $row;
-	}
-};
-
-$tsa = $_POST['SelectTasa'];
-
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -284,7 +249,7 @@ $tsa = $_POST['SelectTasa'];
 					<div class="page"></div>
 				</div><br>
 				<div type='submit' value='export_data' class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-				<div class="FechaI">-</div>
+				<div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
 			</div>
 		</div>
 		<div style=" width: 100%;">
@@ -430,18 +395,18 @@ $tsa = $_POST['SelectTasa'];
 		$query = "SET SESSION group_concat_max_len = 1000000";
 		$result = mysqli_query($conn, $query);
 		if ($_POST['cos'] == true) {
-			$cos = ",round(a.CostoNeto * " . $CompanyData["Tasa$tsa"] . ",2) as Costo";
+			$cos = ",round(a.CostoNeto,2) as Costo";
 		}
 
 		if ($_POST['mexist'] == true) {
 			$cosexis = ",
-                                            round(COALESCE(b.Cantidad,0)*COALESCE(a.CostoNeto * " . $CompanyData["Tasa$tsa"] . ",0),2) as CostoExistencia";
+                                            round(COALESCE(b.Cantidad,0)*COALESCE(a.CostoNeto,0),2) as CostoExistencia";
 			$exis = ",
                                             round(coalesce(b.Cantidad,0),2) as existencia";
 		}
 		if ($_POST["Incluirimpuestos"]) {
 			$imp = ",
-                                            (a.PrecioNeto" . $_POST["SelectPrecio"] . ") * " . $CompanyData["Tasa$tsa"] . " as precio";
+                                            a.PrecioNeto as precio";
 		}
 		if ($_POST["Utilidad"]) {
 			$util = ",
@@ -495,6 +460,22 @@ $tsa = $_POST['SelectTasa'];
 		if ($result = mysqli_query($conn, $sql)) {
 			while ($row = mysqli_fetch_assoc($result)) {
 				$Resinv = $row["Idtipotx"];
+			}
+		};
+
+		$CompanyData = [];
+		$sql = "
+	select
+			d.checkventanega,d.VisualizaPrecio,d.LitP01,d.LitP02,d.LitP03,d.LitP04,d.LitP05,d.LitP06,d.LitP07,d.LitP08,
+    d.LitP09,d.LitP10,d.LitCosto
+		from
+			PosUpCompany d
+		where
+			d.Id=" . $_POST["CompanyActual"]  . "
+		";
+		if ($result = mysqli_query($conn, $sql)) {
+			while ($row = mysqli_fetch_assoc($result)) {
+				$CompanyData = $row;
 			}
 		};
 
@@ -1023,7 +1004,7 @@ $tsa = $_POST['SelectTasa'];
 								<div class="page"></div>
 							</div><br>
 							<div type='submit' value='export_data' class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-							<div class="FechaI">-</div>
+							<div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
 						</div>
 					</div>
 					<div style=" width: 100%;">

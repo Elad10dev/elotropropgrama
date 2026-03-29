@@ -136,8 +136,10 @@ function guardar() {
 
 function recibir(numero) {
   $("#apps-modal").modal("show");
+
   if (numero > 0) {
     document.getElementById("new").value = "1";
+
     if (document.getElementById("IdPaisAct").innerHTML == "CL") {
       var cadena = document.getElementById("rif" + numero).innerHTML;
       document.getElementById("ModalRut").readOnly = true;
@@ -201,6 +203,44 @@ function recibir(numero) {
       "TipoBenef" + numero,
     ).innerHTML;
 
+    // ===============================
+    // FIX CAMPOS FISCALES (EDITAR)
+    // ===============================
+    // Lee los valores guardados desde spans ocultos en la fila.
+    // Si no existen, aplica defaults.
+    try {
+      var tp = document.getElementById("TipoPersona" + numero)
+        ? document.getElementById("TipoPersona" + numero).innerHTML.trim()
+        : "";
+      var dom = document.getElementById("Domicilio" + numero)
+        ? document.getElementById("Domicilio" + numero).innerHTML.trim()
+        : "";
+      var tc = document.getElementById("TipoContribuyente" + numero)
+        ? document.getElementById("TipoContribuyente" + numero).innerHTML.trim()
+        : "";
+
+      if (!tp) tp = "PN";
+      if (!dom) dom = "DOM";
+      if (!tc) tc = "ORDINARIO";
+
+      // IDs de los selects en el modal (los que yo te agregué)
+      // Si en tu HTML se llaman distinto, dime los IDs y lo adapto.
+      if ($("#ModalTipoPersona").length) $("#ModalTipoPersona").val(tp).trigger("change");
+      if ($("#ModalDomicilio").length) $("#ModalDomicilio").val(dom).trigger("change");
+      if ($("#ModalTipoContribuyente").length) $("#ModalTipoContribuyente").val(tc).trigger("change");
+
+      // Fallback por si los dejaste sin "Modal" en el id
+      if ($("#TipoPersona").length) $("#TipoPersona").val(tp).trigger("change");
+      if ($("#Domicilio").length) $("#Domicilio").val(dom).trigger("change");
+      if ($("#TipoContribuyente").length) $("#TipoContribuyente").val(tc).trigger("change");
+
+    } catch (e) {
+      // Si algo falla, no rompemos el modal
+      if ($("#ModalTipoPersona").length) $("#ModalTipoPersona").val("PN").trigger("change");
+      if ($("#ModalDomicilio").length) $("#ModalDomicilio").val("DOM").trigger("change");
+      if ($("#ModalTipoContribuyente").length) $("#ModalTipoContribuyente").val("ORDINARIO").trigger("change");
+    }
+
     valor = document.getElementById("edoc" + numero).innerHTML;
     if (valor === "1") {
       $("#ModalEdoc").prop("checked", true);
@@ -251,10 +291,12 @@ function recibir(numero) {
 
     valor = document.getElementById("ciudadxd" + numero);
     document.getElementById("ModalCiudad").value = valor.innerHTML;
+
   } else {
     OcultarNotificacion2();
     posicion();
     document.getElementById("new").value = "0";
+
     if (document.getElementById("IdPaisAct").innerHTML == "CL") {
       document.getElementById("ModalRut").readOnly = false;
       document.getElementById("ModalRut2").readOnly = true;
@@ -264,6 +306,7 @@ function recibir(numero) {
       document.getElementById("ModalRif").readOnly = false;
       document.getElementById("ModalRif").value = "";
     }
+
     document.getElementById("ModalCid").value = "";
     document.getElementById("ModalCodb").value = "";
     document.getElementById("ModalNombre").value = "";
@@ -298,6 +341,17 @@ function recibir(numero) {
     $("#ModalTrab").prop("checked", false);
     $("#ModalOtro").prop("checked", false);
     $("#ModalServicio").prop("checked", false);
+
+    // ===============================
+    // FIX CAMPOS FISCALES (NUEVO)
+    // ===============================
+    if ($("#ModalTipoPersona").length) $("#ModalTipoPersona").val("PN").trigger("change");
+    if ($("#ModalDomicilio").length) $("#ModalDomicilio").val("DOM").trigger("change");
+    if ($("#ModalTipoContribuyente").length) $("#ModalTipoContribuyente").val("ORDINARIO").trigger("change");
+
+    if ($("#TipoPersona").length) $("#TipoPersona").val("PN").trigger("change");
+    if ($("#Domicilio").length) $("#Domicilio").val("DOM").trigger("change");
+    if ($("#TipoContribuyente").length) $("#TipoContribuyente").val("ORDINARIO").trigger("change");
   }
 }
 
@@ -410,6 +464,7 @@ function CargarDatatable() {
       columns: [null, null, null, null, null, null],
       destroy: true,
     });
+
   setTimeout(() => {
     $(
       "#DatatableConPro_wrapper .dt-layout-row .dt-end .dt-search .dt-input",
@@ -463,12 +518,63 @@ function CargarDatatableAB2() {
       columns: [null, null],
       destroy: true,
     });
+
   setTimeout(() => {
     $(
       "#DatatableConCOM_wrapper .dt-layout-row .dt-end .dt-search .dt-input",
     ).focus();
     $("#spinner_load_DatatableConCOM").addClass("d-none");
   }, 800);
+}
+
+
+let buscandoRif = false; // Candado para evitar alertas múltiples
+
+function VerificarBeneficiarioExistente(rut_ingresado) {
+    if (!rut_ingresado || rut_ingresado.trim() === "") return;
+    if (buscandoRif) return; // Si ya está buscando, no hacer nada
+
+    buscandoRif = true; // Cerramos el candado
+    let company = $("#companyUser").val();
+
+    $.ajax({
+        type: "POST",
+        url: "beneficiariosnewseek.php",
+        data: {
+            Accion: "VerificarRUT",
+            RUT: rut_ingresado,
+            CompanyActual: company
+        }
+    }).done(function (msg) {
+        buscandoRif = false; // Abrimos el candado al terminar
+        try {
+            let data = JSON.parse(msg);
+            if (data.existe) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: "¡Atención!",
+                        html: "El identificador fiscal <b>" + rut_ingresado + "</b> ya le pertenece a:<br><br><span style='font-size:1.2rem;'><b>" + data.nombre + "</b></span>",
+                        icon: "warning",
+                        confirmButtonText: '<i class="fa fa-check"></i> Entendido',
+                        customClass: {
+                            confirmButton: 'btn btn-primary px-4'
+                        },
+                        buttonsStyling: false,
+                        allowOutsideClick: false 
+                    }).then(() => {
+                        $("#ModalRif").val("");
+                        $("#ModalRut").val("");
+                    });
+                } else {
+                    alert("¡Atención! El RIF/RUT " + rut_ingresado + " ya le pertenece a: " + data.nombre);
+                    $("#ModalRif").val("");
+                    $("#ModalRut").val("");
+                }
+            }
+        } catch (e) {
+            console.error("Error al verificar beneficiario", e);
+        }
+    });
 }
 
 function initMap() {

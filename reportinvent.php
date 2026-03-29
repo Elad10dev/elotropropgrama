@@ -8,8 +8,6 @@
 
 $valid = $_SESSION['CompanyActual'] === "1168" && ($_SESSION["userperfil"] <= 2000 or $_SESSION["userlogin"] === "MANRIQUE");
 
-$valid2 = $_SESSION['CompanyActual'] === "1168" && ($_SESSION["userperfil"] == 2070);
-
 $conn = conectar();
 $sql = "SELECT a.* ,b.Descripcion as ModuloName , b.Link as Archivo FROM PosUpOpciones a inner join PosUpModulo b on a.IdModulo=b.IdModulo where a.IdModulo='" . $_SESSION["ModuloActual"] . "' and a.Link='" . $_SESSION['opcion'] . "'  limit 1";
 
@@ -56,6 +54,7 @@ if ($frame == '1') { // multicanal
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item "> <a href='/app.php?opcion=inventario.php'><?php echo lang('Inventario'); ?> </a></li>
 				<li class="breadcrumb-item active"><?php echo lang('Reportes de Inventario'); ?></li>
+				
 			</ol>
 		</div>
 	</nav>
@@ -64,20 +63,9 @@ if ($frame == '1') { // multicanal
 
 
 <div class="container" id='option' style='padding-bottom:78px;'>
+	
+	
 	<?php
-
-	if (($valid2)) {
-	?>
-
-		<div class="card border-light mb-2 col-md-4 ">
-			<div class="card-body">
-				<h2><img src="/img/informez.png"></span></h2>
-				<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-			</div>
-		</div>
-	<?php
-	}
-
 	if ($_SESSION['CIdPlan'] == '0000000015') { // multicanal 
 	?>
 		<div class="row">
@@ -90,6 +78,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						
 					</div>
 				</div>
 
@@ -97,14 +86,14 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Analisis de Productos'); ?> <button type="button" id="button003" onclick='inventario(3)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<?php
@@ -114,7 +103,7 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
@@ -123,30 +112,28 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || ($valid)  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || ($valid)  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
-
-
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -216,63 +203,63 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Familia'); ?> <button type="button" id="button006" onclick='inventario(6);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Marca'); ?> <button type="button" id="button007" onclick='inventario(7);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Operaciones de inventario'); ?> <button type="button" id="button008" onclick='inventario(8);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 " style="display:none">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Estadística'); ?> <button type="button" data-bs-toggle="modal" data-bs-target="#apps-modal10" class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Producción por Almacén de Venta'); ?> <button type="button" id="button013" onclick='inventario(13);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -283,23 +270,23 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Analisis de Productos'); ?> <button type="button" id="button003" onclick='inventario(3)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -307,19 +294,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -329,21 +316,21 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Familia'); ?> <button type="button" id="button006" onclick='inventario(6);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Marca'); ?> <button type="button" id="button007" onclick='inventario(7);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -351,28 +338,28 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Producción por Almacén de Venta'); ?> <button type="button" id="button013" onclick='inventario(13);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -387,12 +374,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -400,19 +387,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -430,12 +417,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -443,40 +430,41 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
 				?>
+				
 			<?php
 			}
-
+			
 			if ($_SESSION["userperfil"] == 2400 || $_SESSION["userperfil"] == 2410) {
 			?>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
-						<h4><?php echo lang('Productos'); ?><button type="button" id="button001" onclick='inventario(1);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<?php
@@ -486,12 +474,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -499,19 +487,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -521,34 +509,34 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Operaciones de inventario'); ?> <button type="button" id="button008" onclick='inventario(8);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -563,12 +551,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -576,19 +564,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -598,7 +586,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -613,12 +601,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -626,19 +614,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -657,8 +645,8 @@ if ($frame == '1') { // multicanal
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
-						<h4><?php echo lang('Productos'); ?>  <button type="button" id="button001" onclick='inventario(1)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						</div>
 				</div>
 
 				<?php
@@ -668,12 +656,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || ($valid)  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || ($valid)  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -681,19 +669,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -704,27 +692,27 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Operaciones de inventario'); ?> <button type="button" id="button008" onclick='inventario(8);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -735,23 +723,24 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Analisis de Productos'); ?> <button type="button" id="button003" onclick='inventario(3)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						<h4><?php echo lang('Inventario Físico Nuevo'); ?> <button type="button" id="button018n" onclick='(5)' class="btn btn-outline-danger p-1 m-1" > <i class="fa fa-arrow-right"> </i> <?php echo lang('PDF'); ?></button></h4>
 					</div>
 				</div>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -759,19 +748,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -781,21 +770,21 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Familia'); ?> <button type="button" id="button006" onclick='inventario(6);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Marca'); ?> <button type="button" id="button007" onclick='inventario(7);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -803,28 +792,28 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Producción por Almacén de Venta'); ?> <button type="button" id="button013" onclick='inventario(13);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -838,12 +827,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167"  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167"  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -851,19 +840,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -880,12 +869,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -893,19 +882,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -919,14 +908,14 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -937,12 +926,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -950,19 +939,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -972,34 +961,34 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Operaciones de inventario'); ?> <button type="button" id="button008" onclick='inventario(8);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -1013,12 +1002,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1026,19 +1015,20 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+							
 						</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1047,7 +1037,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -1061,12 +1051,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1074,19 +1064,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1108,7 +1098,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Recetas'); ?> <button type="button" id="button017" onclick='inventario(17);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -1118,21 +1108,21 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Analisis de Productos'); ?> <button type="button" id="button003" onclick='inventario(3)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -1143,12 +1133,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || ($valid)  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || ($valid)  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1156,19 +1146,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1178,7 +1168,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="col-6" style="display:none">
@@ -1245,63 +1235,63 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Familia'); ?> <button type="button" id="button006" onclick='inventario(6);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Marca'); ?> <button type="button" id="button007" onclick='inventario(7);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Operaciones de inventario'); ?> <button type="button" id="button008" onclick='inventario(8);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 " style="display:none">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Estadística'); ?> <button type="button" data-bs-toggle="modal" data-bs-target="#apps-modal10" class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Producción por Almacén de Venta'); ?> <button type="button" id="button013" onclick='inventario(13);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -1312,23 +1302,23 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Analisis de Productos'); ?> <button type="button" id="button003" onclick='inventario(3)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1336,19 +1326,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1358,21 +1348,21 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Familia'); ?> <button type="button" id="button006" onclick='inventario(6);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Marca'); ?> <button type="button" id="button007" onclick='inventario(7);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -1380,28 +1370,28 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Producción por Almacén de Venta'); ?> <button type="button" id="button013" onclick='inventario(13);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -1415,12 +1405,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167"  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167"  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1428,19 +1418,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1457,12 +1447,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1470,19 +1460,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1496,14 +1486,14 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<?php
@@ -1513,12 +1503,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1526,19 +1516,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1548,34 +1538,34 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Operaciones de inventario'); ?> <button type="button" id="button008" onclick='inventario(8);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						<</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -1589,12 +1579,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1602,19 +1592,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1624,7 +1614,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -1638,12 +1628,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1651,19 +1641,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1677,7 +1667,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -1685,7 +1675,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 			<?php
@@ -1704,23 +1694,22 @@ if ($frame == '1') { // multicanal
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
-						<h4><?php echo lang('Productos'); ?> 22<button type="button" id="button001" onclick='inventario(1)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Analisis de Productos'); ?> <button type="button" id="button003" onclick='inventario(3)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
-				</div>
+						</div>
 
 
 				<?php
@@ -1730,12 +1719,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || ($valid) || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || ($valid) || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1743,19 +1732,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1765,7 +1754,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="col-6" style="display:none">
@@ -1832,14 +1821,14 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Familia'); ?> <button type="button" id="button006" onclick='inventario(6);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Marca'); ?> <button type="button" id="button007" onclick='inventario(7);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
@@ -1853,42 +1842,42 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 " style="display:none">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Estadística'); ?> <button type="button" data-bs-toggle="modal" data-bs-target="#apps-modal10" class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Producción por Almacén de Venta'); ?> <button type="button" id="button013" onclick='inventario(13);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 			<?php
@@ -1900,23 +1889,22 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Analisis de Productos'); ?> <button type="button" id="button003" onclick='inventario(3)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
-				</div>
+						</div>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -1924,19 +1912,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -1946,21 +1934,21 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Familia'); ?> <button type="button" id="button006" onclick='inventario(6);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Análisis de Marca'); ?> <button type="button" id="button007" onclick='inventario(7);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -1968,27 +1956,28 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Resumido'); ?> <button type="button" id="button011" onclick='inventario(11);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Fiscal'); ?> <button type="button" id="button012" onclick='inventario(12);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Producción por Almacén de Venta'); ?> <button type="button" id="button013" onclick='inventario(13);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						
 					</div>
 				</div>
 			<?php
@@ -2003,12 +1992,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167"  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167"  || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -2016,19 +2005,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -2046,12 +2035,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -2059,19 +2048,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -2084,14 +2073,14 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Productos'); ?> <button type="button" id="button001" onclick='inventario(1);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Reposición de Inventario'); ?> <button type="button" id="button002" onclick='inventario(2);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 
@@ -2102,12 +2091,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -2115,19 +2104,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -2137,27 +2126,27 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Operaciones de inventario'); ?> <button type="button" id="button008" onclick='inventario(8);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Histórico de Seriales'); ?> <button type="button" id="button009" onclick='inventario(9);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 				<div class="card border-light mb-2 col-md-4 ">
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Inventario Físico'); ?> <button type="button" id="button005" onclick='inventario(5);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 			<?php
 			}
@@ -2171,12 +2160,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -2184,19 +2173,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}
@@ -2206,7 +2195,7 @@ if ($frame == '1') { // multicanal
 					<div class="card-body">
 						<h2><img src="/img/informez.png"></span></h2>
 						<h4><?php echo lang('Movimiento Detallado'); ?> <button type="button" id="button010" onclick='inventario(10);' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-					</div>
+						</div>
 				</div>
 
 			<?php
@@ -2221,12 +2210,12 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios'); ?> <button type="button" id="button004" onclick='inventario(4)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div><?php
 						}
 							?>
 				<?php
-				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181") {
+				if ($_SESSION['CompanyActual'] === "1167" || $_SESSION['CompanyActual'] === "1168" || $_SESSION['CompanyActual'] === "1174" || $_SESSION['CompanyActual'] === "1181" || $_SESSION['CompanyActual'] === "133") {
 				?>
 
 
@@ -2234,19 +2223,19 @@ if ($frame == '1') { // multicanal
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 2'); ?> <button type="button" id="button015" onclick='inventario(15)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 3'); ?> <button type="button" id="button016" onclick='inventario(16)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 ">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></span></h2>
 							<h4><?php echo lang('Lista de Precios 4'); ?> <button type="button" id="button018" onclick='inventario(18)' class="btn btn-outline-primary p-1 m-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
+							</div>
 					</div>
 				<?php
 				}

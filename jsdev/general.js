@@ -1,24 +1,12 @@
 let funcionPendiente = null;
 
+let CodigoDeBarras = "";
+
+var cronometro;
+
 function focusmodalclose(modal, focus) {
   $("#" + modal).modal("hide");
   $("#" + focus).focus();
-}
-
-function CerrarTraslado(IdEstacion, Idtipotx, Idtx, IdBarcode) {
-  $.ajax({
-    type: "POST",
-    url: "generalseek.php",
-    data: {
-      Action: "TrasladosUpdate",
-      CompanyActual: document.getElementById("CompanyActual").innerHTML,
-      userlogin: document.getElementById("userlogin").innerHTML,
-      IdEstacion: IdEstacion,
-      Idtipotx: Idtipotx,
-      Idtx: Idtx,
-      IdBarcode: IdBarcode,
-    },
-  }).done(function (msg) {});
 }
 
 function ejecutarFuncionPendiente() {
@@ -85,6 +73,7 @@ async function verificacionFiscal(funcion) {
     funcionPendiente = null; // ✅ Ya se ejecutó, limpiamos la variable
   });
 }
+
 function delaydatable(id = "") {
   var container = document.querySelector("#" + id + "_filter");
   var input = container.querySelector(".dataTables_filter label  input");
@@ -122,8 +111,6 @@ function sumarDias(fecha, dias) {
   fecha.setUTCDate(fecha.getUTCDate() + dias);
   return fecha;
 }
-
-let CodigoDeBarras = "";
 
 function ImprimirCodBarra(CodIdBasico, cod, desc) {
   CodigoDeBarras = {
@@ -257,6 +244,22 @@ function lettersOnly(evt) {
   } else {
     return true;
   }
+}
+
+function CerrarTraslado(IdEstacion, Idtipotx, Idtx, IdBarcode) {
+  $.ajax({
+    type: "POST",
+    url: "generalseek.php",
+    data: {
+      Action: "TrasladosUpdate",
+      CompanyActual: document.getElementById("CompanyActual").innerHTML,
+      userlogin: document.getElementById("userlogin").innerHTML,
+      IdEstacion: IdEstacion,
+      Idtipotx: Idtipotx,
+      Idtx: Idtx,
+      IdBarcode: IdBarcode,
+    },
+  }).done(function (msg) {});
 }
 
 const alertBootstrap = (
@@ -637,8 +640,6 @@ function eliminaridioma(base, n) {
   });
 }
 
-var cronometro;
-
 function SSO() {
   if (document.getElementById("validadorreload").innerHTML == 0) {
     $("#modal-BadEnding").modal("show");
@@ -955,7 +956,7 @@ function editaridioma(Base, esve, escl, eshn, enus, esus, ptbr, dede, frfr) {
   document.getElementById("FRFRInputIdi").value = frfr;
 }
 
-function Impresion(IdEstacion, TipoTx, Tx, reload = "1", reimpresion = "") {
+/*function Impresion(IdEstacion, TipoTx, Tx, reload = "1", reimpresion = "") {
   var delay = 500;
 
   $.ajax({
@@ -1077,6 +1078,145 @@ function Impresion(IdEstacion, TipoTx, Tx, reload = "1", reimpresion = "") {
       $("#ListFormatPrint").html(html);
     }
   });
+}*/
+
+function Impresion(IdEstacion, TipoTx, Tx, reload = "1", reimpresion = "") {
+  var delay = 500;
+
+  // --- NUEVA SECCIÓN: INTERCEPTOR DE FORMATO PERSONALIZADO ---
+  // Si es tipo 7 (Retenciones) y existe un archivo personalizado definido en el input
+  if (TipoTx == 7 || TipoTx == '7') {
+    var inputISLR = document.getElementById("FormaISLR_global");
+    var archivoPersonalizado = inputISLR ? inputISLR.value.trim() : "";
+
+    if (archivoPersonalizado !== "") {
+      var idCo = document.getElementById("CompanyActual").innerHTML;
+      // Construimos la URL con los parámetros necesarios
+      var urlCustom = archivoPersonalizado + "?IdTx=" + Tx + "&IdCompany=" + idCo + "&IdEstacion=" + IdEstacion + "&IdTipoTx=" + TipoTx;
+      window.open(urlCustom, '_blank');
+      return; // Detenemos la ejecución de la función aquí para que no ejecute el AJAX de abajo
+    }
+  }
+  // ----------------------------------------------------------
+
+  $.ajax({
+    type: "POST",
+    url: "generalseek.php",
+    data: {
+      Action: "form",
+      CompanyActual: document.getElementById("CompanyActual").innerHTML,
+      Idtipotx: TipoTx,
+      IdEstacion: IdEstacion,
+      Idtx: Tx !== "" ? Tx : null,
+    },
+  }).done(function (msg) {
+    const array = JSON.parse(msg);
+    if (array.status === false) {
+      if (Tx !== "") {
+        $.ajax({
+          type: "POST",
+          url: "facturatrasla2.php",
+          data: {
+            reimpresion: reimpresion,
+            IdEstacion: IdEstacion,
+            IdEstaciond: IdEstacion,
+            Idtipotx: TipoTx,
+            Idtipotxd: TipoTx,
+            Idtx: Tx,
+            Idtxd: Tx,
+            NameCompany: document.getElementById("NameCompany").innerHTML,
+            IdiomaActual: document.getElementById("IdiomaActual").innerHTML,
+            CompanyActual: document.getElementById("CompanyActual").innerHTML,
+            userlogin: document.getElementById("userlogin").innerHTML,
+            CD: document.getElementById("CD").innerHTML,
+            SimDec: document.getElementById("SimDec").innerHTML,
+            SimMil: document.getElementById("SimMil").innerHTML,
+            MonedaP: document.getElementById("MonedaP").innerHTML,
+            TemporalFactura:
+              document.getElementById("TemporalFactura").innerHTML,
+            IdAlmVta: document.getElementById("IdAlmVta").innerHTML,
+          },
+        }).done(function (msg) {
+          $("#prints").html(msg);
+          if (msg !== "") {
+            setTimeout(() => DAG(), delay);
+          } else {
+            $.ajax({
+              type: "POST",
+              url: "generalseek.php",
+              data: { Accion: "0", Ini: "1" },
+            }).done(function (msg) {
+              $("#TemporalGneral").html(msg);
+              document.getElementById("validawarning").innerHTML =
+                document.getElementById("NumBaGeneral001").innerHTML;
+              $("#elfixed2").show();
+              $("#validawarning").delay(100).fadeIn("slow");
+              setTimeout(() => OcultarNotificacion2(), 5000);
+              $("#TemporalGneral").html("");
+            });
+          }
+        });
+      } else {
+        $.ajax({
+          type: "POST",
+          url: "facturatrasla2.php",
+          data: {
+            CompanyActual: document.getElementById("CompanyActual").innerHTML,
+            NameCompany: document.getElementById("NameCompany").innerHTML,
+            IdiomaActual: document.getElementById("IdiomaActual").innerHTML,
+            userlogin: document.getElementById("userlogin").innerHTML,
+            IdEstacion: IdEstacion,
+            IdEstaciond: IdEstacion,
+            Idtipotx: TipoTx,
+            Idtipotxd: TipoTx,
+            CD: document.getElementById("CD").innerHTML,
+            SimDec: document.getElementById("SimDec").innerHTML,
+            SimMil: document.getElementById("SimMil").innerHTML,
+            MonedaP: document.getElementById("MonedaP").innerHTML,
+            TemporalFactura:
+              document.getElementById("TemporalFactura").innerHTML,
+            IdAlmVta: document.getElementById("IdAlmVta").innerHTML,
+          },
+        }).done(function (msg) {
+          $("#prints").html(msg);
+          if (msg !== "") {
+            if (reload == "1") {
+              setTimeout(() => ImpAct(), delay);
+            } else {
+              setTimeout(() => DAG(), delay);
+            }
+          } else {
+            $.ajax({
+              type: "POST",
+              url: "generalseek.php",
+              data: { Accion: "0", Ini: "1" },
+            }).done(function (msg) {
+              $("#TemporalGneral").html(msg);
+              document.getElementById("validawarning").innerHTML =
+                document.getElementById("NumBaGeneral001").innerHTML;
+              $("#elfixed2").show();
+              $("#validawarning").delay(100).fadeIn("slow");
+              setTimeout(() => OcultarNotificacion2(), 5000);
+              $("#TemporalGneral").html("");
+            });
+          }
+        });
+      }
+    } else {
+      $("#modalPrint").modal("show");
+
+      const html = array.response.map((key) => {
+        return `
+        <div class="col-12 p-0 m-0">
+          <button class="btn btn-outline-primary p-1 m-1 col-12 " type="button" onclick="ImprimirFormato('${IdEstacion}', ${TipoTx}, ${Tx}, '${key}')" ><i class="fa fa-print"></i> ${
+          key.split(".")[0]
+        }</button>
+        </div>
+        `;
+      });
+      $("#ListFormatPrint").html(html);
+    }
+  });
 }
 
 function ImprimirFormato(IdEstacion, Idtipotx, Idtx, Format) {
@@ -1103,12 +1243,14 @@ function ImprimirFormato(IdEstacion, Idtipotx, Idtx, Format) {
 
 function DAG() {
   window.print();
-  document.getElementById("Titulodelapagina").innerHTML = "BlackbuckPOS";
+  document.getElementById("Titulodelapagina").innerHTML =
+    "PosUp | CONECTA TUS FINANZAS";
 }
 
 function ImpAct() {
   window.print();
-  document.getElementById("Titulodelapagina").innerHTML = "BlackbuckPOS";
+  document.getElementById("Titulodelapagina").innerHTML =
+    "PosUp | CONECTA TUS FINANZAS";
 }
 
 function ImpresionElec(IdEstacion, Idtipotx, reload = true) {
@@ -1263,11 +1405,25 @@ function ImpresionOp3(
 }
 
 function ImpresionOp4(Tx, TipoTx, Estacion, item) {
-  //EstadoCB
+  // 1. INTERCEPTOR SEGURO: SOLO PARA RETENCIONES (Tipo 7)
+  if (TipoTx == 7 || TipoTx == '7') {
+    var inputISLR = document.getElementById("FormaISLR_global");
+    var archivoPersonalizado = inputISLR ? inputISLR.value.trim() : "";
+    
+    if (archivoPersonalizado !== "") {
+      var idCo = document.getElementById("CompanyActual").innerHTML;
+      var urlCustom = archivoPersonalizado + "?IdTx=" + Tx + "&IdCompany=" + idCo + "&IdEstacion=" + Estacion + "&IdTipoTx=" + TipoTx;
+      window.open(urlCustom, '_blank');
+      return; // Salimos para no congelar la pantalla actual
+    }
+  }
+
+  // 2. IMPRESIÓN NORMAL PARA EL RESTO DE FACTURAS
   var valor1 = Estacion;
   var valor2 = Tx;
   var valor3 = TipoTx;
   var valor4 = item;
+  
   if (valor4 > 1) {
     $.ajax({
       type: "POST",
@@ -1285,14 +1441,9 @@ function ImpresionOp4(Tx, TipoTx, Estacion, item) {
       if (msg !== "") {
         setTimeout(() => DAG(), 500);
       } else {
-        $.ajax({
-          type: "POST",
-          url: "generalseek.php",
-          data: { Accion: "0", Ini: "1" },
-        }).done(function (msg) {
+        $.ajax({ type: "POST", url: "generalseek.php", data: { Accion: "0", Ini: "1" } }).done(function (msg) {
           $("#TemporalGneral").html(msg);
-          document.getElementById("validawarning").innerHTML =
-            document.getElementById("NumBaGeneral006").innerHTML;
+          document.getElementById("validawarning").innerHTML = document.getElementById("NumBaGeneral006").innerHTML;
           $("#elfixed2").show();
           $("#validawarning").delay(100).fadeIn("slow");
           setTimeout(() => OcultarNotificacion2(), 5000);
@@ -1315,14 +1466,9 @@ function ImpresionOp4(Tx, TipoTx, Estacion, item) {
       if (msg !== "") {
         setTimeout(() => DAG(), 500);
       } else {
-        $.ajax({
-          type: "POST",
-          url: "generalseek.php",
-          data: { Accion: "0", Ini: "1" },
-        }).done(function (msg) {
+        $.ajax({ type: "POST", url: "generalseek.php", data: { Accion: "0", Ini: "1" } }).done(function (msg) {
           $("#TemporalGneral").html(msg);
-          document.getElementById("validawarning").innerHTML =
-            document.getElementById("NumBaGeneral001").innerHTML;
+          document.getElementById("validawarning").innerHTML = document.getElementById("NumBaGeneral001").innerHTML;
           $("#elfixed2").show();
           $("#validawarning").delay(100).fadeIn("slow");
           setTimeout(() => OcultarNotificacion2(), 5000);
@@ -1398,7 +1544,21 @@ async function VerificarFiscal(html, token) {
   });
 }
 
-function ImpresionOp5(Tx, TipoTx, Estacion, item) {
+/*function ImpresionOp5(Tx, TipoTx, Estacion, item) {
+  // 1. INTERCEPTOR SEGURO: SOLO PARA RETENCIONES (Tipo 7)
+  if (TipoTx == 7 || TipoTx == '7') {
+    var inputISLR = document.getElementById("FormaISLR_global");
+    var archivoPersonalizado = inputISLR ? inputISLR.value.trim() : "";
+    
+    if (archivoPersonalizado !== "") {
+      var idCo = document.getElementById("CompanyActual").innerHTML;
+      var urlCustom = archivoPersonalizado + "?IdTx=" + Tx + "&IdCompany=" + idCo + "&IdEstacion=" + Estacion + "&IdTipoTx=" + TipoTx;
+      window.open(urlCustom, '_blank');
+      return; 
+    }
+  }
+
+  // 2. IMPRESIÓN NORMAL 
   $.ajax({
     type: "POST",
     url: "formatoisrl.php",
@@ -1414,14 +1574,55 @@ function ImpresionOp5(Tx, TipoTx, Estacion, item) {
     if (msg !== "") {
       setTimeout(() => DAG(), 500);
     } else {
-      $.ajax({
-        type: "POST",
-        url: "generalseek.php",
-        data: { Accion: "0", Ini: "1" },
-      }).done(function (msg) {
+      $.ajax({ type: "POST", url: "generalseek.php", data: { Accion: "0", Ini: "1" } }).done(function (msg) {
         $("#TemporalGneral").html(msg);
-        document.getElementById("validawarning").innerHTML =
-          document.getElementById("NumBaGeneral006").innerHTML;
+        document.getElementById("validawarning").innerHTML = document.getElementById("NumBaGeneral006").innerHTML;
+        $("#elfixed2").show();
+        $("#validawarning").delay(100).fadeIn("slow");
+        setTimeout(() => OcultarNotificacion2(), 5000);
+        $("#TemporalGneral").html("");
+      });
+    }
+  });
+}*/
+
+function ImpresionOp5(Tx, TipoTx, Estacion, item) {
+  // 1. INTERCEPTOR SEGURO: APLICA A TODAS LAS RETENCIONES ISLR
+  var inputISLR = document.getElementById("FormaISLR_global");
+  var archivoPersonalizado = inputISLR ? inputISLR.value.trim() : "";
+  
+  if (archivoPersonalizado !== "") {
+    var idCo = document.getElementById("CompanyActual").innerHTML;
+    
+    // Limpiamos la URL por si en la Base de Datos quedó guardada con un ?Idtx=... viejo
+    var urlLimpia = archivoPersonalizado.split('?')[0];
+    
+    // Armamos la URL perfecta
+    var urlCustom = urlLimpia + "?IdTx=" + Tx + "&IdCompany=" + idCo + "&IdEstacion=" + Estacion + "&IdTipoTx=" + TipoTx;
+    
+    window.open(urlCustom, '_blank');
+    return; 
+  }
+
+  // 2. IMPRESIÓN NORMAL (Fallback si no hay archivo personalizado)
+  $.ajax({
+    type: "POST",
+    url: "formatoisrl.php",
+    data: {
+      CompanyActual: document.getElementById("CompanyActual").innerHTML,
+      Item: item,
+      Idtipotx: TipoTx,
+      Idtx: Tx,
+      IdEstacion: Estacion,
+    },
+  }).done(function (msg) {
+    $("#prints").html(msg);
+    if (msg !== "") {
+      setTimeout(() => DAG(), 500);
+    } else {
+      $.ajax({ type: "POST", url: "generalseek.php", data: { Accion: "0", Ini: "1" } }).done(function (msg) {
+        $("#TemporalGneral").html(msg);
+        document.getElementById("validawarning").innerHTML = document.getElementById("NumBaGeneral006").innerHTML;
         $("#elfixed2").show();
         $("#validawarning").delay(100).fadeIn("slow");
         setTimeout(() => OcultarNotificacion2(), 5000);
@@ -1584,6 +1785,8 @@ function VerificarNworNot() {
   }
 }
 
+
+
 function NoVerificarNuncamas() {
   $.ajax({
     type: "POST",
@@ -1681,4 +1884,90 @@ function digitoVerificador(documento, caracter) {
   }
   resultado = 11 - (suma % 11);
   return resultado;
+}
+function getFechaHoy() {
+  const hoy = new Date();
+  const year = hoy.getFullYear();
+  const month = String(hoy.getMonth() + 1).padStart(2, '0');
+  const day = String(hoy.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function getFechaHoraActual() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+
+function actualizarTasaBCV() {
+  if (document.getElementById("IdPaisAct").innerHTML !== "VE") return;
+  
+  const fecha = new Date();
+  $.ajax({
+    type: "POST",
+    url: "generalseek.php",
+    data: {
+      Accion: "ActualizarTasaBCV",
+      CompanyActual: document.getElementById("CompanyActual").innerHTML,
+      fechaclient: getFechaHoy(),
+      fechahoraclient: getFechaHoraActual(),
+    },
+  }).done(function (msg) {});
+}
+const pad = (n) => `${Math.floor(Math.abs(n))}`.padStart(2, "0");
+// Conclusión
+/**
+ * Ajuste decimal de un número.
+ *
+ * @param {String}  tipo  El tipo de ajuste.
+ * @param {Number}  valor El numero.
+ * @param {Integer} exp   El exponente (el logaritmo 10 del ajuste base).
+ * @returns {Number} El valor ajustado.
+ */
+function decimalAdjust(type, value, exp) {
+  // Si el exp no está definido o es cero...
+  if (typeof exp === "undefined" || +exp === 0) {
+    return Math[type](value);
+  }
+  value = +value;
+  exp = +exp;
+  // Si el valor no es un número o el exp no es un entero...
+  if (isNaN(value) || !(typeof exp === "number" && exp % 1 === 0)) {
+    return NaN;
+  }
+  // Shift
+  value = value.toString().split("e");
+  value = Math[type](+(value[0] + "e" + (value[1] ? +value[1] - exp : -exp)));
+  // Shift back
+  value = value.toString().split("e");
+  return +(value[0] + "e" + (value[1] ? +value[1] + exp : exp));
+}
+
+// Decimal round
+if (!Math.round10) {
+  Math.round10 = function (value, exp) {
+    return decimalAdjust("round", value, exp);
+  };
+}
+// Decimal floor
+if (!Math.floor10) {
+  Math.floor10 = function (value, exp) {
+    return decimalAdjust("floor", value, exp);
+  };
+}
+// Decimal ceil
+if (!Math.ceil10) {
+  Math.ceil10 = function (value, exp) {
+    return decimalAdjust("ceil", value, exp);
+  };
 }

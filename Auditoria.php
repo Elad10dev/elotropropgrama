@@ -6,6 +6,31 @@ if ($result = mysqli_query($conn, $sql)) {
         $usuario .= "<option value='" . $row["Login"] . "'>" . $row["Nombre"] . "</option>";
     }
 }
+
+$ubicaciones = '';
+$sql = "SELECT IdUbi,Nombre FROM PosUpUbicacion where IdCompany = " . $_SESSION["CompanyActual"] . "";
+if ($result = mysqli_query($conn, $sql)) {
+    while ($row = mysqli_fetch_array($result)) {
+        $ubicaciones .= "<option value='" . $row["IdUbi"] . "'>" . $row["Nombre"] . "</option>";
+    }
+}
+
+$zonas = '';
+$sql = "SELECT IdVarios,ITEM FROM PosUpvarios where IdCompany = " . $_SESSION["CompanyActual"] . " AND TIPOITEM = 1005";
+if ($result = mysqli_query($conn, $sql)) {
+    while ($row = mysqli_fetch_array($result)) {
+        $zonas .= "<option value='" . $row["IdVarios"] . "'>" . $row["ITEM"] . "</option>";
+    }
+}
+
+$mesas = '';
+$sql = "SELECT Id,Nombre FROM PosUpRESMesas where IdCompany = " . $_SESSION["CompanyActual"] . "";
+if ($result = mysqli_query($conn, $sql)) {
+    while ($row = mysqli_fetch_array($result)) {
+        $mesas .= "<option value='" . $row["Id"] . "'>" . $row["Nombre"] . "</option>";
+    }
+}
+
 $impuestos = '';
 $sql = "SELECT IdVarios,ITEM FROM PosUpvarios WHERE IdCompany=" . $_SESSION["CompanyActual"] . " and TIPOITEM = 0";
 if ($result = mysqli_query($conn, $sql)) {
@@ -374,7 +399,7 @@ if ($result = mysqli_query($conn, $sql)) {
                         <h5 class="modal-title" id="filtroModalLabelHistorico">Parámetros del Reporte</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <form id="formFiltrosHistoricoError">
+                    <form>
                         <div class="modal-body">
                             <div class="mb-2">
                                 <label for="desde" class="form-label">Desde:</label>
@@ -434,6 +459,7 @@ if ($result = mysqli_query($conn, $sql)) {
                                             <option value="<?php echo trim($row['token']); ?>"><?php echo trim($row['etiqueta']); ?></option>
                                     <?php
                                         }
+                                        mysqli_free_result($result);
                                     }
                                     ?>
                                 </select>
@@ -482,6 +508,290 @@ if ($result = mysqli_query($conn, $sql)) {
             </div>
         </div>
 
+        <div class="modal fade" id="ComandaFactura" tabindex="-1" aria-labelledby="filtroModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Parámetros del Reporte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Desde:</label>
+                                <input type="datetime-local" id="desdeComandaFactura" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label for="hasta" class="form-label">Hasta:</label>
+                                <input type="datetime-local" id="hastaComandaFactura" class="form-control">
+                            </div>
+                        </div>
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" onclick="HistoricComandaFactura()" class="btn btn-outline-primary p-1 m-1">
+                            <i class="fa fa-arrow-right"> </i> <?php echo lang('Generar Reporte'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="ReversadosComanda" tabindex="-1" aria-labelledby="filtroModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Parámetros del Reporte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Desde:</label>
+                                <input type="datetime-local" id="desdeReversadosComanda" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label for="hasta" class="form-label">Hasta:</label>
+                                <input type="datetime-local" id="hastaReversadosComanda" class="form-control">
+                            </div>
+                        </div>
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" onclick="HistoricReversadosComanda()" class="btn btn-outline-primary p-1 m-1">
+                            <i class="fa fa-arrow-right"> </i> <?php echo lang('Generar Reporte'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="FacturasCredito" tabindex="-1" aria-labelledby="filtroModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Parámetros del Reporte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Desde:</label>
+                                <input type="date" id="desdeFacturasCredito" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label for="hasta" class="form-label">Hasta:</label>
+                                <input type="date" id="hastaFacturasCredito" class="form-control">
+                            </div>
+                        </div>
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" onclick="HistoricFacturasCredito()" class="btn btn-outline-primary p-1 m-1">
+                            <i class="fa fa-arrow-right"> </i> <?php echo lang('Generar Reporte'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="ReportesMesas" tabindex="-1" aria-labelledby="filtroModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Parámetros del Reporte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Desde:</label>
+                                <input type="datetime-local" id="desdeReportesMesas" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label for="hasta" class="form-label">Hasta:</label>
+                                <input type="datetime-local" id="hastaReportesMesas" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Acción:</label>
+                                <select class="form-control" id="accionReportesMesas" name="accionReportesMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    foreach (
+                                        [
+                                            "Abrio la mesa con el mesero",
+                                            "Cierre de Mesa",
+                                            "Se facturo la mesa por cuenta dividida",
+                                            "Se facturo la mesa por cuenta completa",
+                                            "Cambio de Mesa para la id:",
+                                            "Cambio de Mesa para la id:",
+                                            "Anulada por:",
+                                            "Se ha mandado a comandar",
+                                        ] as $val
+                                    ) {
+                                    ?>
+                                        <option value="<?php echo $val; ?>"> <?php echo $val; ?></option>
+
+                                    <?php
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Usuario:</label>
+                                <select class="form-control" id="usuariosReportesMesas" name="usuariosReportesMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $usuario;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Sucursal:</label>
+                                <select class="form-control" id="ubicacionesReportesMesas" name="ubicacionesReportesMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $ubicaciones;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Zonas:</label>
+                                <select class="form-control" id="zonasReportesMesas" name="zonasReportesMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $zonas;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Mesas:</label>
+                                <select class="form-control" id="mesasReportesMesas" name="mesasReportesMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $mesas;
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" onclick="HistoricReportesMesas()" class="btn btn-outline-primary p-1 m-1">
+                            <i class="fa fa-arrow-right"> </i> <?php echo lang('Generar Reporte'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="MesasAbiertas" tabindex="-1" aria-labelledby="filtroModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Parámetros del Reporte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Usuario:</label>
+                                <select class="form-control" id="usuariosMesasAbiertas" name="usuariosMesasAbiertas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $usuario;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Sucursal:</label>
+                                <select class="form-control" id="ubicacionesMesasAbiertas" name="ubicacionesMesasAbiertas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $ubicaciones;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Zonas:</label>
+                                <select class="form-control" id="zonasMesasAbiertas" name="zonasMesasAbiertas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $zonas;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Mesas:</label>
+                                <select class="form-control" id="mesasMesasAbiertas" name="mesasMesasAbiertas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $mesas;
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" onclick="HistoricMesasAbiertas()" class="btn btn-outline-primary p-1 m-1">
+                            <i class="fa fa-arrow-right"> </i> <?php echo lang('Generar Reporte'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="MovimientosMesas" tabindex="-1" aria-labelledby="filtroModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Parámetros del Reporte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Desde:</label>
+                                <input type="datetime-local" id="desdeMovimientosMesas" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label for="hasta" class="form-label">Hasta:</label>
+                                <input type="datetime-local" id="hastaMovimientosMesas" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Sucursal:</label>
+                                <select class="form-control" id="ubicacionesMovimientosMesas" name="ubicacionesMovimientosMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $ubicaciones;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Zonas:</label>
+                                <select class="form-control" id="zonasMovimientosMesas" name="zonasMovimientosMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $zonas;
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="desde" class="form-label">Mesas:</label>
+                                <select class="form-control" id="mesasMovimientosMesas" name="mesasMovimientosMesas[]" style="width:100%;" multiple>
+                                    <?php
+                                    echo $mesas;
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" onclick="HistoricMovimientosMesas()" class="btn btn-outline-primary p-1 m-1">
+                            <i class="fa fa-arrow-right"> </i> <?php echo lang('Generar Reporte'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="card border-light mb-2 col-md-4">
                 <div class="card-body">
@@ -562,10 +872,76 @@ if ($result = mysqli_query($conn, $sql)) {
             </div>
             <div class="card border-light mb-2 col-md-4">
                 <div class="card-body">
-                    <!-- <h2><img src="/img/eventosprinterfiscal.png"> </h2> -->
+                    <h2><img src="/img/Auditoria.png"> </h2>
                     <h4><?php echo lang('Movimientos de Caja'); ?></h4>
 
                     <button class="btn btn-outline-primary p-1 m-1" data-bs-toggle="modal" data-bs-target="#MovimientosCaja">
+                        <!-- data-bs-target="#filtroModal" -->
+                        <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="card border-light mb-2 col-md-4">
+                <div class="card-body">
+                    <h2><img src="/img/facturadovscomandado.png"> </h2>
+                    <h4><?php echo lang('Productos Comandados VS Productos Facturados'); ?></h4>
+
+                    <button class="btn btn-outline-primary p-1 m-1" data-bs-toggle="modal" data-bs-target="#ComandaFactura">
+                        <!-- data-bs-target="#filtroModal" -->
+                        <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="card border-light mb-2 col-md-4">
+                <div class="card-body">
+                    <h2><img src="/img/comandaanulada.png"> </h2>
+                    <h4><?php echo lang('Productos Reversados despues de ser comandados'); ?></h4>
+
+                    <button class="btn btn-outline-primary p-1 m-1" data-bs-toggle="modal" data-bs-target="#ReversadosComanda">
+                        <!-- data-bs-target="#filtroModal" -->
+                        <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="card border-light mb-2 col-md-4">
+                <div class="card-body">
+                    <h2><img src="/img/facturasvsnotascred.png"> </h2>
+                    <h4><?php echo lang('Facturas VS notas de crédito'); ?></h4>
+
+                    <button class="btn btn-outline-primary p-1 m-1" data-bs-toggle="modal" data-bs-target="#FacturasCredito">
+                        <!-- data-bs-target="#filtroModal" -->
+                        <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="card border-light mb-2 col-md-4">
+                <div class="card-body">
+                    <h2><img src="/img/mesaseliminadas.png"> </h2>
+                    <h4><?php echo lang('Auditoria de Mesas'); ?></h4>
+
+                    <button class="btn btn-outline-primary p-1 m-1" data-bs-toggle="modal" data-bs-target="#ReportesMesas">
+                        <!-- data-bs-target="#filtroModal" -->
+                        <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="card border-light mb-2 col-md-4">
+                <div class="card-body">
+                    <h2><img src="/img/mesasabiertas.png"> </h2>
+                    <h4><?php echo lang('Mesas Abiertas'); ?></h4>
+
+                    <button class="btn btn-outline-primary p-1 m-1" data-bs-toggle="modal" data-bs-target="#MesasAbiertas">
+                        <!-- data-bs-target="#filtroModal" -->
+                        <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="card border-light mb-2 col-md-4">
+                <div class="card-body">
+                    <h2><img src="/img/mesasabiertas.png"> </h2>
+                    <h4><?php echo lang('Movimientos de Mesas'); ?></h4>
+
+                    <button class="btn btn-outline-primary p-1 m-1" data-bs-toggle="modal" data-bs-target="#MovimientosMesas">
                         <!-- data-bs-target="#filtroModal" -->
                         <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?>
                     </button>
@@ -576,10 +952,364 @@ if ($result = mysqli_query($conn, $sql)) {
 
     }
     ?>
-
 </div>
 <!-- Script para manejar fechas y envío -->
 <script>
+    function HistoricMovimientosMesas() {
+        const desde = document.getElementById('desdeMovimientosMesas').value;
+        const hasta = document.getElementById('hastaMovimientosMesas').value;
+        const CompanyActual = document.getElementById('CompanyActual').innerHTML;
+        const CD = document.getElementById('CD').innerHTML;
+        const SimDec = document.getElementById('SimDec').innerHTML;
+        const SimMil = document.getElementById('SimMil').innerHTML;
+        const NameCompanyActual = document.getElementById('NameCompanyActual').innerHTML;
+        const litfiscal = document.getElementById('litfiscal').innerHTML;
+        const direccionActSe = document.getElementById('direccionActSe').innerHTML;
+        const IDFiscal = document.getElementById('ruteAcx').innerHTML;
+        const sucursal = $("#ubicacionesMovimientosMesas").val();
+        const zonas = $("#zonasMovimientosMesas").val();
+        const mesas = $("#mesasMovimientosMesas").val();
+
+        if (!desde || !hasta || new Date(desde) > new Date(hasta)) {
+            alert('Please make sure the dates are valid and "from" is not after "to".');
+            return;
+        }
+
+        // Open the popup window first
+        const newWindow = window.open('', 'reportWindow', 'width=900,height=800');
+
+        // Create form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'movimientosmesas.php';
+        form.target = 'reportWindow';
+
+        // Helper to append input fields
+        function addField(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+
+        addField('desde', desde);
+        addField('hasta', hasta);
+        addField('CompanyActual', CompanyActual);
+        addField('CD', CD);
+        addField('SimDec', SimDec);
+        addField('SimMil', SimMil);
+        addField('NameCompanyActual', NameCompanyActual);
+        addField('litfiscal', litfiscal);
+        addField('direccion', direccionActSe);
+        addField('IDFiscal', IDFiscal);
+        addField('sucursal', sucursal);
+        addField('zonas', zonas);
+        addField('mesas', mesas);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('MovimientosMesas'));
+        modal.hide();
+    }
+
+    function HistoricMesasAbiertas() {
+        const CompanyActual = document.getElementById('CompanyActual').innerHTML;
+        const CD = document.getElementById('CD').innerHTML;
+        const SimDec = document.getElementById('SimDec').innerHTML;
+        const SimMil = document.getElementById('SimMil').innerHTML;
+        const NameCompanyActual = document.getElementById('NameCompanyActual').innerHTML;
+        const litfiscal = document.getElementById('litfiscal').innerHTML;
+        const direccionActSe = document.getElementById('direccionActSe').innerHTML;
+        const IDFiscal = document.getElementById('ruteAcx').innerHTML;
+        const users = $("#usuariosMesasAbiertas").val();
+        const sucursal = $("#ubicacionesMesasAbiertas").val();
+        const zonas = $("#zonasMesasAbiertas").val();
+        const mesas = $("#mesasMesasAbiertas").val();
+
+        if (!desde || !hasta || new Date(desde) > new Date(hasta)) {
+            alert('Please make sure the dates are valid and "from" is not after "to".');
+            return;
+        }
+
+        // Open the popup window first
+        const newWindow = window.open('', 'reportWindow', 'width=900,height=800');
+
+        // Create form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'mesasabiertas.php';
+        form.target = 'reportWindow';
+
+        // Helper to append input fields
+        function addField(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+        const data = new Date().toISOString().split("T");
+        addField('CompanyActual', CompanyActual);
+        addField('CD', CD);
+        addField('SimDec', SimDec);
+        addField('SimMil', SimMil);
+        addField('NameCompanyActual', NameCompanyActual);
+        addField('litfiscal', litfiscal);
+        addField('direccion', direccionActSe);
+        addField('IDFiscal', IDFiscal);
+        addField('users', users);
+        addField('sucursal', sucursal);
+        addField('zonas', zonas);
+        addField('mesas', mesas);
+        addField('MonedaS', document.getElementById("MonedaS").innerHTML);
+        addField('MonedaP', document.getElementById("MonedaP").innerHTML);
+        addField('FechaActual', data[0] + " " + data[1].split(".")[0]);
+        addField('tasa', document.getElementById('FactorDolarCash').innerHTML);
+
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('MesasAbiertas'));
+        modal.hide();
+    }
+
+    function HistoricReportesMesas() {
+        const desde = document.getElementById('desdeReportesMesas').value;
+        const hasta = document.getElementById('hastaReportesMesas').value;
+        const CompanyActual = document.getElementById('CompanyActual').innerHTML;
+        const CD = document.getElementById('CD').innerHTML;
+        const SimDec = document.getElementById('SimDec').innerHTML;
+        const SimMil = document.getElementById('SimMil').innerHTML;
+        const NameCompanyActual = document.getElementById('NameCompanyActual').innerHTML;
+        const litfiscal = document.getElementById('litfiscal').innerHTML;
+        const direccionActSe = document.getElementById('direccionActSe').innerHTML;
+        const IDFiscal = document.getElementById('ruteAcx').innerHTML;
+        const accion = $("#accionReportesMesas").val();
+        const users = $("#usuariosReportesMesas").val();
+        const sucursal = $("#ubicacionesReportesMesas").val();
+        const zonas = $("#zonasReportesMesas").val();
+        const mesas = $("#mesasReportesMesas").val();
+
+        if (!desde || !hasta || new Date(desde) > new Date(hasta)) {
+            alert('Please make sure the dates are valid and "from" is not after "to".');
+            return;
+        }
+
+        // Open the popup window first
+        const newWindow = window.open('', 'reportWindow', 'width=900,height=800');
+
+        // Create form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'reportesmesas.php';
+        form.target = 'reportWindow';
+
+        // Helper to append input fields
+        function addField(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+
+        addField('desde', desde);
+        addField('hasta', hasta);
+        addField('CompanyActual', CompanyActual);
+        addField('CD', CD);
+        addField('SimDec', SimDec);
+        addField('SimMil', SimMil);
+        addField('NameCompanyActual', NameCompanyActual);
+        addField('litfiscal', litfiscal);
+        addField('direccion', direccionActSe);
+        addField('IDFiscal', IDFiscal);
+        addField('accion', accion);
+        addField('users', users);
+        addField('sucursal', sucursal);
+        addField('zonas', zonas);
+        addField('mesas', mesas);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('ReportesMesas'));
+        modal.hide();
+    }
+
+    function HistoricFacturasCredito() {
+        const desde = document.getElementById('desdeFacturasCredito').value;
+        const hasta = document.getElementById('hastaFacturasCredito').value;
+        const CompanyActual = document.getElementById('CompanyActual').innerHTML;
+        const CD = document.getElementById('CD').innerHTML;
+        const SimDec = document.getElementById('SimDec').innerHTML;
+        const SimMil = document.getElementById('SimMil').innerHTML;
+        const NameCompanyActual = document.getElementById('NameCompanyActual').innerHTML;
+        const litfiscal = document.getElementById('litfiscal').innerHTML;
+        const direccionActSe = document.getElementById('direccionActSe').innerHTML;
+        const IDFiscal = document.getElementById('ruteAcx').innerHTML;
+
+        if (!desde || !hasta || new Date(desde) > new Date(hasta)) {
+            alert('Please make sure the dates are valid and "from" is not after "to".');
+            return;
+        }
+
+        // Open the popup window first
+        const newWindow = window.open('', 'reportWindow', 'width=900,height=800');
+
+        // Create form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'facturascredito.php';
+        form.target = 'reportWindow';
+
+        // Helper to append input fields
+        function addField(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+
+        addField('desde', desde);
+        addField('hasta', hasta);
+        addField('CompanyActual', CompanyActual);
+        addField('CD', CD);
+        addField('SimDec', SimDec);
+        addField('SimMil', SimMil);
+        addField('NameCompanyActual', NameCompanyActual);
+        addField('litfiscal', litfiscal);
+        addField('direccion', direccionActSe);
+        addField('IDFiscal', IDFiscal);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('FacturasCredito'));
+        modal.hide();
+    }
+
+    function HistoricReversadosComanda() {
+        const desde = document.getElementById('desdeReversadosComanda').value;
+        const hasta = document.getElementById('hastaReversadosComanda').value;
+        const CompanyActual = document.getElementById('CompanyActual').innerHTML;
+        const CD = document.getElementById('CD').innerHTML;
+        const SimDec = document.getElementById('SimDec').innerHTML;
+        const SimMil = document.getElementById('SimMil').innerHTML;
+        const NameCompanyActual = document.getElementById('NameCompanyActual').innerHTML;
+        const litfiscal = document.getElementById('litfiscal').innerHTML;
+        const direccionActSe = document.getElementById('direccionActSe').innerHTML;
+        const IDFiscal = document.getElementById('ruteAcx').innerHTML;
+
+        if (!desde || !hasta || new Date(desde) > new Date(hasta)) {
+            alert('Please make sure the dates are valid and "from" is not after "to".');
+            return;
+        }
+
+        // Open the popup window first
+        const newWindow = window.open('', 'reportWindow', 'width=900,height=800');
+
+        // Create form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'reversadoscomanda.php';
+        form.target = 'reportWindow';
+
+        // Helper to append input fields
+        function addField(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+
+        addField('desde', desde);
+        addField('hasta', hasta);
+        addField('CompanyActual', CompanyActual);
+        addField('CD', CD);
+        addField('SimDec', SimDec);
+        addField('SimMil', SimMil);
+        addField('NameCompanyActual', NameCompanyActual);
+        addField('litfiscal', litfiscal);
+        addField('direccion', direccionActSe);
+        addField('IDFiscal', IDFiscal);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('ReversadosComanda'));
+        modal.hide();
+    }
+
+    function HistoricComandaFactura() {
+        const desde = document.getElementById('desdeComandaFactura').value;
+        const hasta = document.getElementById('hastaComandaFactura').value;
+        const CompanyActual = document.getElementById('CompanyActual').innerHTML;
+        const CD = document.getElementById('CD').innerHTML;
+        const SimDec = document.getElementById('SimDec').innerHTML;
+        const SimMil = document.getElementById('SimMil').innerHTML;
+        const NameCompanyActual = document.getElementById('NameCompanyActual').innerHTML;
+        const litfiscal = document.getElementById('litfiscal').innerHTML;
+        const direccionActSe = document.getElementById('direccionActSe').innerHTML;
+        const IDFiscal = document.getElementById('ruteAcx').innerHTML;
+
+        if (!desde || !hasta || new Date(desde) > new Date(hasta)) {
+            alert('Please make sure the dates are valid and "from" is not after "to".');
+            return;
+        }
+
+        // Open the popup window first
+        const newWindow = window.open('', 'reportWindow', 'width=900,height=800');
+
+        // Create form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'comandafactura.php';
+        form.target = 'reportWindow';
+
+        // Helper to append input fields
+        function addField(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+
+        addField('desde', desde);
+        addField('hasta', hasta);
+        addField('CompanyActual', CompanyActual);
+        addField('CD', CD);
+        addField('SimDec', SimDec);
+        addField('SimMil', SimMil);
+        addField('NameCompanyActual', NameCompanyActual);
+        addField('litfiscal', litfiscal);
+        addField('direccion', direccionActSe);
+        addField('IDFiscal', IDFiscal);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('ComandaFactura'));
+        modal.hide();
+    }
+
     function MovimientosCajaBBC() {
         const desde = document.getElementById('desdeMovimientosCaja').value;
         const hasta = document.getElementById('hastaMovimientosCaja').value;
@@ -760,7 +1490,6 @@ if ($result = mysqli_query($conn, $sql)) {
         new_date.setDate(new_date.getDate() + days);
         return new_date;
     }
-
 
     function HistoricoEventosCriticos() {
         const hasta = document.getElementById('hastaEventosCriticos').value;
@@ -1120,7 +1849,44 @@ if ($result = mysqli_query($conn, $sql)) {
         $("#accionMovimientoCaja").select2({
             dropdownParent: $("#MovimientosCaja"),
         });
+        $("#accionReportesMesas").select2({
+            dropdownParent: $("#ReportesMesas"),
+        });
+        $("#usuariosReportesMesas").select2({
+            dropdownParent: $("#ReportesMesas"),
+        });
+        $("#ubicacionesReportesMesas").select2({
+            dropdownParent: $("#ReportesMesas"),
+        });
+        $("#zonasReportesMesas").select2({
+            dropdownParent: $("#ReportesMesas"),
+        });
+        $("#mesasReportesMesas").select2({
+            dropdownParent: $("#ReportesMesas"),
+        });
 
+        $("#usuariosMesasAbiertas").select2({
+            dropdownParent: $("#MesasAbiertas"),
+        });
+        $("#ubicacionesMesasAbiertas").select2({
+            dropdownParent: $("#MesasAbiertas"),
+        });
+        $("#zonasMesasAbiertas").select2({
+            dropdownParent: $("#MesasAbiertas"),
+        });
+        $("#mesasMesasAbiertas").select2({
+            dropdownParent: $("#MesasAbiertas"),
+        });
+
+        $("#ubicacionesMovimientosMesas").select2({
+            dropdownParent: $("#MovimientosMesas"),
+        });
+        $("#zonasMovimientosMesas").select2({
+            dropdownParent: $("#MovimientosMesas"),
+        });
+        $("#mesasMovimientosMesas").select2({
+            dropdownParent: $("#MovimientosMesas"),
+        });
 
 
         const ahora = new Date();
@@ -1149,6 +1915,20 @@ if ($result = mysqli_query($conn, $sql)) {
 
         document.getElementById('hastaEventosCriticos').value = ahora.toISOString().slice(0, 16);
 
+        document.getElementById('desdeComandaFactura').value = inicioMes.toISOString().slice(0, 16);
+        document.getElementById('hastaComandaFactura').value = ahora.toISOString().slice(0, 16);
+
+        document.getElementById('desdeReversadosComanda').value = inicioMes.toISOString().slice(0, 16);
+        document.getElementById('hastaReversadosComanda').value = ahora.toISOString().slice(0, 16);
+
+        document.getElementById('desdeReportesMesas').value = inicioMes.toISOString().slice(0, 16);
+        document.getElementById('hastaReportesMesas').value = ahora.toISOString().slice(0, 16);
+
+        document.getElementById('desdeMovimientosMesas').value = inicioMes.toISOString().slice(0, 16);
+        document.getElementById('hastaMovimientosMesas').value = ahora.toISOString().slice(0, 16);
+
+        document.getElementById('desdeFacturasCredito').value = inicioMes.toISOString().split("T")[0];
+        document.getElementById('hastaFacturasCredito').value = ahora.toISOString().split("T")[0];
 
         //alert (document.getElementById('hasta').value);
         // Validar formulario y abrir nueva ventana

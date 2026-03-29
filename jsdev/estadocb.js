@@ -286,12 +286,15 @@ function GuardarBeneficiario() {
   } else {
     valor1 = document.getElementById("RutFa").value;
   }
+  
   $.ajax({
     type: "POST",
     url: "estadocbseek.php",
     data: {
       Accion: "GuardarBeneficiario",
       TipoBeneficiario: document.getElementById("TipoBeneficiario").value,
+      TipoPersona: document.getElementById("TipoPersona").value, // <-- NUEVO: Captura PN o PJ
+      Domicilio: document.getElementById("Domicilio").value,     // <-- NUEVO: Captura DOM o NDOM
       GiroFA: document.getElementById("GiroFA").value,
       CiudadFA: document.getElementById("CiudadFA").value,
       DirecionFA: document.getElementById("DirecionFA").value,
@@ -333,6 +336,36 @@ function GuardarBeneficiario() {
       $("#button").prop("disabled", false);
     }
   });
+}
+
+function VerificarBeneficiarioExistente(rut_ingresado) {
+    if (!rut_ingresado || rut_ingresado.trim() === "") return;
+
+    $.ajax({
+        type: "POST",
+        url: "estadocbseek.php",
+        data: {
+            Accion: "VerificarRUT",
+            RUT: rut_ingresado,
+            CompanyActual: document.getElementById("CompanyActual").innerHTML
+        }
+    }).done(function (msg) {
+        let data = JSON.parse(msg);
+        if (data.existe) {
+            // Si existe, mostramos la alerta amarilla arriba del formulario
+            alertBootstrap(
+                "¡Atención! Beneficiario ya registrado",
+                "Este identificador fiscal ya le pertenece a: <br><b>" + data.nombre + "</b>",
+                "warning",
+                "alertaerrorenproducto2", // Este es el div de alertas que ya tienes en el modal
+                true,
+                1
+            );
+            
+            // Opcional: Vaciar el input para obligarlo a poner uno nuevo
+            // $("#RutFa").val(''); 
+        }
+    });
 }
 
 function PagoUnico() {
@@ -927,142 +960,453 @@ function ActualizarVuelto() {
   $("#VueltosAgregados").html(html);
 }
 
-function ProcesarEND() {
-  var fecha = new Date();
-  var mes = fecha.getMonth() + 1;
-  var dia = fecha.getDate();
-  var ano = fecha.getFullYear();
-  if (dia < 10) {
-    dia = "0" + dia;
-  }
-  if (mes < 10) {
-    mes = "0" + mes;
-  }
-  var fectx = ano + "-" + mes + "-" + dia;
+// --- ACTUALIZAR TASA SEGÚN FECHA ---
+$(document).on('change', '#GenTxFechO', function() {
+    let fechaSeleccionada = $(this).val();
+    let idCompany = document.getElementById("CompanyActual").innerHTML;
 
-  let Tasa = document.getElementById("GenTxFactorDCambio").value;
-
-  if (document.getElementById("GenTxFactorDCambio").value === "-1")
-    Tasa = document.getElementById("GenTxFactorDeCambioActual").value;
-
-  if (fectx >= document.getElementById("GenTxFechO").value) {
-    if (
-      document.getElementById("GenTxFechO").value <=
-      document.getElementById("GenTxFechV").value
-    ) {
-      if (
-        document.getElementById("GexTxIdBen").value.trim() !== "" &&
-        document.getElementById("GexTxBenName").value.trim() !== ""
-      ) {
-        if (document.getElementById("GenTxMontoTotal2").value > 0) {
-          $("#apps-modal5").modal("hide");
-          $("#modal-proce").modal("show");
-          $.ajax({
+    if (fechaSeleccionada) {
+        $.ajax({
             type: "POST",
             url: "estadocbseek.php",
             data: {
-              Accion: "11",
-              ano: document.getElementById("GenTxAño").value,
-              mes: document.getElementById("GenTxMes").value,
-              numz: document.getElementById("GexTxnumz").value,
-              nroControl: document.getElementById("GexTxnroControl").value,
-              IdAlm: document.getElementById("AlmacenSelect").value,
-              Referencia: document.getElementById("GenTxRefere").value,
-              Tasa: Tasa,
-              CompanyActual: document.getElementById("CompanyActual").innerHTML,
-              userCompany: document.getElementById("userCompany").innerHTML,
-              IdUser: document.getElementById("userlogin").innerHTML,
-              correo: document.getElementById("correorep").innerHTML,
-              IdEstacion: document.getElementById("tokeninUse").value,
-              IdImpuesto: document.getElementById("GenTxImpuestos").value,
-              Exento: document.getElementById("GenTxMontoExe").value,
-              Impuesto: document.getElementById("GenTxMontoImpuesto").value,
-              Imponible: document.getElementById("GenTxMontoImponible").value,
-              DAmpliado: document.getElementById("GexTxObservacion").value,
-              IdBen: document.getElementById("GexTxIdBen").value,
-              Idtipotx: document.getElementById("GenTxIdtipotx").value,
-              TxfecVence: document.getElementById("GenTxFechV").value,
-              Fectxclient: document.getElementById("GenTxFechO").value,
-              MonedaP: document.getElementById("MonedaP").innerHTML,
-              MonedaS: document.getElementById("MonedaS").innerHTML,
-              CD: document.getElementById("CD").innerHTML,
-              SimDec: document.getElementById("SimDec").innerHTML,
-              SimMil: document.getElementById("SimMil").innerHTML,
+                Accion: "BuscarTasaPorFecha",
+                Fecha: fechaSeleccionada,
+                CompanyActual: idCompany
             },
-          }).done(function (msg) {
-            $("#modal-proce").modal("hide");
+            success: function(response) {
+                let res = JSON.parse(response);
+                if (res.status === true) {
+                    // Actualizamos el campo de Tasa Real con el valor traído
+                    // Suponiendo que el valor viene en res.tasa
+                    $("#GenTxFactorDeCambioActual").val(res.tasa);
+                    
+                    // Disparamos el recálculo de montos automáticamente
+                    if (typeof AjustarCalculoMoneda === 'function') {
+                        AjustarCalculoMoneda();
+                    }
+                }
+            }
+        });
+    }
+});
+
+function ProcesarEND() {
+    var fecha = new Date();
+    var mes = fecha.getMonth() + 1;
+    var dia = fecha.getDate();
+    var ano = fecha.getFullYear();
+    if (dia < 10) {
+        dia = "0" + dia;
+    }
+    if (mes < 10) {
+        mes = "0" + mes;
+    }
+    var fectx = ano + "-" + mes + "-" + dia;
+
+    // ========================================================
+    // ¡AQUÍ ESTÁ LA MAGIA! 
+    // Obligamos al sistema a usar SIEMPRE la "Tasa Real" 
+    // de la cajita de texto con todos sus decimales.
+    // ========================================================
+    let Tasa = document.getElementById("GenTxFactorDeCambioActual").value;
+    if (Tasa) {
+        Tasa = Tasa.replace(/,/g, ''); // Quitamos comas por seguridad
+    } else {
+        Tasa = 1;
+    }
+    // ========================================================
+
+    if (fectx >= document.getElementById("GenTxFechO").value) {
+        if (
+            document.getElementById("GenTxFechO").value <=
+            document.getElementById("GenTxFechV").value
+        ) {
+            if (
+                document.getElementById("GexTxIdBen").value.trim() !== "" &&
+                document.getElementById("GexTxBenName").value.trim() !== ""
+            ) {
+                if (document.getElementById("GenTxMontoTotal2").value > 0) {
+                    $("#apps-modal5").modal("hide");
+                    $("#modal-proce").modal("show");
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: "estadocbseek.php",
+                        data: {
+                            Accion: "11",
+                            ano: document.getElementById("GenTxAño").value,
+                            mes: document.getElementById("GenTxMes").value,
+                            numz: document.getElementById("GexTxnumz").value,
+                            nroControl: document.getElementById("GexTxnroControl").value,
+                            IdAlm: document.getElementById("AlmacenSelect").value,
+                            Referencia: document.getElementById("GenTxRefere").value,
+                            Tasa: Tasa, // <--- Aquí se envía la Tasa Real a la base de datos
+                            CompanyActual: document.getElementById("CompanyActual").innerHTML,
+                            userCompany: document.getElementById("userCompany").innerHTML,
+                            IdUser: document.getElementById("userlogin").innerHTML,
+                            correo: document.getElementById("correorep").innerHTML,
+                            IdEstacion: document.getElementById("tokeninUse").value,
+                            IdImpuesto: document.getElementById("GenTxImpuestos").value,
+                            Exento: document.getElementById("GenTxMontoExe").value,
+                            Impuesto: document.getElementById("GenTxMontoImpuesto").value,
+                            Imponible: document.getElementById("GenTxMontoImponible").value,
+                            DAmpliado: document.getElementById("GexTxObservacion").value,
+                            IdBen: document.getElementById("GexTxIdBen").value,
+                            Idtipotx: document.getElementById("GenTxIdtipotx").value,
+                            TxfecVence: document.getElementById("GenTxFechV").value,
+                            Fectxclient: document.getElementById("GenTxFechO").value,
+                            MonedaP: document.getElementById("MonedaP").innerHTML,
+                            MonedaS: document.getElementById("MonedaS").innerHTML,
+                            CD: document.getElementById("CD").innerHTML,
+                            SimDec: document.getElementById("SimDec").innerHTML,
+                            SimMil: document.getElementById("SimMil").innerHTML,
+                        },
+                    }).done(function (msg) {
+                        $("#modal-proce").modal("hide");
+                        $("button").prop("disabled", false);
+                        avance = false;
+                        if (msg === "0") {
+                            alert("error al procesar");
+                        } else {
+                            ActTable();
+                        }
+                    });
+                } else {
+                    alertBootstrap(
+                        Utils.Num009.title,
+                        Utils.Num009.desc,
+                        "warning",
+                        "alertaerrorenproducto",
+                        true,
+                        1,
+                    );
+                    $("#GenTxMontoExe").focus();
+                    $("button").prop("disabled", false);
+                    avance = false;
+                }
+            } else {
+                alertBootstrap(
+                    Utils.Num008.title,
+                    Utils.Num008.desc,
+                    "warning",
+                    "alertaerrorenproducto",
+                    true,
+                    1,
+                );
+                $("#GexTxBenName").focus();
+                $("button").prop("disabled", false);
+                avance = false;
+            }
+        } else {
+            alertBootstrap(
+                Utils.Num007.title,
+                Utils.Num007.desc,
+                "warning",
+                "alertaerrorenproducto",
+                true,
+                1,
+            );
+            $("#GenTxFechV").focus();
             $("button").prop("disabled", false);
             avance = false;
-            if (msg === "0") {
-              alert("error al procesar");
-            } else {
-              ActTable();
-            }
-          });
-        } else {
-          alertBootstrap(
-            Utils.Num009.title,
-            Utils.Num009.desc,
+        }
+    } else {
+        alertBootstrap(
+            Utils.Num006.title,
+            Utils.Num006.desc,
             "warning",
             "alertaerrorenproducto",
             true,
             1,
-          );
-          $("#GenTxMontoExe").focus();
-          $("button").prop("disabled", false);
-          avance = false;
-        }
-      } else {
-        alertBootstrap(
-          Utils.Num008.title,
-          Utils.Num008.desc,
-          "warning",
-          "alertaerrorenproducto",
-          true,
-          1,
         );
-        $("#GexTxBenName").focus();
+        $("#GenTxFechO").focus();
         $("button").prop("disabled", false);
         avance = false;
-      }
-    } else {
-      alertBootstrap(
-        Utils.Num007.title,
-        Utils.Num007.desc,
-        "warning",
-        "alertaerrorenproducto",
-        true,
-        1,
-      );
-      $("#GenTxFechV").focus();
-      $("button").prop("disabled", false);
-      avance = false;
     }
-  } else {
-    alertBootstrap(
-      Utils.Num006.title,
-      Utils.Num006.desc,
-      "warning",
-      "alertaerrorenproducto",
-      true,
-      1,
-    );
-    $("#GenTxFechO").focus();
-    $("button").prop("disabled", false);
-    avance = false;
-  }
 }
 
+
+// =====================================================================
+// FUNCION PARA REIMPRIMIR RETENCION ISLR EN FORMATO PDF CORRECTO (AJAX)
+// =====================================================================
+window.ReimprimirISLR = function(Idtx, Idtipotx, IdEstacion, Item) {
+    let companyElement = document.getElementById("CompanyActual");
+    let idCompany = companyElement ? companyElement.innerHTML : "0";
+
+    if(typeof $("#LoadingScreen").show === 'function') $("#LoadingScreen").show();
+
+    $.ajax({
+        type: "POST",
+        url: "formatoislr.php",
+        data: {
+            Idtx: Idtx,
+            Idtipotx: Idtipotx,
+            IdEstacion: IdEstacion,
+            Item: Item,
+            CompanyActual: idCompany
+        },
+        success: function(htmlResponse) {
+            if(typeof $("#LoadingScreen").hide === 'function') $("#LoadingScreen").hide();
+            
+            var printWindow = window.open('', '', 'width=900,height=650');
+            if(!printWindow) {
+                alert("Por favor, permite las ventanas emergentes (pop-ups) en tu navegador para poder imprimir el comprobante.");
+                return;
+            }
+            
+            printWindow.document.open();
+            printWindow.document.write(htmlResponse);
+            printWindow.document.close();
+            printWindow.focus();
+        },
+        error: function() {
+            if(typeof $("#LoadingScreen").hide === 'function') $("#LoadingScreen").hide();
+            alert("Error al intentar generar el comprobante.");
+        }
+    });
+};
+
+// =====================================================================
+// ACTUALIZAR TASA AUTOMÁTICAMENTE AL CAMBIAR FECHA DE TRANSACCIÓN
+// =====================================================================
+$(document).on('change', '#GenTxFechO', function() {
+    let fechaSeleccionada = $(this).val(); 
+    let idCompany = document.getElementById("CompanyActual") ? document.getElementById("CompanyActual").innerHTML : "";
+
+    if (fechaSeleccionada && idCompany) {
+        $.ajax({
+            type: "POST",
+            url: "estadocbseek.php",
+            data: {
+                Accion: "BuscarTasaPorFecha",
+                Fecha: fechaSeleccionada,
+                CompanyActual: idCompany
+            },
+            success: function(response) {
+                try {
+                    let res = JSON.parse(response);
+                    if (res.status === true) {
+                        // 1. Forzamos a que el selector muestre la nueva tasa (Ej: BCV 427.93)
+                        $("#GenTxFactorDCambio option[value!='0'][value!='-1']").first().val(res.tasa).text("BCV (" + res.tasa + ")");
+                        
+                        // 2. Aplicamos el valor al select si no está en Libre (-1)
+                        if ($("#GenTxFactorDCambio").val() !== "0" && $("#GenTxFactorDCambio").val() !== "-1") {
+                            $("#GenTxFactorDCambio").val(res.tasa);
+                        }
+                        
+                        // 3. Inyectamos la tasa con los decimales exactos en el campo bloqueado "Tasa Real"
+                        $("#GenTxFactorDeCambioActual").val(res.tasa);
+                        
+                        // 4. Disparamos la conversión matemática para que cambien los Bolívares al instante
+                        if (typeof CambioAnbio === 'function') {
+                            CambioAnbio(); 
+                        }
+                    }
+                } catch(e) {
+                    console.error("Error al parsear tasa: ", e);
+                }
+            }
+        });
+    }
+});
+// =====================================================================
 function GenerarTranx() {
-  if (avance === false) {
-    avance = true;
-    $("button").prop("disabled", true);
+    // --- 1. VALIDACIÓN: N° DE TRANSACCIÓN OBLIGATORIO ---
+    let numRef = document.getElementById("GenTxRefere").value.trim();
+    if (numRef === "") {
+        alertBootstrap("Falta Información", "El campo N° de Transacción es obligatorio.", "danger", "alertaerrorenproducto", true, 1);
+        document.getElementById("GenTxRefere").focus();
+        return; 
+    }
 
-    clearTimeout(onlyOne);
+    // --- 2. CONVERSIÓN INVERSA CON PRECISIÓN MATEMÁTICA ---
+    let modoMoneda = document.getElementById("ModoIngresoMoneda");
+    if (modoMoneda && modoMoneda.value === "VES") {
+        let factor = parseFloat(document.getElementById("GenTxFactorDeCambioActual").value.replace(/,/g, '')) || 1;
+        
+        if (factor > 0) {
+            let camposAConvertir = [
+                "GenTxMontoImponible", 
+                "GenTxMontoExe", 
+                "GenTxMontoImpuesto", 
+                "GenTxSubTotal", 
+                "GenTxMontoTotal"
+            ];
+            
+            camposAConvertir.forEach(id => {
+                let input = document.getElementById(id);
+                if (input) {
+                    let valorVES = parseFloat(input.value.replace(/,/g, '')) || 0;
+                    
+                    // AQUÍ ESTÁ EL CAMBIO: Conservamos 8 decimales en las operaciones
+                    // Esto asegura que la regla de "Imponible + Impuesto = Total" cuadre perfectamente
+                    input.value = (valorVES / factor).toFixed(8); 
+                }
+            });
 
-    onlyOne = setTimeout(() => ProcesarEND(), 700);
-  }
+            modoMoneda.value = "USD";
+        }
+    }
+
+    // --- 3. EJECUCIÓN ORIGINAL NATIVA ---
+    if (avance === false) {
+        avance = true;
+        $("button").prop("disabled", true);
+
+        clearTimeout(onlyOne);
+
+        onlyOne = setTimeout(() => ProcesarEND(), 700);
+    }
 }
+
+
+
+
+// =====================================================================
+// 1. SCRIPT DE LA EMISIÓN Y ETIQUETAS DINÁMICAS (LIMPIO)
+// =====================================================================
+function CambiarEtiquetaControl() {
+    let selector = document.getElementById("GexTxnumz");
+    let etiquetaSuperior = document.getElementById("LabelNroControl");
+
+    // Previene errores si la ventana modal aún no se ha abierto
+    if (!selector || !etiquetaSuperior) return;
+
+    if (selector.value === "2") {
+        // --- CASO: FORMA LIBRE ---
+        etiquetaSuperior.innerHTML = "N° Control";
+        etiquetaSuperior.style.color = ""; // Regresa al color gris original
+        etiquetaSuperior.style.fontWeight = "normal";
+    } else {
+        // --- CASO: FACTURA FISCAL ---
+        etiquetaSuperior.innerHTML = "Serial Fiscal";
+        etiquetaSuperior.style.color = "#dc3545"; // Lo pone en ROJO
+        etiquetaSuperior.style.fontWeight = "bold"; // Lo pone en Negrita
+    }
+}
+
+// Escuchador forzado para asegurar que funcione al hacer clic
+$(document).on('change', '#GexTxnumz', function() {
+    CambiarEtiquetaControl();
+});
+
+// Escuchador forzado para asegurar que funcione al hacer clic
+$(document).on('change', '#GexTxnumz', function() {
+    CambiarEtiquetaControl();
+});
+
+// =====================================================================
+// 2. LÓGICA MAESTRA PARA INVERTIR CÁLCULO DE MONEDAS
+// =====================================================================
+// =====================================================================
+// 2. LÓGICA MAESTRA PARA INVERTIR CÁLCULO Y SACAR "TASA REAL"
+// =====================================================================
+function AjustarCalculoMoneda() {
+    let modo = document.getElementById("ModoIngresoMoneda") ? document.getElementById("ModoIngresoMoneda").value : "USD";
+    let monedaS = document.getElementById("MonedaS") ? document.getElementById("MonedaS").innerHTML : "Bs";
+    
+    let strImponible = document.getElementById("GenTxMontoImponible").value.replace(/,/g, '');
+    let strExento = document.getElementById("GenTxMontoExe").value.replace(/,/g, '');
+    
+    let imponible = parseFloat(strImponible) || 0;
+    let exento = parseFloat(strExento) || 0;
+    
+    let selectImp = document.getElementById("GenTxImpuestos");
+    let idImp = selectImp ? selectImp.value : 0;
+    let spanImp = document.getElementById("ValorImpuesto" + idImp);
+    let pctImpuesto = spanImp ? (parseFloat(spanImp.innerText) || 0) : 0;
+
+    // Cálculos Nativos (de Bolívares o Dólares según el modo)
+    let impuesto = imponible * (pctImpuesto / 100);
+    let subTotal = imponible + impuesto;
+    let totalBase = subTotal + exento;
+
+    document.getElementById("GenTxMontoImpuesto").value = impuesto.toFixed(2);
+    document.getElementById("GenTxSubTotal").value = subTotal.toFixed(2);
+    document.getElementById("GenTxMontoTotal").value = totalBase.toFixed(2);
+
+    let labelTotalBase = document.getElementById("LabelTotalBase");
+    let labelTotalConv = document.getElementById("LabelTotalConvertido");
+    let labelFactor = document.getElementById("LabelFactorCambio");
+
+    let inputTotal2 = document.getElementById("GenTxMontoTotal2");
+    let inputFactor = document.getElementById("GenTxFactorDeCambioActual");
+    let selectorTasa = document.getElementById("GenTxFactorDCambio");
+    
+    let tasaSelector = parseFloat(selectorTasa.value);
+
+    if (modo === "USD") {
+        // --- MODO NORMAL (DIVISAS) ---
+        if (labelTotalBase) labelTotalBase.innerHTML = '<i class="fa fa-money"></i> Total (Divisas)';
+        if (labelTotalConv) labelTotalConv.innerHTML = 'Total Convertido (x Tasa) ' + monedaS;
+        if (labelFactor) labelFactor.innerHTML = 'Factor de Cambio';
+
+        // Bloqueamos el total convertido porque es solo de lectura
+        inputTotal2.readOnly = true;
+        
+        // Manejo de tasa Libre vs Predefinida
+        if (tasaSelector === -1) {
+            inputFactor.disabled = false;
+        } else {
+            inputFactor.disabled = true;
+            inputFactor.value = tasaSelector; // Trae todos los decimales del DB
+        }
+
+        let factor = parseFloat(inputFactor.value) || 1;
+        let totalConvertido = totalBase * factor;
+        inputTotal2.value = totalConvertido.toFixed(2);
+
+    } else {
+        // --- MODO INVERSO (BOLÍVARES) CON TASA REAL ---
+        if (labelTotalBase) labelTotalBase.innerHTML = '<i class="fa fa-money"></i> Total (' + monedaS + ')';
+        if (labelTotalConv) labelTotalConv.innerHTML = 'Total Divisas (Editable)';
+        if (labelFactor) labelFactor.innerHTML = 'Tasa Real';
+
+        // Permitimos editar las Divisas, pero bloqueamos la Tasa (porque es auto-calculada)
+        inputTotal2.readOnly = false; 
+        inputFactor.disabled = true; 
+
+        if (tasaSelector === -1) {
+            // Si es tasa Libre, esperamos a que el usuario escriba las Divisas manualmente
+            let totalDivisas = parseFloat(inputTotal2.value) || 0;
+            let tasaReal = totalDivisas > 0 ? (totalBase / totalDivisas) : 1;
+            inputFactor.value = tasaReal.toFixed(8);
+        } else {
+            // Generamos las divisas redondeadas base a la tasa del selector
+            let totalDivisas = tasaSelector > 0 ? (totalBase / tasaSelector) : 0;
+            inputTotal2.value = totalDivisas.toFixed(2);
+            
+            // LA MAGIA: Calculamos la "Tasa Real" a partir del Total BCV / Divisas Redondeadas
+            let totalDivisasRounded = parseFloat(inputTotal2.value) || 0;
+            let tasaReal = totalDivisasRounded > 0 ? (totalBase / totalDivisasRounded) : 1;
+            inputFactor.value = tasaReal.toFixed(8);
+        }
+    }
+}
+
+// Nueva función para recalcular la Tasa Real si el usuario modifica los centavos de las divisas manualmente
+function RecalcularTasaReal() {
+    let modo = document.getElementById("ModoIngresoMoneda") ? document.getElementById("ModoIngresoMoneda").value : "USD";
+    if(modo !== "VES") return;
+
+    let totalBase = parseFloat(document.getElementById("GenTxMontoTotal").value.replace(/,/g, '')) || 0;
+    let totalDivisas = parseFloat(document.getElementById("GenTxMontoTotal2").value.replace(/,/g, '')) || 0;
+    
+    let tasaReal = 1;
+    if(totalDivisas > 0) {
+        tasaReal = totalBase / totalDivisas;
+    }
+    
+    // Inyecta la nueva Tasa Real exacta
+    document.getElementById("GenTxFactorDeCambioActual").value = tasaReal.toFixed(8);
+}
+
+// Parches para compatibilidad con eventos HTML antiguos de tu sistema (Evitan errores)
+function CambioAnbio() { AjustarCalculoMoneda(); }
+function FactorDoChange() { AjustarCalculoMoneda(); }
+function DoChangeFactor() { AjustarCalculoMoneda(); }
+					
 
 function changTipotx() {
   if (
@@ -1447,6 +1791,10 @@ function ActTable() {
             <button class="btn btn-light fs-6 p-1" type="button" onclick="ImprimirEstado();">
               <i class="fa fa-print fs-3"></i> <br> ${Utils.Imprimir}
             </button>
+            <button class="btn btn-dark fs-6 p-1" type="button" onclick="PagoUnico();">
+              <i class="fa fa-dollar fs-3"></i> <br> ${Utils.Pago}
+            </button>
+   
    
           </div>
 
@@ -2516,19 +2864,23 @@ function MaskNambar(form, n) {
 
 function CambioAnbio() {
   var Uno = new Number(1);
-  var tasa = new Number(document.getElementById("GenTxFactorDCambio").value);
-  if (document.getElementById("GenTxFactorDCambio").value !== "-1") {
-    document.getElementById("GenTxFactorDeCambioActual").value = tasa.toFixed(
-      document.getElementById("CD").innerHTML,
-    );
+  var tasaVal = document.getElementById("GenTxFactorDCambio").value;
+
+  if (tasaVal !== "-1") {
+    // AQUÍ ESTÁ EL CAMBIO: Ya no usamos .toFixed(), le pasamos la tasa original completa
+    document.getElementById("GenTxFactorDeCambioActual").value = tasaVal;
+    
     $("#GenTxFactorDeCambioActual,#GenTxMontoTotal2").prop("disabled", true);
     Totalimb();
   } else {
     $("#GenTxFactorDeCambioActual,#GenTxMontoTotal2").prop("disabled", false);
-    document.getElementById("GenTxFactorDeCambioActual").value = Uno.toFixed(
-      document.getElementById("CD").innerHTML,
-    );
+    document.getElementById("GenTxFactorDeCambioActual").value = Uno;
     Totalimb();
+  }
+  
+  // Forzamos el recálculo inteligente por si el usuario ya había escrito montos
+  if (typeof AjustarCalculoMoneda === "function") {
+      AjustarCalculoMoneda();
   }
 }
 
@@ -2985,6 +3337,7 @@ function ColocarRetencion() {
     document.getElementById("PorceRetencion").value = Porcentaje.toFixed(
       document.getElementById("CD").innerHTML,
     );
+
     Totalizar(document.getElementById("PorceRetencion"));
   }
 }
@@ -3034,7 +3387,7 @@ function Totalizar(form) {
       Porcentaje = 100;
     }
   }
-  document.getElementById("MontoRetencion").value = Monto.toFixed(
+  document.getElementById("MontoRetencion").value = (Impuesto * Porcentaje ).toFixed(
     document.getElementById("CD").innerHTML,
   );
   document.getElementById("PorceRetencion").value = Porcentaje.toFixed(
@@ -3101,8 +3454,10 @@ function Retenciones(Idtx, Idtipotx, IdEstacion, Retenido, Credito) {
       document.getElementById("totaltasaTxC").innerHTML;
     document.getElementById("Totalenmonedatres").value =
       document.getElementById("tasaTxC").innerHTML;
-    document.getElementById("Totalenmonedacuatro").value =
-      document.getElementById("RetenidoActualTXCDUD").innerHTML;
+      //document.getElementById("Totalenmonedacuatro").value =
+     // document.getElementById("RetenidoActualTXCDUD").innerHTML; 
+       document.getElementById("Totalenmonedacuatro").value =
+      document.getElementById("totaltasaTxC").innerHTML;
     document.getElementById("BaseImponibleActualizable").value = Formato(
       document.getElementById("ImpoActTxC").innerHTML,
       document.getElementById("CD").innerHTML,
@@ -3128,6 +3483,7 @@ function Retenciones(Idtx, Idtipotx, IdEstacion, Retenido, Credito) {
     document.getElementById("CodigoActualizable").value = "";
     document.getElementById("RetencionOfTable").value = "0";
     GenerarCodigo();
+    //alert(document.getElementById("MontoRetencion").innerHTML);
     Totalizar(document.getElementById("MontoRetencion"));
     $("#apps-modal2x").modal("show");
     $("#MontoRetencion").prop("disabled", false);
@@ -3251,6 +3607,44 @@ function GenerarCodigo2() {
       $("#NumbaOfRetencion").val(msg);
     });
   }
+}
+
+function RetencionesISLRnew(Idtx, Idtipotx, IdEstacion, Retenido, Credito) {
+    // 1. Extraemos el ID de la compañía de forma segura para evitar que el JS se "rompa"
+    let companyElement = document.getElementById("CompanyActual");
+    let idCompany = companyElement ? companyElement.innerHTML : "0";
+
+    // 2. Calculamos la fecha de hoy automáticamente (en vez de dejarla hardcodeada)
+    let hoy = new Date();
+    let dd = String(hoy.getDate()).padStart(2, '0');
+    let mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    let yyyy = hoy.getFullYear();
+    let fechaHoy = yyyy + '-' + mm + '-' + dd;
+
+    // 3. Llamamos al archivo PHP que genera el diseño visual
+    $.ajax({
+        type: "POST",
+        url: "retension_islr.php",
+        data: {
+            IdTx: Idtx,
+            IdTipoTx: Idtipotx,
+            IdEstacion: IdEstacion,
+            IdCompany: idCompany,
+            FechaRet: fechaHoy
+            // Ya no enviamos NumLit para que el PHP seleccione el primero por defecto
+        },
+        beforeSend: function() {
+            // Opcional: Ponemos un mensaje de carga por si el internet está lento
+            $("#frameRetISLR").html('<div class="p-4 text-center"><i class="fa fa-spinner fa-spin fs-2"></i> Cargando módulo...</div>');
+            $("#modalRetISLR").modal("show");
+        }
+    }).done(function (msg) {
+        // 4. Inyectamos el diseño en el modal
+        $("#frameRetISLR").html(msg);
+    }).fail(function() {
+        // 5. Si el archivo no existe o hay error de red, avisamos
+        $("#frameRetISLR").html('<div class="alert alert-danger m-3">Error de conexión al cargar la retención.</div>');
+    });
 }
 
 function Retenciones2(Idtx, Idtipotx, IdEstacion, Retenido, Credito) {
@@ -4613,6 +5007,20 @@ function Abonos(Idtx, Idtipotx, IdEstacion, Contado, Credito, Tasa) {
     }
   });
 }
+
+// --- FUNCIÓN SENIOR UX PARA AUTO-REFRESCADO ---
+window.refrescarTablaPosUp = function() {
+    // Cierre rápido y limpio de cualquier modal abierto
+    $('.modal.show').modal('hide');
+    
+    // Llamamos a tu función principal que recarga los cuadros y la tabla
+    if (typeof ActTable === 'function') {
+        ActTable();
+    } else {
+        location.reload(); // Fallback por si la función no existe
+    }
+};
+// ----------------------------------------------------
 
 function addpago() {
   const tpags = new Number(document.getElementById("tpags").value);
@@ -5995,4 +6403,18 @@ function Selectorangodel() {
     fechas();
     ActTable();
   }
+
+  // --- FUNCIÓN SENIOR UX PARA AUTO-REFRESCADO ---
+window.refrescarTablaPosUp = function() {
+    // Cierre rápido y limpio de cualquier modal abierto
+    $('.modal.show').modal('hide');
+    
+    // Llamamos a tu función principal que recarga los cuadros y la tabla
+    if (typeof ActTable === 'function') {
+        ActTable();
+    } else {
+        location.reload(); // Fallback por si la función no existe
+    }
+};
+// ----------------------------------------------------
 }

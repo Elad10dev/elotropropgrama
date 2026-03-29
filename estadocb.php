@@ -61,7 +61,7 @@ $query = "SELECT FactorDolarCash,FactorDolarPaypal,FactorDolarZelle,Moneda3,Mone
 if ($result = mysqli_query($conn, $query)) {
 	while ($row = mysqli_fetch_assoc($result)) {
 		$FactorDolarCash = $row['FactorDolarCash'];
-		$GenTxFactorDCambio .= "<option value='2' >" . ($row["LitPrincipalEfectivo"] === "" ? (trim($row['MonedaS']) === "" ? $row['MonedaP'] : $row['MonedaS']) : $row["LitPrincipalEfectivo"])  . " (" . $row['FactorDolarCash'] . ")</option>";
+		$GenTxFactorDCambio .= "<option value='" . $row['FactorDolarCash'] . "' >" . ($row["LitPrincipalEfectivo"] === "" ? (trim($row['MonedaS']) === "" ? $row['MonedaP'] : $row['MonedaS']) : $row["LitPrincipalEfectivo"])  . " (" . $row['FactorDolarCash'] . ")</option>";
 		if ($row['FactorDolarPaypal'] > 1) $GenTxFactorDCambio .= "<option value='" . $row['FactorDolarPaypal'] . "'>" . $row['Moneda3'] . "</option>";
 		if ($row['FactorDolarZelle'] > 1) $GenTxFactorDCambio .= "<option value='" . $row['FactorDolarZelle'] . "'>" . $row['Moneda4'] . "</option>";
 		if ($row['FactorDolar5'] > 1) $GenTxFactorDCambio .= "<option value='" . $row['FactorDolar5'] . "'>" . $row['Moneda5'] . "</option>";
@@ -423,7 +423,19 @@ if ($AutorizaIntCaja === "1") {
 		</div>
 	</div>
 </div>
-
+<div class="modal fade" id="modalRetISLR" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Retención ISLR</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div id="frameRetISLR"></div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal" id="apps-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
@@ -1304,381 +1316,441 @@ if ($AutorizaIntCaja === "1") {
 </div>
 
 <div class="modal" id="apps-modal5" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	<div class="modal-dialog modal-xl">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title"><?php echo lang("Generar Transacción"); ?></h5>
-				<button class="btn-close" type="button" id="boton001" data-bs-dismiss="modal"></button>
-			</div>
-			<div class="modal-body">
-				<div id="alertaerrorenproducto"></div>
-				<div class="row p-1">
-					<div class="col-12 col-lg-3 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="date" class="form-control" name="GenTxFechO" id="GenTxFechO">
-									<label><i class="fa fa-calendar-o"></i> <?php echo lang("Fecha Transacción"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-3 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="date" class="form-control" name="GenTxFechV" id="GenTxFechV">
-									<label><i class="fa fa-calendar-o"></i> <?php echo lang("Fecha Vencimiento"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-3 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<select name="GenTxAño" id="GenTxAño" class="form-select">
-									</select>
-									<label><i class="fa fa-calendar-o"></i> <?php echo lang("Año"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-3 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<select name="GenTxMes" id="GenTxMes" class="form-select">
-										<option value="1"><?php echo lang("Enero"); ?></option>
-										<option value="2"><?php echo lang("Febrero"); ?></option>
-										<option value="3"><?php echo lang("Marzo"); ?></option>
-										<option value="4"><?php echo lang("Abril"); ?></option>
-										<option value="5"><?php echo lang("Mayo"); ?></option>
-										<option value="6"><?php echo lang("Junio"); ?></option>
-										<option value="7"><?php echo lang("Julio"); ?></option>
-										<option value="8"><?php echo lang("Agosto"); ?></option>
-										<option value="9"><?php echo lang("Septiembre"); ?></option>
-										<option value="10"><?php echo lang("Octubre"); ?></option>
-										<option value="11"><?php echo lang("Noviembre"); ?></option>
-										<option value="12"><?php echo lang("Diciembre"); ?></option>
-									</select>
-									<label><i class="fa fa-calendar-o"></i> <?php echo lang("Mes"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-3 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<select class="form-select" name="GenTxIdtipotx" id="GenTxIdtipotx" onchange="changTipotx();">
-										<?php
-										$query = "SELECT Idtipotx,Titulo FROM PosUpTx WHERE Idtipotx in (2,15,22,7,28)";
-										if ($result = mysqli_query($conn, $query)) {
-											while ($row = mysqli_fetch_assoc($result)) {
-										?><option value="<?php echo trim($row['Idtipotx']); ?>"><?php echo ucwords(strtolower(Lang(trim($row['Titulo'])))); ?></option><?
-																																									}
-																																									mysqli_free_result($result);
-																																								}
-																																										?>
-									</select>
-									<label><i class="fa fa-book"></i> <?php echo lang("Tipo de Transacción"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="text" class="form-control" name="GenTxRefere" id="GenTxRefere">
-									<label><i class="fa fa-file-o"></i> <?php echo lang("Referencia"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input type="text" class="form-control" name="GexTxnroControl" id="GexTxnroControl" value="0">
-								<label><?php echo lang("Nro Control"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input type="text" class="form-control" name="GexTxnumz" id="GexTxnumz" value="0">
-								<label><?php echo lang("Numero Z"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-3 p-1">
-						<div class="input-group">
-							<button class="btn btn-outline-danger p-1" type="button" onclick="limpiar();" style="display:none;"><i class="fa fa-trash"></i></button>
-							<div class="col">
-								<div class="form-floating">
-									<input type="hidden" class="form-control" name="GexTxIdBen" id="GexTxIdBen">
-									<input type="text" class="form-control" name="GexTxBenName" id="GexTxBenName" readonly>
-									<label><i class="fa fa-user"></i> <?php echo lang("Beneficiario"); ?></label>
-								</div>
-							</div>
-							<button class="btn btn-outline-primary p-1" type="button" onclick="selectben(1);" style="display:none;"><i class="fa fa-search"></i></button>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="text" class="form-control" name="GenTxMontoImponible" id="GenTxMontoImponible" onchange="MaskNambar(this,this.value);">
-									<label><i class="fa fa-money"></i> <?php echo lang("Imponible"); ?> <span id="LimitCreditTrans" class="text-primary"></span></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<?php
-									$query = "SELECT IdVarios,ITEM,VALOR FROM PosUpvarios WHERE IdCompany=" . $_SESSION["CompanyActual"] . " and TIPOITEM=0";
-									if ($result = mysqli_query($conn, $query)) {
-										while ($row = mysqli_fetch_assoc($result)) {
-									?><span id="ValorImpuesto<?php echo trim($row['IdVarios']); ?>" style="display:none;"><?php echo $row['VALOR'] * 100; ?></span><?
-																																								}
-																																								mysqli_free_result($result);
-																																							}
-																																									?>
-									<select class="form-select" id="GenTxImpuestos" name="GenTxImpuestos" onchange="Totalimb();">
-										<?php
-										$query = "SELECT IdVarios,ITEM,VALOR FROM PosUpvarios WHERE IdCompany=" . $_SESSION["CompanyActual"] . " and TIPOITEM=0";
-										if ($result = mysqli_query($conn, $query)) {
-											while ($row = mysqli_fetch_assoc($result)) {
-										?><option value="<?php echo trim($row['IdVarios']); ?>"><?php echo trim($row['ITEM']) . "   (" . trim($row['VALOR'] * 100) . "%" . ")"; ?></option><?
-																																														}
-																																														mysqli_free_result($result);
-																																													}
-																																															?>
-									</select>
-									<label><i class="fa fa-percent"></i> <?php echo lang("Impuesto"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="text" class="form-control" name="GenTxMontoImpuesto" id="GenTxMontoImpuesto" readonly>
-									<label><i class="fa fa-money"></i> <?php echo lang("Impuesto"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="text" class="form-control" name="GenTxSubTotal" id="GenTxSubTotal" readonly>
-									<label><i class="fa fa-money"></i> <?php echo lang("Sub total"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="text" class="form-control" name="GenTxMontoExe" id="GenTxMontoExe" onchange="MaskNambar(this,this.value);">
-									<label><i class="fa fa-money"></i> <?php echo lang("Exento"); ?> <span id="LimitCreditTrans2" class="text-primary"></span></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-2 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input type="text" class="form-control" name="GenTxMontoTotal" id="GenTxMontoTotal" readonly>
-									<label><i class="fa fa-money"></i> <?php echo lang("Total"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><?php echo lang("Generar Transacción"); ?></h5>
+                <button class="btn-close" type="button" id="boton001" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertaerrorenproducto"></div>
+                
+                <style>
+                    .form-floating.etiqueta-visible > label {
+                        white-space: nowrap !important;
+                        overflow: hidden !important;
+                        text-overflow: ellipsis !important;
+                        max-width: 90% !important; 
+                        opacity: 0.65 !important;
+                    }
+                </style>
 
-					<div class="col-12 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<select class="form-select" name="AlmacenSelect" id="AlmacenSelect">
-									<?php
-									echo $ModalDeposito22;
-									?>
+                <div class="row p-1">
+                    <div class="col-12 mb-3 px-2">
+                        <div class="card border-info shadow-sm bg-light">
+                            <div class="card-body p-2 d-flex align-items-center gap-2">
+                                <div class="form-floating flex-grow-1">
+                                    <input type="hidden" name="GexTxIdBen" id="GexTxIdBen">
+                                    <input type="text" class="form-control text-primary fw-bold fs-5 bg-white" name="GexTxBenName" id="GexTxBenName" readonly placeholder="Beneficiario">
+                                    <label><i class="fa fa-user"></i> <?php echo lang("Beneficiario"); ?></label>
+                                </div>
+                                <button class="btn btn-outline-danger" type="button" onclick="limpiar(); document.getElementById('btnLimpiarBen').style.display='none';" title="Quitar Beneficiario" id="btnLimpiarBen" style="display:none;">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-3 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="date" class="form-control" name="GenTxFechO" id="GenTxFechO">
+                                    <label><i class="fa fa-calendar-o"></i> <?php echo lang("Fecha Transacción"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-3 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="date" class="form-control" name="GenTxFechV" id="GenTxFechV">
+                                    <label><i class="fa fa-calendar-o"></i> <?php echo lang("Fecha Vencimiento"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-3 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <select name="GenTxAño" id="GenTxAño" class="form-select">
+                                    </select>
+                                    <label><i class="fa fa-calendar-o"></i> <?php echo lang("Año"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-3 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <select name="GenTxMes" id="GenTxMes" class="form-select">
+                                        <option value="1"><?php echo lang("Enero"); ?></option>
+                                        <option value="2"><?php echo lang("Febrero"); ?></option>
+                                        <option value="3"><?php echo lang("Marzo"); ?></option>
+                                        <option value="4"><?php echo lang("Abril"); ?></option>
+                                        <option value="5"><?php echo lang("Mayo"); ?></option>
+                                        <option value="6"><?php echo lang("Junio"); ?></option>
+                                        <option value="7"><?php echo lang("Julio"); ?></option>
+                                        <option value="8"><?php echo lang("Agosto"); ?></option>
+                                        <option value="9"><?php echo lang("Septiembre"); ?></option>
+                                        <option value="10"><?php echo lang("Octubre"); ?></option>
+                                        <option value="11"><?php echo lang("Noviembre"); ?></option>
+                                        <option value="12"><?php echo lang("Diciembre"); ?></option>
+                                    </select>
+                                    <label><i class="fa fa-calendar-o"></i> <?php echo lang("Mes"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-3 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <select class="form-select" name="GenTxIdtipotx" id="GenTxIdtipotx" onchange="changTipotx();">
+                                        <?php
+                                        $query = "SELECT Idtipotx,Titulo FROM PosUpTx WHERE Idtipotx in (2,15,22,7,28)";
+                                        if ($result = mysqli_query($conn, $query)) {
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                        ?><option value="<?php echo trim($row['Idtipotx']); ?>"><?php echo ucwords(strtolower(Lang(trim($row['Titulo'])))); ?></option><?php
+                                            }
+                                            mysqli_free_result($result);
+                                        }
+                                        ?>
+                                    </select>
+                                    <label><i class="fa fa-book"></i> <?php echo lang("Tipo de Transacción"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="GenTxRefere" id="GenTxRefere" required>
+                                    <label><i class="fa fa-file-o"></i> <?php echo lang("N° Transacción"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                               <select class="form-select" id="GexTxnumz" name="GexTxnumz" onchange="CambiarEtiquetaControl();">
+    								<option value="2">FORMA LIBRE</option>
+    								<option value="1">FACTURA FISCAL</option>
 								</select>
-								<label><?php echo lang("Almacen"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-4 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<select class="form-select" name="GenTxFactorDCambio" id="GenTxFactorDCambio" onchange="CambioAnbio();">
-									<?php
-									echo $GenTxFactorDCambio;
-									?>
-								</select>
-								<label><?php echo lang("Tipo de Moneda"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-4 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input class="form-control text-end" pattern="^\d*(\.\d{0,2})?$" type="number" name="GenTxFactorDeCambioActual" id="GenTxFactorDeCambioActual" onchange="FactorDoChange()" disabled>
-								<label><?php echo lang("Factor de Cambio"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-4 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input class="form-control text-end" type="text" name="GenTxMontoTotal2" id="GenTxMontoTotal2" onchange="DoChangeFactor()" disabled>
-								<label><?php echo lang("Total") . " (" . $_SESSION["MonedaS"] . ") "; ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-12 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<textarea class="form-control" name="GexTxObservacion" id="GexTxObservacion"></textarea>
-								<label><?php echo lang("Observación"); ?></label>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-outline-secondary px-1" type="button" id="boton002" data-bs-dismiss="modal"><i class="fa fa-arrow-left"></i> <?php echo lang("Volver"); ?></button>
-				<button class="btn btn-outline-primary px-1" type="button" id="boton003" onclick="GenerarTranx();"><i class="fa fa-arrow-right"></i> <?php echo lang("Procesar"); ?></button>
-			</div>
-		</div>
-	</div>
+                                <label><i class="fa fa-print"></i> <?php echo lang("Emisión"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+					
+                    <div class="col">
+    					<div class="form-floating etiqueta-visible">
+        					<input type="text" class="form-control" name="GexTxnroControl" id="GexTxnroControl" value="0" placeholder="0">
+        					<label id="LabelNroControl"><?php echo lang("N° Control"); ?></label>
+    					</div>
+    				
 </div>
 
+
+                    <div class="col-12 col-lg-3 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <select class="form-select bg-warning text-dark fw-bold" name="ModoIngresoMoneda" id="ModoIngresoMoneda" onchange="AjustarCalculoMoneda()">
+                                        <option value="USD" selected>Divisa</option>
+                                        <option value="VES">Bolívares</option>
+                                    </select>
+                                    <label><i class="fa fa-exchange"></i> <?php echo lang("Ingreso de Montos en"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="GenTxMontoImponible" id="GenTxMontoImponible" onkeyup="AjustarCalculoMoneda();" onchange="MaskNambar(this,this.value); AjustarCalculoMoneda();">
+                                    <label><i class="fa fa-money"></i> <?php echo lang("Imponible"); ?> <span id="LimitCreditTrans" class="text-primary"></span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <?php
+                                    $query = "SELECT IdVarios,ITEM,VALOR FROM PosUpvarios WHERE IdCompany=" . $_SESSION["CompanyActual"] . " and TIPOITEM=0";
+                                    if ($result = mysqli_query($conn, $query)) {
+                                        while ($row = mysqli_fetch_assoc($result)) {
+                                    ?><span id="ValorImpuesto<?php echo trim($row['IdVarios']); ?>" style="display:none;"><?php echo $row['VALOR'] * 100; ?></span><?php
+                                        }
+                                        mysqli_free_result($result);
+                                    }
+                                    ?>
+                                    <select class="form-select" id="GenTxImpuestos" name="GenTxImpuestos" onchange="AjustarCalculoMoneda();">
+                                        <?php
+                                        $query = "SELECT IdVarios,ITEM,VALOR FROM PosUpvarios WHERE IdCompany=" . $_SESSION["CompanyActual"] . " and TIPOITEM=0";
+                                        if ($result = mysqli_query($conn, $query)) {
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                        ?><option value="<?php echo trim($row['IdVarios']); ?>"><?php echo trim($row['ITEM']) . "   (" . trim($row['VALOR'] * 100) . "%" . ")"; ?></option><?php
+                                            }
+                                            mysqli_free_result($result);
+                                        }
+                                        ?>
+                                    </select>
+                                    <label><i class="fa fa-percent"></i> <?php echo lang("Impuesto"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="GenTxMontoImpuesto" id="GenTxMontoImpuesto" readonly>
+                                    <label><i class="fa fa-money"></i> <?php echo lang("Impuesto"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="GenTxSubTotal" id="GenTxSubTotal" readonly>
+                                    <label><i class="fa fa-money"></i> <?php echo lang("Sub total"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="GenTxMontoExe" id="GenTxMontoExe" onkeyup="AjustarCalculoMoneda();" onchange="MaskNambar(this,this.value); AjustarCalculoMoneda();">
+                                    <label><i class="fa fa-money"></i> <?php echo lang("Exento"); ?> <span id="LimitCreditTrans2" class="text-primary"></span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-2 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control fw-bold text-success" name="GenTxMontoTotal" id="GenTxMontoTotal" readonly>
+                                    <label id="LabelTotalBase"><i class="fa fa-money"></i> <?php echo lang("Total (Ingresado)"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                   <div class="col-12 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <select class="form-select" name="GenTxFactorDCambio" id="GenTxFactorDCambio" onchange="CambioAnbio(); setTimeout(AjustarCalculoMoneda, 200);">
+                                    <?php
+                                    echo $GenTxFactorDCambio;
+                                    ?>
+                                </select>
+                                <label><?php echo lang("Tipo de Moneda de Tasa"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control text-end" pattern="^\d*(\.\d{0,2})?$" type="number" name="GenTxFactorDeCambioActual" id="GenTxFactorDeCambioActual" onkeyup="AjustarCalculoMoneda();" onchange="FactorDoChange(); AjustarCalculoMoneda();" disabled>
+                                <label id="LabelFactorCambio"><?php echo lang("Factor de Cambio"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control text-end fw-bold text-danger" type="text" name="GenTxMontoTotal2" id="GenTxMontoTotal2" onkeyup="RecalcularTasaReal();" onchange="RecalcularTasaReal();" readonly>
+                                <label id="LabelTotalConvertido"><?php echo lang("Total Convertido"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <select class="form-select" name="AlmacenSelect" id="AlmacenSelect">
+                                    <?php
+                                    echo $ModalDeposito22;
+                                    ?>
+                                </select>
+                                <label><?php echo lang("Almacen"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-lg-12 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <textarea class="form-control" name="GexTxObservacion" id="GexTxObservacion"></textarea>
+                                <label><?php echo lang("Observación"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary px-1" type="button" id="boton002" data-bs-dismiss="modal"><i class="fa fa-arrow-left"></i> <?php echo lang("Volver"); ?></button>
+                <button class="btn btn-outline-primary px-1" type="button" id="boton003" onclick="GenerarTranx();"><i class="fa fa-arrow-right"></i> <?php echo lang("Procesar"); ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="modal" id="modalBenefe" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	<div class="modal-dialog modal-xl">
-		<div class="modal-content">
-			<div class="modal-header bg-danger text-light">
-				<h5 class="modal-title"><i class="fa fa-user"></i> <?php echo lang("Beneficiario"); ?></h5>
-				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
-			</div>
-			<div class="modal-body ">
-				<div id="alertaerrorenproducto2"></div>
-				<div class="row">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-light">
+                <h5 class="modal-title"><i class="fa fa-user"></i> <?php echo lang("Beneficiario"); ?></h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body ">
+                <div id="alertaerrorenproducto2"></div>
+                <div class="row">
 
-					<div class="col-12 col-lg-6 p-1">
-						<?php
-						if ($_SESSION["IdPais"] == "CL") {
-						?>
-							<div class="input-group">
-								<div class="col">
-									<div class="form-floating">
-										<input type="text" class="form-control" id="ModalRut" name="ModalRut" />
-										<label><?php echo Lang("R.U.T."); ?></label>
-									</div>
-								</div>
-								<div class="col">
-									<div class="form-floating">
-										<input type="text" class="form-control" id="ModalRut2" name="ModalRut2" readonly />
-									</div>
-								</div>
-							</div>
-						<?php
-						} else {
-						?>
-							<div class="input-group">
-								<div class="col">
-									<div class="form-floating">
-										<input class="form-control" type="text" id="RutFa" name="RutFa" />
-										<label><?php echo $_SESSION["litfiscal"]; ?></label>
-									</div>
-								</div>
-							</div>
-						<?php
-						}
-						?>
-					</div>
-					<div class="col-12 col-lg-6 p-1">
-						<div class="input-group">
-							<div class="col">
-								<div class="form-floating">
-									<input class="form-control" type="text" name="anombreFA" id="anombreFA">
-									<label> <?php echo Lang("A nombre de"); ?></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-6 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input class="form-control" type="text" name="TelefonoFA" id="TelefonoFA">
-								<label> <?php echo Lang("Telefonó"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-6 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input class="form-control" type="email" name="EmailFA" id="EmailFA">
-								<label> <?php echo Lang("Email"); ?></label>
-							</div>
-						</div>
-					</div>
+                    <div class="col-12 col-lg-6 p-1">
+                        <?php
+                        if ($_SESSION["IdPais"] == "CL") {
+                        ?>
+                            <div class="input-group">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="ModalRut" name="ModalRut" />
+                                        <label><?php echo Lang("R.U.T."); ?></label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="ModalRut2" name="ModalRut2" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        <?php
+                        } else {
+                        ?>
+                            <div class="input-group">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <input class="form-control" type="text" id="RutFa" name="RutFa" onchange="VerificarBeneficiarioExistente(this.value)" />
+                                        <label><?php echo $_SESSION["litfiscal"]; ?></label>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php
+                        }
+                        ?>
+                    </div>
+                    <div class="col-12 col-lg-6 p-1">
+                        <div class="input-group">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input class="form-control" type="text" name="anombreFA" id="anombreFA">
+                                    <label> <?php echo Lang("A nombre de"); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control" type="text" name="TelefonoFA" id="TelefonoFA">
+                                <label> <?php echo Lang("Telefonó"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control" type="email" name="EmailFA" id="EmailFA">
+                                <label> <?php echo Lang("Email"); ?></label>
+                            </div>
+                        </div>
+                    </div>
 
-					<div class="col-12 col-lg-12 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input class="form-control" type="text" name="DirecionFA" id="DirecionFA">
-								<label> <?php echo Lang("Dirección"); ?></label>
-							</div>
-						</div>
-					</div>
+                    <div class="col-12 col-lg-12 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control" type="text" name="DirecionFA" id="DirecionFA">
+                                <label> <?php echo Lang("Dirección"); ?></label>
+                            </div>
+                        </div>
+                    </div>
 
-					<div class=" col-12 col-lg-4 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input class="form-control" type="text" name="CiudadFA" id="CiudadFA">
-								<label> <?php echo Lang("Ciudad"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-4 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<input class="form-control" type="text" name="GiroFA" id="GiroFA" onkeyup="buscarunidad(4);" onfocus="byebyemen(4);" onblur="setTimeout(byebyemen(5), 1000);">
-								<div id="suggesstion-box4" class="dropdown-menu bg-light"></div>
-								<label> <?php echo Lang("Giro"); ?></label>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-lg-4 p-1">
-						<div class="col">
-							<div class="form-floating">
-								<select name="TipoBeneficiario" id="TipoBeneficiario" class="form-select">
-									<option value="0">Normal</option>
-									<?php echo $Item3; ?>
-								</select>
-								<label><i class="fa fa-list-alt"></i>&nbsp;<?php echo lang('Tipo Beneficiario'); ?></label>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-outline-secondary px-1" type="button" data-bs-dismiss="modal"><i class="fa fa-times"></i> <?php echo lang('Cerrar'); ?></button>
-				<button class="btn btn-outline-primary px-1" type="button" onclick="GuardarBeneficiario();"><i class="fa fa-save"></i> <?php echo lang('Guardar'); ?> </button>
-			</div>
-		</div>
-	</div>
+                    <div class=" col-12 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control" type="text" name="CiudadFA" id="CiudadFA">
+                                <label> <?php echo Lang("Ciudad"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input class="form-control" type="text" name="GiroFA" id="GiroFA" onkeyup="buscarunidad(4);" onfocus="byebyemen(4);" onblur="setTimeout(byebyemen(5), 1000);">
+                                <div id="suggesstion-box4" class="dropdown-menu bg-light"></div>
+                                <label> <?php echo Lang("Giro"); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <select name="TipoBeneficiario" id="TipoBeneficiario" class="form-select">
+                                    <option value="0">Normal</option>
+                                    <?php echo $Item3; ?>
+                                </select>
+                                <label><i class="fa fa-list-alt"></i>&nbsp;<?php echo lang('Tipo Beneficiario'); ?></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <select name="TipoPersona" id="TipoPersona" class="form-select">
+                                    <option value="PN">PN - Persona Natural</option>
+                                    <option value="PJ">PJ - Persona Jurídica</option>
+                                </select>
+                                <label><i class="fa fa-user"></i>&nbsp;<?php echo lang('Tipo de Persona'); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 p-1">
+                        <div class="col">
+                            <div class="form-floating">
+                                <select name="Domicilio" id="Domicilio" class="form-select">
+                                    <option value="DOM">DOM - Domiciliado</option>
+                                    <option value="NDOM">NDOM - No Domiciliado</option>
+                                </select>
+                                <label><i class="fa fa-home"></i>&nbsp;<?php echo lang('Domicilio Fiscal'); ?></label>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary px-1" type="button" data-bs-dismiss="modal"><i class="fa fa-times"></i> <?php echo lang('Cerrar'); ?></button>
+                <button class="btn btn-outline-primary px-1" type="button" onclick="GuardarBeneficiario();"><i class="fa fa-save"></i> <?php echo lang('Guardar'); ?> </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="DeleteAnticipoModal" class="modal fade" tabindex="-1" role="dialog" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -2154,118 +2226,152 @@ if ($AutorizaIntCaja === "1") {
 <input type="hidden" name="ImpoActTxCAct" id="ImpoActTxCAct">
 
 <div class="app-ui-mask-modal d-print-none"></div>
-<script src="jsdev/estadocb.js?v=<? echo random_int(1, 9999999); ?>"></script>
-<script src="jsdev/bben.js?v=<? echo random_int(1, 9999999); ?>"></script>
-<script src="jsdev/bcom.js?v=<? echo random_int(1, 9999999); ?>"></script>
-<script src="jsdev/bgiro.js?v=<? echo random_int(1, 9999999); ?>"></script>
+<?php
+// === CONSULTA EXACTA PARA BUSCAR EL ARCHIVO DE IMPRESIÓN ===
+$FormaISLR_global = "";
+$queryForma = "SELECT a.FormaISLR 
+               FROM posupalmacen a 
+               INNER JOIN posupcompanyestacion p ON a.IdCompany = p.IdCompany AND a.IdAlm = p.IdAlmVta 
+               WHERE a.IdCompany = '" . $_SESSION["CompanyActual"] . "' 
+               AND p.token = '" . $_SESSION["TokenSeleccionado"] . "' LIMIT 1";
+
+if ($resForma = mysqli_query($conn, $queryForma)) {
+    if ($rowForma = mysqli_fetch_assoc($resForma)) {
+        $FormaISLR_global = trim((string)$rowForma['FormaISLR']);
+    }
+    mysqli_free_result($resForma);
+}
+?>
+<input type="hidden" id="FormaISLR_global" value="<?php echo $FormaISLR_global; ?>">
+<script src="jsdev/estadocb.js?v=<?php echo random_int(1, 9999999); ?>"></script>
+<script src="jsdev/bben.js?v=<?php echo random_int(1, 9999999); ?>"></script>
+<script src="jsdev/bcom.js?v=<?php echo random_int(1, 9999999); ?>"></script>
+<script src="jsdev/bgiro.js?v=<?php echo random_int(1, 9999999); ?>"></script>
 
 <script>
-	const dataCaja = JSON.parse('<?php echo json_encode($dataCaja, JSON_UNESCAPED_UNICODE); ?>');
-	const FactorCambio = JSON.parse('<?php echo json_encode($FactorCambio, JSON_UNESCAPED_UNICODE); ?>');
-	const AutorizaIntCaja = '<?php echo $AutorizaIntCaja; ?>';
-	const verTx = '<?php echo $verTx; ?>';
-	let Moendas = JSON.parse('<?php echo json_encode($Moendas, JSON_UNESCAPED_UNICODE); ?>');
-	const CargandoHTML = `
-	<div class="text-center">
-		<div class="spinner-border" role="status" style="width: 12rem; height: 12rem;">
-			<span class="visually-hidden">Loading...</span>
-		</div>
-	</div>
-	`;
-	const TokenSeleccionadoAB = '<?php echo $_SESSION["TokenSeleccionado"]; ?>';
-	const BenePreter = '<?php echo $BenePreter; ?>';
-	window.onload = function() {
-		document.getElementById("tokeninUse").value = TokenSeleccionadoAB;
-		IniEstadocb();
-	}
-	const Utils = {
-		LitEfectivo: "<?php echo $_SESSION['LitEfectivo']; ?>",
-		LitTarjeta: "<?php echo $_SESSION['LitTarjeta']; ?>",
-		LitCheque: "<?php echo $_SESSION['LitCheque']; ?>",
-		LitO01: "<?php echo $_SESSION['LitO01']; ?>",
-		LitO02: "<?php echo $_SESSION['LitO02']; ?>",
-		LitO03: "<?php echo $_SESSION['LitO03']; ?>",
-		LitO04: "<?php echo $_SESSION['LitO04']; ?>",
-		Anticipo: "<?php echo lang("Anticipo"); ?>",
-		Credito: "<?php echo lang("Crédito"); ?>",
-		Retencion: "<?php echo lang("Retencion"); ?>",
-		Filtros: "<?php echo lang("Filtros"); ?>",
-		Pago: "<?php echo lang("Pago"); ?>",
-		Num009: {
-			title: "<?php echo lang('Total Inválido'); ?>",
-			desc: "<?php echo lang('La transacción no puede tener el total menor o igual a cero'); ?>",
-		},
-		Num008: {
-			title: "<?php echo lang('Falta Beneficiario'); ?>",
-			desc: "<?php echo lang('No hay Beneficiario asociado a la transacción'); ?>",
-		},
-		Num007: {
-			title: "<?php echo lang('Fecha menor a la de la transacción'); ?>",
-			desc: "<?php echo lang('La fecha de vencimiento no es mayor o igual a la fecha de la transacción'); ?>",
-		},
-		Num006: {
-			title: "<?php echo lang('Fecha mayor a la actual'); ?>",
-			desc: "<?php echo lang('La fecha de la transacción supera la fecha actual'); ?>",
-		},
-		Num003: '<?php echo lang("Buscar Transacción"); ?>',
-		Num004: '<?php echo lang("Buscar Beneficiario"); ?>',
-		Num005: '<?php echo lang("Anticipo"); ?>',
-		Num024: '<?php echo lang("Saldo Maximo del Anticipo"); ?>',
-		Num025: '<?php echo lang("Pago con Anticipo"); ?>',
-		Num030: '<?php echo lang("Editar Retenciones"); ?>',
-		Num031: '<?php echo lang("Registro de Pago"); ?>',
-		Num032: '<?php echo lang("Saldo de Anticipo"); ?>',
-		Num033: '<?php echo lang("Retencion"); ?>',
-		Num034: '<?php echo lang("Reverso de Crédito"); ?>',
-		Num035: '<?php echo lang("Retencion2"); ?>',
-		Num036: '<?php echo lang("Eliminar"); ?>',
-		Num037: '<?php echo lang("EliminarAnticipo"); ?>',
-		Num038: '<?php echo lang("Transacción"); ?>',
-		Num400: '<?php echo lang("Tipo de Pago"); ?>',
-		Num401: '<?php echo lang("Vuelto Pago"); ?>',
-		Num402: '<?php echo lang("Vuelto"); ?>',
-		AgrBene: '<?php echo lang("Beneficiarios"); ?>',
-		Imprimir: '<?php echo lang("Imprimir"); ?>',
-		num039: {
-			title: '<?php echo Lang("Falta seleccionar banco"); ?>',
-			desc: '<?php echo Lang("Por favor seleccione el banco que afecta la transacción"); ?>',
-		},
-		Num040: {
-			title: '<?php echo Lang("Falta Informacion"); ?>',
-			desc: '<?php echo Lang("Ingrese una monto valido"); ?>',
-		},
-		Num041: {
-			title: '<?php echo Lang("Falta Informacion"); ?>',
-			desc: '<?php echo Lang("Ingrese una fecha valida"); ?>',
-		},
-		Num042: {
-			title: '<?php echo Lang("Falta Informacion"); ?>',
-			desc: '<?php echo Lang("La Retencion no puede superar el monto a crédito, que es de"); ?>',
-		},
-		Num042: {
-			title: '<?php echo Lang("Falta Informacion"); ?>',
-			desc: '<?php echo Lang("La Retencion no puede superar el monto a crédito, que es de"); ?>',
-		},
-		Num043: {
-			title: '<?php echo Lang("Vuelto Faltante"); ?>',
-			desc: '<?php echo Lang("Tiene que especificar en cuales medios de pago va estar devuelto"); ?>',
-		},
-		Num043x: {
-			title: '<?php echo Lang("Identificador Fiscal Repetido"); ?>',
-			desc: '<?php echo Lang("Este Identificador ya existe."); ?>',
-		},
-		Num043xx: {
-			title: '<?php echo Lang("Error al enviar la información"); ?>',
-			desc: '<?php echo Lang("Ha ocurrido un error al enviar la información por favor revise que esté ingresando los datos en los campos correspondientes."); ?>',
-		},
-		Danger: {
-			"title": "<?php echo lang('Error al guardar'); ?>",
-			"desc": "<?php echo lang('Se ha producido un error durante el guardado.'); ?>",
-		},
-		num048: {
-			title: '<?php echo lang("Monto Excedido"); ?>',
-			desc: '<?php echo Lang("El monto insertado supera el monto a pagar"); ?>',
-		},
+    // Corrección crítica: PHP escribe el JSON directamente, sin comillas envolventes ni JSON.parse
+    const dataCaja = <?php echo json_encode($dataCaja, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    const FactorCambio = <?php echo json_encode($FactorCambio, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    const AutorizaIntCaja = '<?php echo $AutorizaIntCaja; ?>';
+    const verTx = '<?php echo $verTx; ?>';
+    let Moendas = <?php echo json_encode($Moendas, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    
+    const CargandoHTML = `
+    <div class="text-center">
+        <div class="spinner-border" role="status" style="width: 12rem; height: 12rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    `;
+    const TokenSeleccionadoAB = '<?php echo $_SESSION["TokenSeleccionado"]; ?>';
+    const BenePreter = '<?php echo $BenePreter; ?>';
+    
+    window.onload = function() {
+        document.getElementById("tokeninUse").value = TokenSeleccionadoAB;
+        if (typeof IniEstadocb === 'function') {
+            IniEstadocb();
+        }
+    }
+    
+    const Utils = {
+        LitEfectivo: "<?php echo $_SESSION['LitEfectivo']; ?>",
+        LitTarjeta: "<?php echo $_SESSION['LitTarjeta']; ?>",
+        LitCheque: "<?php echo $_SESSION['LitCheque']; ?>",
+        LitO01: "<?php echo $_SESSION['LitO01']; ?>",
+        LitO02: "<?php echo $_SESSION['LitO02']; ?>",
+        LitO03: "<?php echo $_SESSION['LitO03']; ?>",
+        LitO04: "<?php echo $_SESSION['LitO04']; ?>",
+        Anticipo: "<?php echo lang("Anticipo"); ?>",
+        Credito: "<?php echo lang("Crédito"); ?>",
+        Retencion: "<?php echo lang("Retencion"); ?>",
+        Filtros: "<?php echo lang("Filtros"); ?>",
+        Pago: "<?php echo lang("Pago"); ?>",
+        Num009: { title: "<?php echo lang('Total Inválido'); ?>", desc: "<?php echo lang('La transacción no puede tener el total menor o igual a cero'); ?>" },
+        Num008: { title: "<?php echo lang('Falta Beneficiario'); ?>", desc: "<?php echo lang('No hay Beneficiario asociado a la transacción'); ?>" },
+        Num007: { title: "<?php echo lang('Fecha menor a la de la transacción'); ?>", desc: "<?php echo lang('La fecha de vencimiento no es mayor o igual a la fecha de la transacción'); ?>" },
+        Num006: { title: "<?php echo lang('Fecha mayor a la actual'); ?>", desc: "<?php echo lang('La fecha de la transacción supera la fecha actual'); ?>" },
+        Num003: '<?php echo lang("Buscar Transacción"); ?>',
+        Num004: '<?php echo lang("Buscar Beneficiario"); ?>',
+        Num005: '<?php echo lang("Anticipo"); ?>',
+        Num024: '<?php echo lang("Saldo Maximo del Anticipo"); ?>',
+        Num025: '<?php echo lang("Pago con Anticipo"); ?>',
+        Num030: '<?php echo lang("Editar Retenciones"); ?>',
+        Num031: '<?php echo lang("Registro de Pago"); ?>',
+        Num032: '<?php echo lang("Saldo de Anticipo"); ?>',
+        Num033: '<?php echo lang("Retencion"); ?>',
+        Num034: '<?php echo lang("Reverso de Crédito"); ?>',
+        Num035: '<?php echo lang("Retencion2"); ?>',
+        Num036: '<?php echo lang("Eliminar"); ?>',
+        Num037: '<?php echo lang("EliminarAnticipo"); ?>',
+        Num038: '<?php echo lang("Transacción"); ?>',
+        Num400: '<?php echo lang("Tipo de Pago"); ?>',
+        Num401: '<?php echo lang("Vuelto Pago"); ?>',
+        Num402: '<?php echo lang("Vuelto"); ?>',
+        AgrBene: '<?php echo lang("Beneficiarios"); ?>',
+        Imprimir: '<?php echo lang("Imprimir"); ?>',
+        num039: { title: '<?php echo Lang("Falta seleccionar banco"); ?>', desc: '<?php echo Lang("Por favor seleccione el banco que afecta la transacción"); ?>' },
+        Num040: { title: '<?php echo Lang("Falta Informacion"); ?>', desc: '<?php echo Lang("Ingrese una monto valido"); ?>' },
+        Num041: { title: '<?php echo Lang("Falta Informacion"); ?>', desc: '<?php echo Lang("Ingrese una fecha valida"); ?>' },
+        Num042: { title: '<?php echo Lang("Falta Informacion"); ?>', desc: '<?php echo Lang("La Retencion no puede superar el monto a crédito, que es de"); ?>' },
+        Num043: { title: '<?php echo Lang("Vuelto Faltante"); ?>', desc: '<?php echo Lang("Tiene que especificar en cuales medios de pago va estar devuelto"); ?>' },
+        Num043x: { title: '<?php echo Lang("Identificador Fiscal Repetido"); ?>', desc: '<?php echo Lang("Este Identificador ya existe."); ?>' },
+        Num043xx: { title: '<?php echo Lang("Error al enviar la información"); ?>', desc: '<?php echo Lang("Ha ocurrido un error al enviar la información por favor revise que esté ingresando los datos en los campos correspondientes."); ?>' },
+        Danger: { "title": "<?php echo lang('Error al guardar'); ?>", "desc": "<?php echo lang('Se ha producido un error durante el guardado.'); ?>" },
+        num048: { title: '<?php echo lang("Monto Excedido"); ?>', desc: '<?php echo Lang("El monto insertado supera el monto a pagar"); ?>' },
+    };
 
-	};
+    // --- FUNCIÓN SENIOR UX PARA AUTO-REFRESCADO CON FORZADO DE CACHÉ ---
+    window.refrescarTablaPosUp = function() {
+        // Cierre rápido y limpio de cualquier modal abierto
+        $('.modal.show').modal('hide');
+        
+        // Llamamos a la función principal que recarga los cuadros
+        if (typeof ActTable === 'function') {
+            ActTable();
+        } else {
+            // Recarga dura de la página saltándose la caché (si falla ActTable)
+            window.location.reload(true); 
+        }
+    };
+    // ----------------------------------------------------
+
+    // --- MANEJO DE ACTUALIZACIONES POST-GUARDADO Y LIMPIEZA ---
+    $(document).ready(function() {
+        var modalesDeAccion = '#registrarPago, #apps-modal2c, #apps-modal2x, #modalaxx, #deletepago, #DeleteAnticipoModal, #DeletePayModal, #modalRetISLR, #ModalPagoUnico';
+        
+        // 1. AL CERRAR MODAL: Reconstruimos el contenedor de forma segura para no romper el DOM
+        $(document).on('hidden.bs.modal', modalesDeAccion, function (e) {
+            if(e.target.id === 'modalRetISLR') {
+                // En vez de vaciarlo, restauramos la etiqueta para que pueda volver a usarse
+                $(this).find('.modal-body').html('<div id="frameRetISLR"></div>'); 
+            }
+        });
+
+        // 2. ANTES DE ABRIR MODAL: Mostrar el loader correctamente
+        $('#modalRetISLR').on('show.bs.modal', function () {
+            $(this).find('.modal-body').html('<div id="frameRetISLR" class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i><br><p class="mt-2">Cargando retención...</p></div>');
+        });
+
+        // 3. REFRESCO EXCLUSIVO DESPUÉS DE GUARDAR/PROCESAR
+        $(document).ajaxSuccess(function(event, xhr, settings) {
+            // Identificar si la llamada AJAX interactuó con procesos de DB
+            if (settings.url && (settings.url.indexOf("process") !== -1 || settings.url.indexOf("delete") !== -1 || settings.url.indexOf("retension_islr.php") !== -1)) {
+                
+                // Validamos que la petición es de guardado (do=process) y no un "preview" de cambio de combo
+                var esGuardado = (settings.data && settings.data.indexOf("do=process") !== -1) || 
+                                 (settings.type && settings.type.toUpperCase() === 'POST');
+
+                if (esGuardado) {
+                    if (typeof ActTable === 'function') {
+                        // Timeout ligero para dar tiempo a la base de datos de persistir
+                        setTimeout(function(){ 
+                            ActTable(); 
+                        }, 600);
+                    } else if (typeof Buscar === 'function') {
+                        setTimeout(function(){ Buscar(); }, 600);
+                    }
+                }
+            }
+        });
+    });
 </script>

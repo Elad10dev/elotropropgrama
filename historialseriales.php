@@ -307,7 +307,7 @@ if ($_POST["CompanyActual"] == '') {
                     <div class="page"></div>
                 </div><br>
                 <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                <div class="FechaI">-</div>
+                <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
             </div>
         </div>
         <div class="encabezado">
@@ -427,23 +427,23 @@ if ($_POST["CompanyActual"] == '') {
                 round(b.Total * d.Inventario, 2) as Monto
             from
                 PosUpTxD a
-            left join PosUpProducto c on
+            inner join PosUpProducto c on
                 c.IdCompany = a.IdCompany
 	            and c.CodIdBasico = a.CodIdBasico 
-            left join PosUpTxC b on
+            inner join PosUpTxC b on
                 b.IdCompany = a.IdCompany
                 and b.Idtx = a.Idtx
                 and b.Idtipotx = a.Idtipotx
                 and b.IdEstacion = a.IdEstacion
-            left join posupusers users on
+            inner join posupusers users on
                 users.IdCompany = b.IdCompany
 	            and users.Login = b.IdUser 
-            left join PosUpTx d on
+            inner join PosUpTx d on
                 d.Idtipotx = a.Idtipotx
             left join PosUpclientes e on
                 e.IdCompany = b.IdCompany
                 and e.RUT = b.IdBen
-            left join PosUpAlmacen f on
+            inner join PosUpAlmacen f on
                 f.IdCompany = a.IdCompany
                 and f.IdAlm = a.IdAlm
             where a.IdCompany=" . $_POST["CompanyActual"] . " 
@@ -456,6 +456,9 @@ if ($_POST["CompanyActual"] == '') {
                 " . $Idtipotx . "
                 " . $OrdenBy . "
         ";
+
+
+
 
         if ($result = mysqli_query($conn, $query)) {
             $n = 0;
@@ -769,7 +772,7 @@ if ($_POST["CompanyActual"] == '') {
                                 <div class="page"></div>
                             </div><br>
                             <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                            <div class="FechaI">-</div>
+                            <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                         </div>
                     </div>
                     <div class="encabezado">

@@ -12,7 +12,7 @@ if ($resu = mysqli_query($conn, $sql)) {
 					<div class='container'>
 						<div class='row'>
 							<div class='col-8'>
-								<h1><i><img src='/img/" . $rw['Img'] . "' width='20' height='20'></i> " . lang(str_replace('2', '', str_replace(' R', '', str_replace(' -S', '', $rw['Descripcion'])))) . " </h1>
+								<h1 ><i><img src='/img/" . $rw['Img'] . "' width='20' height='20'></i> " . lang(str_replace('2', '', str_replace(' R', '', str_replace(' -S', '', $rw['Descripcion'])))) . " </h1>
 							</div>
 							<div class='col-4'>
 								<div class='row'>
@@ -78,6 +78,14 @@ if ($resultE = mysqli_query($conn, $queryE)) {
 		overflow-y: auto;
 	}
 </style>
+<nav>
+	<div class="container">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item  "> <a href='/app.php?opcion=pantallaventas.php'><?php echo lang('Ventas'); ?> </a></li>
+			<li class="breadcrumb-item active"><?php echo lang('Reporte de Ventas'); ?></li>
+		</ol>
+	</div>
+</nav>
 <span id="product-enter" class='d-none'></span>
 <div class="container" id='option' style='padding-bottom:78px;'>
 	<div class="row">
@@ -92,9 +100,225 @@ if ($resultE = mysqli_query($conn, $queryE)) {
 			</div>
 			<?php
 		}
-		if ($_SESSION['CIdPlan'] == '0000000015') { // multicanal
+		if ($_SESSION['CIdPlan'] == '0000000503') { // multicanal
 
-			if ($_SESSION["userperfil"] == 2070 && $_SESSION['CompanyActual'] !== "1168") {
+			if ($_SESSION["userperfil"] <= 2000 or $_SESSION["userperfil"] == 2056 || $_SESSION["userperfil"] == "2054" || $_SESSION["userperfil"] == "2053" or ($_SESSION["userperfil"] == 2700) or ($_SESSION["userperfil"] == 2710) or ($_SESSION["userperfil"] == 2060) or ($_SESSION["userperfil"] == 2050)) {
+			?>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Comisiones por Cobro'); ?> <button type="button" id="button020" onclick="venta(20)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Cobranza'); ?> <button type="button" id="button022" onclick="venta(22)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Comisiones por Ventas'); ?> <button type="button" id="button021" onclick="venta(21)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Resumen Diario de transacciones de  Boletas - Facturas'); ?> <button type="button" id="button018" onclick="venta(18)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Transacciones de Ventas'); ?> <button type="button" id="button001" onclick="venta(1)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  " style="display:none;">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Cierre de Caja (Sistema Anterior)'); ?> <button type="button" id="button004" onclick="venta(4)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<?php
+				if ($_SESSION['IdPais'] == 'CL') {
+				?>
+					<div class="card border-light mb-2 col-md-4 ">
+						<div class="card-body">
+							<h2><img src="/img/informez.png"></h2>
+							<h4><?php echo lang('Resumen de Facturación Electrónica'); ?> <button type="button" id="button013" onclick="venta(13)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						</div>
+					</div>
+				<?php
+				}
+				?>
+
+				<div class="card border-light mb-2 col-md-4 ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Libro de Ventas (Impresora Fiscal)'); ?> <button type="button" id="button024" onclick="venta(24)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4 ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Libro de Ventas (Forma Libre)'); ?> <button type="button" id="button025" onclick="venta(25)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4 " style="display: none;">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Cierre de Caja'); ?> <button type="button" id="button002" onclick="venta(2)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4 " style="display: none;">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Cierre de Ventas Diario'); ?> <button type="button" id="button005" onclick="venta(5)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Cuentas por Cobrar'); ?> <button type="button" id="button015" onclick="venta(15)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Análisis de Vencimiento'); ?> <button type="button" id="button016" onclick="venta(16)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Cuentas por Cobrar a Clientes'); ?> <button type="button" id="button014" onclick="venta(14)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Transacciones de Ventas por Clientes'); ?> <button type="button" id="button017" onclick="venta(17)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Ventas por Producto y Servicio'); ?> <button type="button" id="button023" onclick="venta(23)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Resumen y Detalle de Caja'); ?> <button type="button" id="button027" onclick="venta(27)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+			<?php
+			} else if ($_SESSION["userperfil"] == 2055) {
+			?>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Comisiones por Cobro'); ?> <button type="button" id="button020" onclick="venta(20)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Cobranza'); ?> <button type="button" id="button022" onclick="venta(22)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Comisiones por Ventas'); ?> <button type="button" id="button021" onclick="venta(21)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Resumen Diario de transacciones de  Boletas - Facturas'); ?> <button type="button" id="button018" onclick="venta(18)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  " style="display:none;">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Cierre de Caja (Sistema Anterior)'); ?> <button type="button" id="button004" onclick="venta(4)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<?php
+				if ($_SESSION['IdPais'] == 'CL') {
+				?>
+					<div class="card border-light mb-2 col-md-4 ">
+						<div class="card-body">
+							<h2><img src="/img/informez.png"></h2>
+							<h4><?php echo lang('Resumen de Facturación Electrónica'); ?> <button type="button" id="button013" onclick="venta(13)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+						</div>
+					</div>
+				<?php
+				}
+				?>
+				<div class="card border-light mb-2 col-md-4 ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Libro de Ventas (Impresora Fiscal)'); ?> <button type="button" id="button024" onclick="venta(24)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4 ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Libro de Ventas (Forma Libre)'); ?> <button type="button" id="button025" onclick="venta(25)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4 " style="display: none;">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Cierre de Caja'); ?> <button type="button" id="button002" onclick="venta(2)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4 " style="display: none;">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Cierre de Ventas Diario'); ?> <button type="button" id="button005" onclick="venta(5)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Cuentas por Cobrar'); ?> <button type="button" id="button015" onclick="venta(15)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Análisis de Vencimiento'); ?> <button type="button" id="button016" onclick="venta(16)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Listado de Cuentas por Cobrar a Clientes'); ?> <button type="button" id="button014" onclick="venta(14)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Transacciones de Ventas por Clientes'); ?> <button type="button" id="button017" onclick="venta(17)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+				<div class="card border-light mb-2 col-md-4  ">
+					<div class="card-body">
+						<h2><img src="/img/informez.png"></h2>
+						<h4><?php echo lang('Ventas por Producto y Servicio'); ?> <button type="button" id="button023" onclick="venta(23)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
+					</div>
+				</div>
+			<?php
+			}
+			?>
+			<?php
+		} else 	if ($_SESSION['CIdPlan'] == '0000000015') { // multicanal
+
+			if ($_SESSION["userperfil"] == 2070) {
 			?>
 				<div class="card border-light mb-2 col-md-4">
 					<div class="card-body">
@@ -655,7 +879,7 @@ if ($resultE = mysqli_query($conn, $queryE)) {
 		?>
 			<div class="row">
 				<?php
-				if ($_SESSION["userperfil"] == 2070 && $_SESSION['CompanyActual'] !== "1168") {
+				if ($_SESSION["userperfil"] == 2070) {
 				?>
 					<div class="card border-light mb-2 col-md-4  " style="display: none;">
 						<div class="card-body">
@@ -740,12 +964,6 @@ if ($resultE = mysqli_query($conn, $queryE)) {
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></h2>
 							<h4><?php echo lang('Libro de Ventas (Impresora Fiscal)'); ?> <button type="button" id="button024" onclick="venta(24)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
-					</div>
-					<div class="card border-light mb-2 col-md-4 ">
-						<div class="card-body">
-							<h2><img src="/img/informez.png"></h2>
-							<h4><?php echo lang('Libro de Ventas (Forma Libre)'); ?> <button type="button" id="button025" onclick="venta(25)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
 						</div>
 					</div>
 					<div class="card border-light mb-2 col-md-4 " style="display: none;">
@@ -925,12 +1143,6 @@ if ($resultE = mysqli_query($conn, $queryE)) {
 							<h4><?php echo lang('Libro de Ventas (Impresora Fiscal)'); ?> <button type="button" id="button024" onclick="venta(24)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
 						</div>
 					</div>
-					<div class="card border-light mb-2 col-md-4 ">
-						<div class="card-body">
-							<h2><img src="/img/informez.png"></h2>
-							<h4><?php echo lang('Libro de Ventas (Forma Libre)'); ?> <button type="button" id="button025" onclick="venta(25)" class="btn btn-outline-primary m-1 p-1" disabled> <i class="fa fa-arrow-right"> </i> <?php echo lang('Usar'); ?></button></h4>
-						</div>
-					</div>
 					<div class="card border-light mb-2 col-md-4 " style="display: none;">
 						<div class="card-body">
 							<h2><img src="/img/informez.png"></h2>
@@ -994,7 +1206,7 @@ if ($resultE = mysqli_query($conn, $queryE)) {
 		?>
 			<div class="row">
 				<?php
-				if ($_SESSION["userperfil"] == 2070 && $_SESSION['CompanyActual'] !== "1168") {
+				if ($_SESSION["userperfil"] == 2070) {
 				?>
 					<div class="card border-light mb-2 col-md-4  " style="display: none;">
 						<div class="card-body">

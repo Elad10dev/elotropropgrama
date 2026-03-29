@@ -12,6 +12,7 @@ if ($result3 = mysqli_query($conn, $query4)) {
 	while ($row3 = mysqli_fetch_assoc($result3)) {
 		$EstadoCredito = $row3['validCredit'];
 	}
+	mysqli_free_result($result3);
 }
 ?>
 
@@ -41,13 +42,12 @@ if ($result3 = mysqli_query($conn, $query4)) {
 
 			<div class="col-md-8">
 				<?php if ($_SESSION['Ec'] == 0) { ?>
-					<h1><i><img src="/img/beneficiarios.png" width="20" height="20"></i> <?php echo lang('Beneficiarios'); ?> </h1>
+					<h1 id="TituloModulo"><i><img src="/img/beneficiarios.png" width="20" height="20"></i> <?php echo lang('Beneficiarios'); ?> </h1>
 				<?php } ?>
 				<?php if ($_SESSION['Ec'] == 1) { ?>
-					<h1><i><img src="/img/beneficiarios.png" width="20" height="20"></i> <?php echo lang('Terceros'); ?> </h1>
+					<h1 id="TituloModulo"><i><img src="/img/beneficiarios.png" width="20" height="20"></i> <?php echo lang('Terceros'); ?> </h1>
 				<?php } ?>
 			</div>
-			<div class="col-md-4"><small><?php echo lang('Cadenas que contienen información acerca del entorno para el sistema y el usuario que ha iniciado sesión en ese momento'); ?></small></div>
 
 		</div>
 
@@ -215,7 +215,7 @@ if ($result3 = mysqli_query($conn, $query4)) {
 								<?php if ($_SESSION["IdPais"] == 'CL') { ?>
 									<div class="col">
 										<div class="form-floating">
-											<input type="text" class="form-control" id="ModalRut" name="ModalRut" onchange='dgv(this.value)' />
+											<input type="text" class="form-control" id="ModalRut" name="ModalRut" onchange='dgv(this.value); if($("#new").val() === "0") { VerificarBeneficiarioExistente(this.value); }' />
 											<label><i class="fa fa-file-o"></i>&nbsp;<?php echo Lang("R.U.T."); ?></label>
 										</div>
 									</div>
@@ -227,7 +227,7 @@ if ($result3 = mysqli_query($conn, $query4)) {
 								<?php } else { ?>
 									<div class="col">
 										<div class="form-floating">
-											<input type="text" class="form-control" id="ModalRif" name="ModalRif" />
+											<input type="text" class="form-control" id="ModalRif" name="ModalRif" onchange='if($("#new").val() === "0") { VerificarBeneficiarioExistente(this.value); }' />
 											<label><i class="fa fa-file-o"></i>&nbsp;<?php echo $_SESSION["litfiscal"]; ?></label>
 										</div>
 									</div>
@@ -348,6 +348,44 @@ if ($result3 = mysqli_query($conn, $query4)) {
 								</div>
 							</div>
 						</div>
+
+							<div class="col-12 col-md-6 col-lg-4 p-1">
+								<div class="col">
+									<div class="form-floating">
+										<select name="TipoPersona" id="TipoPersona" class="form-select">
+											<option value="PN">PN - Persona Natural</option>
+											<option value="PJ">PJ - Persona Jurídica</option>
+										</select>
+										<label><i class="fa fa-user"></i>&nbsp;<?php echo lang('Tipo de Persona'); ?></label>
+									</div>
+								</div>
+							</div>
+							<div class="col-12 col-md-6 col-lg-4 p-1">
+								<div class="col">
+									<div class="form-floating">
+										<select name="Domicilio" id="Domicilio" class="form-select">
+											<option value="DOM">DOM - Domiciliado</option>
+											<option value="NDOM">NDOM - No Domiciliado</option>
+										</select>
+										<label><i class="fa fa-home"></i>&nbsp;<?php echo lang('Domicilio Fiscal'); ?></label>
+									</div>
+								</div>
+							</div>
+							<div class="col-12 col-md-12 col-lg-4 p-1">
+								<div class="col">
+									<div class="form-floating">
+										<select name="TipoContribuyente" id="TipoContribuyente" class="form-select">
+											<option value="ORDINARIO">Ordinario</option>
+											<option value="ESPECIAL">Especial</option>
+											<option value="FORMAL">Formal</option>
+											<option value="EXENTO">Exento / No Contribuyente</option>
+											<option value="AGENTE_RET">Agente de Retención</option>
+										</select>
+										<label><i class="fa fa-id-card"></i>&nbsp;<?php echo lang('Tipo de Contribuyente'); ?></label>
+									</div>
+								</div>
+							</div>
+
 					</form>
 				</div>
 			</div>
@@ -390,7 +428,7 @@ if ($result3 = mysqli_query($conn, $query4)) {
 	</div>
 </div>
 
-<div id="apps-delet" class="modal fade" tabindex="-1" role="dialog" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div id="apps-delet" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 		<div class="modal-content">
 			<div class="modal-header bg-danger text-light">

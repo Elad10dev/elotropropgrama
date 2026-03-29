@@ -348,7 +348,7 @@ if ($_POST["Agrupar"] == "empty") {
                         <div class="page"></div>
                     </div><br>
                     <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                    <div class="FechaI">-</div>
+                    <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                 </div>
             </div>
             <div class="encabezado" style="">
@@ -1184,7 +1184,7 @@ if ($_POST["Agrupar"] == "empty") {
                                     <div class="page"></div>
                                 </div><br>
                                 <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                                <div class="FechaI">-</div>
+                                <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                             </div>
                         </div>
                         <div class="encabezado">
@@ -1629,7 +1629,7 @@ if ($_POST["Agrupar"] == "empty") {
                         <div class="page"></div>
                     </div><br>
                     <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                    <div class="FechaI">-</div>
+                    <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                 </div>
             </div>
             <?php
@@ -1790,6 +1790,7 @@ if ($_POST["Agrupar"] == "empty") {
                                     " . $Orden . "
                                     " . $limit . "
                                 ";
+            //echo $query;
             if ($result = mysqli_query($conn, $query)) {
                 $n = 0;
 
@@ -2614,7 +2615,7 @@ if ($_POST["Agrupar"] == "empty") {
                                         <div class="page"></div>
                                     </div><br>
                                     <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                                    <div class="FechaI">-</div>
+                                    <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                                 </div>
                             </div>
                         </div>
@@ -3047,7 +3048,7 @@ if ($_POST["Agrupar"] == "empty") {
                         <div class="page"></div>
                     </div><br>
                     <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                    <div class="FechaI">-</div>
+                    <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                 </div>
             </div>
             <?php
@@ -3205,6 +3206,7 @@ if ($_POST["Agrupar"] == "empty") {
             " . $Orden . "
             " . $limit . "
             ";
+            //echo $query;
             if ($result = mysqli_query($conn, $query)) {
                 $n = 0;
 
@@ -4043,7 +4045,7 @@ if ($_POST["Agrupar"] == "empty") {
                                         <div class="page"></div>
                                     </div><br>
                                     <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                                    <div class="FechaI">-</div>
+                                    <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                                 </div>
                             </div>
                         </div>

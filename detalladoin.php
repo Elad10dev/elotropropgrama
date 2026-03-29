@@ -111,6 +111,7 @@ if ($result = mysqli_query($conn, $query)) {
 				$entUni2 = round(($row3['InvInicial'] - intval($row3['InvInicial'])) * $row3['CantP1']);
 				$efactorunit = $row3["factorunit"];
 			}
+			mysqli_free_result($result3);
 		}
 
 		// if ($invIni === 0) {
@@ -134,7 +135,7 @@ if ($result = mysqli_query($conn, $query)) {
 		// 				$entUni1 = intval(0);
 		// 				$entUni2 = round((0 - intval(0)) * $row4['CantP1']);
 		// 			}
-		// 			
+		// 			mysqli_free_result($result4);
 		// 		}
 		// }
 		$query2 = "SELECT DISTINCT if(if(a.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(a.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(a.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 0,a.IdtxCompany,if(if(a.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(a.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(a.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 1,a.Idtx,a.Referencia)) as IdtxDef,e.CodBarra,a.Fectxclient as Fectxclient ,f.TitCto as NombreTransaccion, 
@@ -229,7 +230,7 @@ if ($result = mysqli_query($conn, $query)) {
 							<div><span id='fectx'>" . $_POST["fectx5"] . "</span></div>
 								<div class='page'></div>
 							<div><img style='width: 30%;' src='img/AZUL.svg' /></div>
-							<div>-</div>
+							<div>https://PosUp.cl Email: info@posup.cl</div>
 							</div>
 						</div>
 					</div>
@@ -457,7 +458,7 @@ $UltimoRegistro = $row["CodIdBasico"];
 					<div><span id="fectx"><?php echo $_POST["fectx5"]; ?></span></div>
 					<div class="page"></div>
 					<div><img style="width: 30%;" src="img/AZUL.svg" /></div>
-					<div>-</div>
+					<div>https://PosUp.cl Email: info@posup.cl</div>
 				</div>
 			</div>
 		</div>

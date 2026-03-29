@@ -4,194 +4,283 @@ use Dom\Document;
 
 
 if ($_POST["Accion"] === "cleanidben") {
-    session_start();
-    $_SESSION["idben"] = "";
+	session_start();
+	$_SESSION["idben"] = "";
 }
 
 
 if ($_POST["Accion"] == "1") {
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    if ($_POST["Ini"] == "0") {
+	if ($_POST["Ini"] == "0") {
 ?>
-        <table class="table nowrap" id="estadocbtable" cellspacing="0" style="width:100%">
-            <thead>
-                <tr>
-                    <th class="text-center"><?php echo lang("Tx"); ?></th>
-                    <th class="text-center"><?php echo lang("Idtx"); ?></th>
-                    <th class="text-center"><?php echo lang("Fecha"); ?></th>
-                    <th class="text-end"><?php echo lang("Total") . " (" . $_POST["MonedaP"] . ")"; ?></th>
-                    <th class="text-end"><?php echo lang("Contado") . " (" . $_POST["MonedaP"] . ")"; ?></th>
-                    <th class="text-end"><?php echo lang("Crédito") . " (" . $_POST["MonedaP"] . ")"; ?></th>
-                    <th class="text-start"><?php echo lang("Beneficiario"); ?></th>
-                </tr>
-            </thead>
-        </table>
-        <?php
-    }
+		<table class="table nowrap" id="estadocbtable" cellspacing="0" style="width:100%">
+			<thead>
+				<tr>
+					<th class="text-center"><?php echo lang("Tx"); ?></th>
+					<th class="text-center"><?php echo lang("Idtx"); ?></th>
+					<th class="text-center"><?php echo lang("Fecha"); ?></th>
+					<th class="text-end"><?php echo lang("Total") . " (" . $_POST["MonedaP"] . ")"; ?></th>
+					<th class="text-end"><?php echo lang("Contado") . " (" . $_POST["MonedaP"] . ")"; ?></th>
+					<th class="text-end"><?php echo lang("Crédito") . " (" . $_POST["MonedaP"] . ")"; ?></th>
+					<th class="text-start"><?php echo lang("Beneficiario"); ?></th>
+				</tr>
+			</thead>
+		</table>
+		<?php
+	}
 
-    if ($_POST["Ini"] == "1") {
-        $request = $_REQUEST;
-        $col = array(
-            0   =>  'Tx',
-            1   =>  'Idtx',
-            2   =>  'Fecha',
-            3   =>  'Total',
-            4   =>  'Contado',
-            5   =>  'Credito',
-            6   =>  'IdBen,NomBeneficiario',
-        );
-        $buscar = "";
-        if ($_POST["Modaldesde"] <> "") {
-            $buscar = $buscar . " and a.Fectxclient >='" . trim($_POST["Modaldesde"]) . "'";
-        }
-        if ($_POST["Modalhasta"] <> "") {
-            $buscar = $buscar . " and a.Fectxclient < '" . trim($_POST["Modalhasta"]) . "'";
-        }
-        if ($_POST["Modaltipotrans"] == "*") {
-            $buscar = $buscar . " and b.caja <> 0 and a.Idtipotx <> 1";
-        } else {
-            $buscar = $buscar . " and a.Idtipotx = '" . trim($_POST["Modaltipotrans"]) . "'";
-        }
-        if ($_POST["Modalnroid"] <> "") {
-            $buscar = $buscar . " and Concat(a.Referencia ,a.DTE,a.IdTxCompany,a.Idtx) like'%" . trim($_POST["Modalnroid"]) . "%'";
-        }
-        if ($_POST["Modalmodalidad"] == "1") {
-            $buscar = $buscar . " and a.Contado <> 0 ";
-        }
-        if ($_POST["Modalmodalidad"] == "2") {
-            $buscar = $buscar . " and a.Credito <> 0 ";
-        }
-        $sql = "SELECT a.Total*b.caja as Total,a.Contado*b.caja as Contado,a.Credito*b.caja As Credito,b.TitCto as Tx,a.Idtipotx,a.IdEstacion,if(a.Referencia='',if (a.DTE=0,if (a.IdTxCompany<>0,a.IdTxCompany,a.Idtx),a.DTE),a.Referencia ) as Idtx,DATE_FORMAT(a.Fectxclient,'%d/%m/%Y %h:%i:%s %p') as Fecha ,a.IdBen,d.Nombre as NomBeneficiario from PosUpTxC a left Join PosUpTx b on a.Idtipotx=b.Idtipotx left join PosUpclientes d on a.IdBen = d.rut and a.Idcompany=d.Idcompany WHERE a.IdCompany=" . $_POST["CompanyActual"] . $buscar;
-        $query = mysqli_query($conn, $sql);
-        $totalData = mysqli_num_rows($query);
-        $totalFilter = $totalData;
-        if (!empty($request['search']['value'])) {
-            if (!empty($request['search']['value'])) {
-                $sql .= " AND ( Tx Like '%" . $request['search']['value'] . "%'";
-                $sql .= " OR Idtx Like '%" . $request['search']['value'] . "%' ";
-                $sql .= " OR Fecha Like '%" . $request['search']['value'] . "%' ";
-                $sql .= " OR NomBeneficiario Like '%" . $request['search']['value'] . "%' ";
-                $sql .= " OR IdBen Like '%" . $request['search']['value'] . "%' )";
-            }
-        }
-        $query = mysqli_query($conn, $sql);
-        $totalData = mysqli_num_rows($query);
-        if ($col[$request['order'][0]['column']] && $request['order'][0]['dir']) {
-            $sql .= " ORDER BY " . $col[$request['order'][0]['column']] . "   " . $request['order'][0]['dir'] . "";
-        }
+	if ($_POST["Ini"] == "1") {
+		$request = $_REQUEST;
+		$col = array(
+			0   =>  'Tx',
+			1   =>  'Idtx',
+			2   =>  'Fecha',
+			3   =>  'Total',
+			4   =>  'Contado',
+			5   =>  'Credito',
+			6   =>  'IdBen,NomBeneficiario',
+		);
+		$buscar = "";
+		if ($_POST["Modaldesde"] <> "") {
+			$buscar = $buscar . " and a.Fectxclient >='" . trim($_POST["Modaldesde"]) . "'";
+		}
+		if ($_POST["Modalhasta"] <> "") {
+			$buscar = $buscar . " and a.Fectxclient < '" . trim($_POST["Modalhasta"]) . "'";
+		}
+		if ($_POST["Modaltipotrans"] == "*") {
+			$buscar = $buscar . " and b.caja <> 0 and a.Idtipotx <> 1";
+		} else {
+			$buscar = $buscar . " and a.Idtipotx = '" . trim($_POST["Modaltipotrans"]) . "'";
+		}
+		if ($_POST["Modalnroid"] <> "") {
+			$buscar = $buscar . " and Concat(a.Referencia ,a.DTE,a.IdTxCompany,a.Idtx) like'%" . trim($_POST["Modalnroid"]) . "%'";
+		}
+		if ($_POST["Modalmodalidad"] == "1") {
+			$buscar = $buscar . " and a.Contado <> 0 ";
+		}
+		if ($_POST["Modalmodalidad"] == "2") {
+			$buscar = $buscar . " and a.Credito <> 0 ";
+		}
+		$sql = "SELECT a.Total*b.caja as Total,a.Contado*b.caja as Contado,a.Credito*b.caja As Credito,b.TitCto as Tx,a.Idtipotx,a.IdEstacion,if(a.Referencia='',if (a.DTE=0,if (a.IdTxCompany<>0,a.IdTxCompany,a.Idtx),a.DTE),a.Referencia ) as Idtx,DATE_FORMAT(a.Fectxclient,'%d/%m/%Y %h:%i:%s %p') as Fecha ,a.IdBen,d.Nombre as NomBeneficiario from PosUpTxC a left Join PosUpTx b on a.Idtipotx=b.Idtipotx left join PosUpclientes d on a.IdBen = d.rut and a.Idcompany=d.Idcompany WHERE a.IdCompany=" . $_POST["CompanyActual"] . $buscar;
+		$query = mysqli_query($conn, $sql);
+		$totalData = mysqli_num_rows($query);
+		$totalFilter = $totalData;
+		if (!empty($request['search']['value'])) {
+			if (!empty($request['search']['value'])) {
+				$sql .= " AND ( Tx Like '%" . $request['search']['value'] . "%'";
+				$sql .= " OR Idtx Like '%" . $request['search']['value'] . "%' ";
+				$sql .= " OR Fecha Like '%" . $request['search']['value'] . "%' ";
+				$sql .= " OR NomBeneficiario Like '%" . $request['search']['value'] . "%' ";
+				$sql .= " OR IdBen Like '%" . $request['search']['value'] . "%' )";
+			}
+		}
+		$query = mysqli_query($conn, $sql);
+		$totalData = mysqli_num_rows($query);
+		if ($col[$request['order'][0]['column']] && $request['order'][0]['dir']) {
+			$sql .= " ORDER BY " . $col[$request['order'][0]['column']] . "   " . $request['order'][0]['dir'] . "";
+		}
 
-        $sql .= " LIMIT " . $request['start'] . "  ," . $request['length'] . "  ";
-        $query = mysqli_query($conn, $sql);
-        $data = array();
-        while ($row = mysqli_fetch_array($query)) {
-            $subdata = array();
-            if ($row["Tx"] == "") {
-                $Tx = "-";
-            } else {
-                $Tx = $row["Tx"];
-            }
-            if ($row["Idtx"] == "") {
-                $Idtx = "-";
-            } else {
-                $Idtx = $row["Idtx"];
-            }
-            if ($row["Fecha"] == "") {
-                $Fecha = "-";
-            } else {
-                $Fecha = $row["Fecha"];
-            }
-            $subdata[] = $Tx . " -> " . "<div class='btn-group'><button class='btn btn-primary' type='button' onclick='Editar(`" . $row['IdBen'] . "`,`" . $row['NomBeneficiario'] . "`);'>  <i class='fa fa-user'></i></button></div>";
-            $subdata[] = $Idtx;
-            $subdata[] = $Fecha;
-            $subdata[] = "<div class='text-end'>" . number_format(trim($row['Total']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "</div>";
-            $subdata[] = "<div class='text-end'>" . number_format(trim($row['Contado']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "</div>";
-            $subdata[] = "<div class='text-end'>" . number_format(trim($row['Credito']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "</div>";
-            $subdata[] = $row['IdBen'] . ' - ' . $row['NomBeneficiario'];
-            $data[] = $subdata;
-        }
-        $json_data = array(
-            "draw"              =>  intval($request['draw']),
-            "recordsTotal"      =>  intval($totalData),
-            "recordsFiltered"   =>  intval($totalFilter),
-            "data"              =>  $data
-        );
-        echo json_encode($json_data);
-    }
+		$sql .= " LIMIT " . $request['start'] . "  ," . $request['length'] . "  ";
+		$query = mysqli_query($conn, $sql);
+		$data = array();
+		while ($row = mysqli_fetch_array($query)) {
+			$subdata = array();
+			if ($row["Tx"] == "") {
+				$Tx = "-";
+			} else {
+				$Tx = $row["Tx"];
+			}
+			if ($row["Idtx"] == "") {
+				$Idtx = "-";
+			} else {
+				$Idtx = $row["Idtx"];
+			}
+			if ($row["Fecha"] == "") {
+				$Fecha = "-";
+			} else {
+				$Fecha = $row["Fecha"];
+			}
+			$subdata[] = $Tx . " -> " . "<div class='btn-group'><button class='btn btn-primary' type='button' onclick='Editar(`" . $row['IdBen'] . "`,`" . $row['NomBeneficiario'] . "`);'>  <i class='fa fa-user'></i></button></div>";
+			$subdata[] = $Idtx;
+			$subdata[] = $Fecha;
+			$subdata[] = "<div class='text-end'>" . number_format(trim($row['Total']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "</div>";
+			$subdata[] = "<div class='text-end'>" . number_format(trim($row['Contado']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "</div>";
+			$subdata[] = "<div class='text-end'>" . number_format(trim($row['Credito']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "</div>";
+			$subdata[] = $row['IdBen'] . ' - ' . $row['NomBeneficiario'];
+			$data[] = $subdata;
+		}
+		$json_data = array(
+			"draw"              =>  intval($request['draw']),
+			"recordsTotal"      =>  intval($totalData),
+			"recordsFiltered"   =>  intval($totalFilter),
+			"data"              =>  $data
+		);
+		echo json_encode($json_data);
+	}
 }
 
 if ($_POST["Accion"] === "2") {
 
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    echo TableResponse($conn, $_POST);
+	echo TableResponse($conn, $_POST);
 }
 
-if ($_POST["Accion"] === "GuardarBeneficiario") {
-    include "ambiente.php";
+// =====================================================================
+// BUSCAR TASA HISTÓRICA POR FECHA (USANDO TABLA OFICIAL JSON BCV)
+// =====================================================================
+if ($_POST["Accion"] === "BuscarTasaPorFecha") {
+    include "ambienteconsultas.php";
     $conn = conectar();
+    
+    $fecha = trim($_POST['Fecha']); // Formato YYYY-MM-DD
+    $company = trim($_POST['CompanyActual']);
+    $tasa_encontrada = 0;
+    
+    // 1. Buscamos en posuptasasbcv. 
+    // Usamos SUBSTRING para ignorar el " GMT-03:00" y comparar solo la fecha.
+    $sqlBCV = "SELECT tasas FROM posuptasasbcv 
+               WHERE SUBSTRING(fecha_valor_bcv, 1, 10) <= '$fecha' 
+               ORDER BY SUBSTRING(fecha_valor_bcv, 1, 10) DESC 
+               LIMIT 1";
+               
+    $resBCV = mysqli_query($conn, $sqlBCV);
+    
+    if ($resBCV && mysqli_num_rows($resBCV) > 0) {
+        $rowBCV = mysqli_fetch_assoc($resBCV);
+        $json_tasas = $rowBCV['tasas'];
+        
+        // Decodificamos el string JSON que trae la BD: {"DOLAR":"...","EURO":"..."}
+        $data_tasas = json_decode($json_tasas, true);
+        
+        // Si existe el valor DOLAR, lo extraemos
+        if(isset($data_tasas['DOLAR'])) {
+            $tasa_encontrada = (float)$data_tasas['DOLAR'];
+        }
+    }
+    
+    // 2. Retornar el resultado. Si falló la tabla BCV, usamos el Fallback de la empresa.
+    if ($tasa_encontrada > 0) {
+        echo json_encode([
+            "status" => true, 
+            "tasa" => number_format($tasa_encontrada, 8, '.', '')
+        ]);
+    } else {
+        // Fallback: Tasa actual de la empresa
+        $sqlActual = "SELECT FactorDolarCash FROM PosUpCompany WHERE Id = '$company' LIMIT 1";
+        $resActual = mysqli_query($conn, $sqlActual);
+        if ($resActual && mysqli_num_rows($resActual) > 0) {
+            $rowActual = mysqli_fetch_assoc($resActual);
+            echo json_encode([
+                "status" => true, 
+                "tasa" => number_format((float)$rowActual['FactorDolarCash'], 8, '.', '')
+            ]);
+        } else {
+            echo json_encode(["status" => false, "tasa" => 1]);
+        }
+    }
+    exit;
+}
+// =====================================================================
 
-    echo GuardarBeneficiario($conn, $_POST);
+if ($_POST["Accion"] === "GuardarBeneficiario") {
+	include "ambiente.php";
+	$conn = conectar();
+
+	echo GuardarBeneficiario($conn, $_POST);
 }
 
 if ($_POST["Accion"] === "DeleteAnticipo") {
-    include "ambiente.php";
-    $conn = conectar();
+	include "ambiente.php";
+	$conn = conectar();
 
-    echo DeleteAnticipo($conn, $_POST);
+	echo DeleteAnticipo($conn, $_POST);
 }
 
 if ($_POST["Accion"] === "DeletePago") {
-    include "ambiente.php";
-    $conn = conectar();
+	include "ambiente.php";
+	$conn = conectar();
 
-    echo EliminarPago($conn, $_POST);
+	echo EliminarPago($conn, $_POST);
 }
 
 if ($_POST["Accion"] === "AnticipadosCrud") {
+	include "ambienteconsultas.php";
+	$conn = conectar();
+
+	echo AnticipadosCrud($conn, $_POST, $_REQUEST);
+}
+if ($_POST["Accion"] === "BuscarTasaPorFecha") {
     include "ambienteconsultas.php";
     $conn = conectar();
-
-    echo AnticipadosCrud($conn, $_POST, $_REQUEST);
+    
+    $fecha = $_POST['Fecha'];
+    $company = $_POST['CompanyActual'];
+    
+    // 1. Buscamos si existe una tasa guardada para esa fecha exacta en el historial
+    // (Asegúrate de que el nombre de la tabla 'posuptasas_historia' sea el correcto en tu BD)
+    $sql = "SELECT tasa_valor FROM posuptasas_historia 
+            WHERE IdCompany = '$company' AND fecha_tasa = '$fecha' 
+            LIMIT 1";
+            
+    $result = mysqli_query($conn, $sql);
+    
+    if ($row = mysqli_fetch_assoc($result)) {
+        echo json_encode([
+            "status" => true, 
+            "tasa" => $row['tasa_valor']
+        ]);
+    } else {
+        // 2. Fallback: Si no hay historial para ese día, traemos la tasa actual de la empresa
+        $sqlActual = "SELECT FactorDolarCash FROM PosUpCompany WHERE Id = '$company'";
+        $resActual = mysqli_query($conn, $sqlActual);
+        $rowActual = mysqli_fetch_assoc($resActual);
+        
+        echo json_encode([
+            "status" => true, 
+            "tasa" => $rowActual['FactorDolarCash']
+        ]);
+    }
+    exit;
 }
-
 function DeleteAnticipo($conn, $post)
 {
-    $IdCompany = -1;
-    $Idtipotx = -1;
-    $Idtx = -1;
-    $IdEstacion = -1;
-    $query = "SELECT IdCompany,Idtipotx,Idtx,IdEstacion from PosUpTxC WHERE IdBarcode = " . $post["IdBarcode"] . " and IdCompany = " . $post["CompanyActual"];
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $IdCompany = $row['IdCompany'];
-            $Idtipotx = $row['Idtipotx'];
-            $Idtx = $row['Idtx'];
-            $IdEstacion = $row['IdEstacion'];
-        }
-        mysqli_free_result($result);
-    }
+	$IdCompany = -1;
+	$Idtipotx = -1;
+	$Idtx = -1;
+	$IdEstacion = -1;
+	$query = "SELECT IdCompany,Idtipotx,Idtx,IdEstacion from PosUpTxC WHERE IdBarcode = " . $post["IdBarcode"] . " and IdCompany = " . $post["CompanyActual"];
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$IdCompany = $row['IdCompany'];
+			$Idtipotx = $row['Idtipotx'];
+			$Idtx = $row['Idtx'];
+			$IdEstacion = $row['IdEstacion'];
+		}
+		mysqli_free_result($result);
+	}
 
-    $conn->autocommit(FALSE);
-    if ($IdCompany !== -1 && $Idtipotx !== -1 && $Idtx !== -1 && $IdEstacion !== -1) {
-        $statement = "DELETE FROM PosUpTxP WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
-        $result =  mysqli_query($conn, $statement);
-        if ($result === true) {
-            $statement = "DELETE FROM PosUpTxC WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
-            $result =  mysqli_query($conn, $statement);
-            if ($result === true) {
-                $conn->commit();
-                return json_encode(["status" => true]);
-            }
-            $conn->rollback();
-            return json_encode(["status" => false]);
-        }
-        $conn->rollback();
-        return json_encode(["status" => false]);
-    }
-    return json_encode(["status" => false]);
+	$conn->autocommit(FALSE);
+	if ($IdCompany !== -1 && $Idtipotx !== -1 && $Idtx !== -1 && $IdEstacion !== -1) {
+		$statement = "DELETE FROM PosUpTxP WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
+		$result =  mysqli_query($conn, $statement);
+		if ($result === true) {
+			$statement = "DELETE FROM PosUpTxC WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
+			$result =  mysqli_query($conn, $statement);
+			if ($result === true) {
+				$conn->commit();
+				return json_encode(["status" => true]);
+			}
+			$conn->rollback();
+			return json_encode(["status" => false]);
+		}
+		$conn->rollback();
+		return json_encode(["status" => false]);
+	}
+	return json_encode(["status" => false]);
 }
 
 function GuardarBeneficiario($conn, $post)
@@ -204,13 +293,20 @@ function GuardarBeneficiario($conn, $post)
             $can = intval($row["Cantidad"]);
         }
     }
+    
     if ($can === 0) {
-        $sql = "insert into PosUpclientes (IdCompany,RUT,Nombre,Fono,Direccion,TipoCredito,EstadoCredito,DeudaMaxBoleta,DeudaMaxLibreta,FechPago1,FechPago2,NroCorr,Comuna,Giro,CreditoFactura,CreditoUsado,Estado,EsCliente,EsProveedor,EsTrabajador,EsOtro,email,provincia,region,ciudad,Latitud,Longitud, TipoBenef) values(" . $post["CompanyActual"] . ",'" . trim($post["Rut"]) . "','" . substr(trim($post["anombreFA"]), 0, 50) . "','" . trim($post["TelefonoFA"]) . "','" . trim($post["DirecionFA"]) . "','',0,0,0,0,0,0,'','" . trim($post["GiroFA"]) . "',0,0,'1','1','0','0','0','" . trim($post["EmailFA"]) . "','','','" . trim($post["CiudadFA"]) . "',0,0,'" . $post["TipoBeneficiario"] . "')";
+        // 1. CAPTURAR LOS NUEVOS CAMPOS (Evita que queden en blanco)
+        $tipoPersona = isset($post["TipoPersona"]) ? trim($post["TipoPersona"]) : 'PN';
+        $domicilio = isset($post["Domicilio"]) ? trim($post["Domicilio"]) : 'DOM';
+
+        // 2. AGREGARLOS A LA CONSULTA SQL (Al final de la lista de columnas y valores)
+        $sql = "insert into PosUpclientes (IdCompany,RUT,Nombre,Fono,Direccion,TipoCredito,EstadoCredito,DeudaMaxBoleta,DeudaMaxLibreta,FechPago1,FechPago2,NroCorr,Comuna,Giro,CreditoFactura,CreditoUsado,Estado,EsCliente,EsProveedor,EsTrabajador,EsOtro,email,provincia,region,ciudad,Latitud,Longitud, TipoBenef, TipoPersona, Domicilio) values(" . $post["CompanyActual"] . ",'" . trim($post["Rut"]) . "','" . substr(trim($post["anombreFA"]), 0, 50) . "','" . trim($post["TelefonoFA"]) . "','" . trim($post["DirecionFA"]) . "','',0,0,0,0,0,0,'','" . trim($post["GiroFA"]) . "',0,0,'1','1','0','0','0','" . trim($post["EmailFA"]) . "','','','" . trim($post["CiudadFA"]) . "',0,0,'" . $post["TipoBeneficiario"] . "', '" . $tipoPersona . "', '" . $domicilio . "')";
+        
         $stmt = mysqli_query($conn, $sql);
         if ($stmt === true) {
             return json_encode(["status" => true, "msg" => 1]);
         } else {
-            mysqli_free_result($stmt);
+            // Nota: Se quitó mysqli_free_result porque INSERT no devuelve un result set, sino un boolean.
             return json_encode(["status" => false, "msg" => 2]);
         }
     }
@@ -693,15 +789,15 @@ function TableResponse($conn, $post)
 */
 function TableResponse($conn, $post)
 {
-    $Saldo = 0;
-    $n = 0;
-    // $buscar = "";
+	$Saldo = 0;
+	$n = 0;
+	// $buscar = "";
 
-    // if ($post["MostrarTodos"] === "1") {
-    // 	$buscar .= " and ((Pagos.Fectxclient >= '" . trim($post["Modaldesde"]) . "' and Pagos.Fectxclient <= '" . trim($post["Modalhasta"]) . "' and a.Credito = 0) or (a.Credito <> 0))";
-    // }
+	// if ($post["MostrarTodos"] === "1") {
+	// 	$buscar .= " and ((Pagos.Fectxclient >= '" . trim($post["Modaldesde"]) . "' and Pagos.Fectxclient <= '" . trim($post["Modalhasta"]) . "' and a.Credito = 0) or (a.Credito <> 0))";
+	// }
 
-    $query = "SELECT
+	$query = "SELECT
 		n.IdDef,
 		n.IdBarcode,
 		bb.titulo,
@@ -786,14 +882,14 @@ function TableResponse($conn, $post)
 			and c.Login = users.Login
 		LEFT JOIN (
 			SELECT
-	        nn.IdCompany,
+		 nn.IdCompany,
 			nn.IdDef,
-			SUM(cc.Credito * bb2.Caja / cc.tasa) as CreditoTx,
-			SUM(cc.Credito * bb2.Caja / cc.tasa)  - SUM(cc.Contado * bb2.Caja / cc.tasa) as CreditoT,
-			SUM(cc.Contado * bb2.Caja / cc.tasa) as ContadoT,
-			ROUND(SUM(cc.Credito * bb2.Caja / cc.tasa) - SUM(cc.Contado * bb2.Caja / cc.tasa), 0) as x,
+			SUM(cc.Credito * bb2.Caja / IF(cc.tasa>0,cc.tasa,1)) as CreditoTx,
+			SUM(cc.Credito * bb2.Caja / IF(cc.tasa>0,cc.tasa,1))  - SUM(( (cc.Contado / IF(cc.tasa>0,cc.tasa,1)) + IF(cc.tiporetencion=1 AND cc.Fectxclient >= '2026-03-09', COALESCE(cc.montoretencion, 0), COALESCE(cc.montoretencion, 0) / IF(cc.tasa>0,cc.tasa,1)) ) * bb2.Caja ) as CreditoT,
+			SUM(( (cc.Contado / IF(cc.tasa>0,cc.tasa,1)) + IF(cc.tiporetencion=1 AND cc.Fectxclient >= '2026-03-09', COALESCE(cc.montoretencion, 0), COALESCE(cc.montoretencion, 0) / IF(cc.tasa>0,cc.tasa,1)) ) * bb2.Caja ) as ContadoT,
+			ROUND(SUM(cc.Credito * bb2.Caja / IF(cc.tasa>0,cc.tasa,1)) - SUM(( (cc.Contado / IF(cc.tasa>0,cc.tasa,1)) + IF(cc.tiporetencion=1 AND cc.Fectxclient >= '2026-03-09', COALESCE(cc.montoretencion, 0), COALESCE(cc.montoretencion, 0) / IF(cc.tasa>0,cc.tasa,1)) ) * bb2.Caja ), 0) as x,
 			if(
-			ROUND(SUM(cc.Credito * bb2.Caja / cc.tasa) - SUM(cc.Contado * bb2.Caja / cc.tasa), 0) = 0,
+			ROUND(SUM(cc.Credito * bb2.Caja / IF(cc.tasa>0,cc.tasa,1)) - SUM(( (cc.Contado / IF(cc.tasa>0,cc.tasa,1)) + IF(cc.tiporetencion=1 AND cc.Fectxclient >= '2026-03-09', COALESCE(cc.montoretencion, 0), COALESCE(cc.montoretencion, 0) / IF(cc.tasa>0,cc.tasa,1)) ) * bb2.Caja ), 0) = 0,
 			1, 0
 			) as pagado
 		FROM
@@ -837,466 +933,533 @@ n.IdCompany,n.IdDef,n.IdBarcode ,
 	c.Item 
 		
 	";
-    $array = [];
-    $SaldoVencido = 0;
-    $Saldo = 0;
-    $ContadoTotal2 = 0;
-    $tableResponse = [];
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $Retencion = 0;
-            $Credito = $row["Credito"];
+	$array = [];
+	$SaldoVencido = 0;
+	$Saldo = 0;
+	$ContadoTotal2 = 0;
+	$tableResponse = [];
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$Retencion = 0;
+			$Credito = $row["Credito"];
 
-            if ($row["item"] == 1 && $row["Idtipotx"] !== "3" && $row["Idtipotx"] !== "27") {
-                $SaldoShow = 0;
-            }
+			if ($row["item"] == 1 && $row["Idtipotx"] !== "3" && $row["Idtipotx"] !== "27") {
+				$SaldoShow = 0;
+			}
 
-            $SaldoShow += ROUND(($row["Retencion"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-            if ($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") {
-                $SaldoShow += ROUND((abs($row["Contado"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-            } else if ($row['item'] > 1) {
-                $SaldoShow += ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-            } else if ($row["Idtipotx"] === "4" || $row["Idtipotx"] === "5") {
-                $SaldoShow += ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-            }
+			// Extraemos la fecha real de la retención/pago para validar
+			$fecha_str = $row['Fecha3']; 
+			$fecha_ymd = substr($fecha_str, 6, 4) . '-' . substr($fecha_str, 3, 2) . '-' . substr($fecha_str, 0, 2);
+			$isUsdRet = (trim($row['tiporetencion']) == "1" && strtotime($fecha_ymd) >= strtotime('2026-03-09'));
+			
+			$ret_usd = $isUsdRet ? $row["Retencion"] : ($row["Retencion"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1));
+			$SaldoShow += ROUND($ret_usd, 2);
+			if ($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") {
+				$SaldoShow += ROUND((abs($row["Contado"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+			} else if ($row['item'] > 1) {
+				$SaldoShow += ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+			} else if ($row["Idtipotx"] === "4" || $row["Idtipotx"] === "5") {
+				$SaldoShow += ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+			}
 
-            if ($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") {
-                $SaldoShow -= ROUND((abs($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-            } else {
-                $SaldoShow -= ROUND((($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-            }
-
-
-            $Idtipotx = $row["Idtipotx"];
-            $idtx = $row['Idtx'];
-            $IdEstacion = $row['IdEstacion'];
-            $tasa = $row["tasaDef"];
-            $ContadoTxP = $row["contadot"];
-            $ContadoTxP2 = $row["contadot"] * ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
-
-            $CreditoTxP = $row["creditot"];
-            $CreditoTxP2 = $row["creditot"] * ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
+			if ($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") {
+				$SaldoShow -= ROUND((abs($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+			} else {
+				$SaldoShow -= ROUND((($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+			}
 
 
+			$Idtipotx = $row["Idtipotx"];
+			$idtx = $row['Idtx'];
+			$IdEstacion = $row['IdEstacion'];
+			$tasa = $row["tasaDef"];
+			$ContadoTxP = $row["contadot"];
+			$ContadoTxP2 = $row["contadot"] * ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
 
-            $MontoAPagar = $row["MontoPagar"];
-            $MontoAPagar2 = $row["MontoPagar"] * ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
+			$CreditoTxP = $row["creditot"];
+			$CreditoTxP2 = $row["creditot"] * ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
 
 
-            $n++;
-            $Tipa = "";
-            if ($row['Tipo'] <> "") {
-                $Tipa .= $row['Tipo'] . "-";
-            } else if ($row['etiqueta'] <> "") {
-                $Tipa .= $row['etiqueta'] . "-";
-            }
 
-            if ($idtx <> "") {
-                $Tipa .= str_pad($idtx, 6, "0", STR_PAD_LEFT) . " ";
-            }
-            $ExtraData = "";
-            if (($row["Idtipotx"] === "1" or $row["Idtipotx"] === "2" or $row["Idtipotx"] === "7") && $row['item'] === "1") $ExtraData .= "<i class='fa fa-file-text-o'></i>";
-            if (($row["Idtipotx"] === "22" or $row["Idtipotx"] === "28" or $row["Idtipotx"] === "15") && $row['item'] === "1") $ExtraData .= "<i class='fa fa-truck'></i>";
-            if (($row["Idtipotx"] === "3" or $row["Idtipotx"] === "27") && $row['item'] === "1") $ExtraData .= "<i class='fa fa-undo'></i>";
+			$MontoAPagar = $row["MontoPagar"];
+			$MontoAPagar2 = $row["MontoPagar"] * ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
 
-            if ($row['Contado'] > 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-plus'></i>";
-            if ($row['Contado'] < 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-minus'></i>";
-            if ($row['Retencion'] <> 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-percent'></i>";
-            if ($row['Credito'] <> 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-minus'></i>";
-            $Documento = "";
-            $Documento2 = "
+
+			$n++;
+			$Tipa = "";
+			if ($row['Tipo'] <> "") {
+				$Tipa .= $row['Tipo'] . "-";
+			} else if ($row['etiqueta'] <> "") {
+				$Tipa .= $row['etiqueta'] . "-";
+			}
+
+			if ($idtx <> "") {
+				$Tipa .= str_pad($idtx, 6, "0", STR_PAD_LEFT) . " ";
+			}
+			$ExtraData = "";
+			if (($row["Idtipotx"] === "1" or $row["Idtipotx"] === "2" or $row["Idtipotx"] === "7") && $row['item'] === "1") $ExtraData .= "<i class='fa fa-file-text-o'></i>";
+			if (($row["Idtipotx"] === "22" or $row["Idtipotx"] === "28" or $row["Idtipotx"] === "15") && $row['item'] === "1") $ExtraData .= "<i class='fa fa-truck'></i>";
+			if (($row["Idtipotx"] === "3" or $row["Idtipotx"] === "27") && $row['item'] === "1") $ExtraData .= "<i class='fa fa-undo'></i>";
+
+			if ($row['Contado'] > 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-plus'></i>";
+			if ($row['Contado'] < 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-minus'></i>";
+			if ($row['Retencion'] <> 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-percent'></i>";
+			if ($row['Credito'] <> 0 && $row['item'] <> "1") $ExtraData .= "<i class='fa fa-minus'></i>";
+			$Documento = "";
+			$Documento2 = "
 			   <div class='fs-6'> <button class='btn btn-outline-light px-1 ' type='button' onclick='ImprimirEstado(`" . $row["IdDef"] . "`)'><i class='fa fa-print'></i></button> " . $ExtraData . " " . $row['titulo'] . " <span class='badge bg-warning text-dark fs-6'>" . $Tipa . "</span> <span class='badge bg-light text-dark fs-6'>Nro. " . strtoupper(str_pad($row['IdTxCompany'], 8, "0", STR_PAD_LEFT)) . "</span> <span class='badge bg-secondary text-white fs-6'> " . $row['Fecha3'] . "</div>
 			";
-            $Documento3 =  "<div class='d-flex justify-content-center'>" . ($row["pagado"] == 1 ? "<span class='badge bg-success text-light fs-6'><i class='fa fa-check'></i> " . lang("Pagado") . "</span>" : "<span class='badge " . ($row["Dias_Vencidos"] >= 0 ? "bg-danger text-light" : "bg-light text-dark") . " fs-6'><i class='fa fa-close'></i> " . lang("Vence") . ": (" . $row["Dias_Vencidos"] . ") " . $row["TxfecVence"] . "  <br> " . lang("Saldo") . ": " . number_format(($CreditoTxP * -1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "  " . $_POST["MonedaP"] . "</span> </span>") . " </div>";
+			$Documento3 =  "<div class='d-flex justify-content-center'>" . ($row["pagado"] == 1 ? "<span class='badge bg-success text-light fs-6'><i class='fa fa-check'></i> " . lang("Pagado") . "</span>" : "<span class='badge " . ($row["Dias_Vencidos"] >= 0 ? "bg-danger text-light" : "bg-light text-dark") . " fs-6'><i class='fa fa-close'></i> " . lang("Vence") . ": (" . $row["Dias_Vencidos"] . ") " . $row["TxfecVence"] . "  <br> " . lang("Saldo") . ": " . number_format(($CreditoTxP * -1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . "  " . $_POST["MonedaP"] . "</span> </span>") . " </div>";
 
-            if (round($row['Contado']) <> 0 && $row['item'] > 1) {
-                $Medio = "";
+			if (round($row['Contado'], 4) != 0 && $row['item'] > 1) {
+				$Medio = "";
 
-                if ($row["Efectivo"] <> 0) {
-                    $Medio = $_POST["LitEfectivo"];
-                } else if ($row["Tarjeta"] <> 0) {
-                    $Medio = $_POST["LitTarjeta"];
-                } else if ($row["Cheque"] <> 0) {
-                    $Medio = $_POST["LitCheque"];
-                } else if ($row["Tipo01"] <> 0) {
-                    $Medio = $_POST["LitO01"];
-                    $Tipo01D = explode("|", $row["Tipo01D"]);
-                    if ($Tipo01D) $Medio .= " (" . $Tipo01D[0] . ") ";
-                    // if ($Tipo01D) $Medio .= " " . $Tipo01D[1] . "";
-                } else if ($row["Tipo02"] <> 0) {
-                    $Medio = $_POST["LitO02"];
-                } else if ($row["Tipo03"] <> 0) {
-                    $Medio = $_POST["LitO03"];
-                } else if ($row["Tipo04"] <> 0) {
-                    $Medio = $_POST["LitO04"];
-                } else if ($row["Anticipo"] <> 0) {
-                    $Medio = lang("Anticipo Utilizado");
-                }
+				if ($row["Efectivo"] <> 0) {
+					$Medio = $_POST["LitEfectivo"];
+				} else if ($row["Tarjeta"] <> 0) {
+					$Medio = $_POST["LitTarjeta"];
+				} else if ($row["Cheque"] <> 0) {
+					$Medio = $_POST["LitCheque"];
+				} else if ($row["Tipo01"] <> 0) {
+					$Medio = $_POST["LitO01"];
+					$Tipo01D = explode("|", $row["Tipo01D"]);
+					if ($Tipo01D) $Medio .= " (" . $Tipo01D[0] . ") ";
+					// if ($Tipo01D) $Medio .= " " . $Tipo01D[1] . "";
+				} else if ($row["Tipo02"] <> 0) {
+					$Medio = $_POST["LitO02"];
+				} else if ($row["Tipo03"] <> 0) {
+					$Medio = $_POST["LitO03"];
+				} else if ($row["Tipo04"] <> 0) {
+					$Medio = $_POST["LitO04"];
+				} else if ($row["Anticipo"] <> 0) {
+					$Medio = lang("Anticipo Utilizado");
+				}
 
-                if ($row['Contado'] > 0) {
-                    $Documento .= "<span class='badge bg-info text-dark'>" . lang("Pago");
-                } else if ($row["Idtipotx"] === "3" || $row["Idtipotx"] === "27") {
-                    $Documento .= "<span class='badge bg-info text-dark'>" . lang("Pago");
-                } else if (($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") && $row['Contado'] <= 0) {
-                    $Documento .= "<span class='badge bg-info text-dark'>" . lang("Pago");
-                } else {
-                    $Documento .= "<span class='badge bg-info text-dark'>" . lang("Vuelto");
-                }
+				if ($row['Contado'] > 0) {
+					$Documento .= "<span class='badge bg-info text-dark'>" . lang("Pago");
+				} else if ($row["Idtipotx"] === "3" || $row["Idtipotx"] === "27") {
+					$Documento .= "<span class='badge bg-info text-dark'>" . lang("Pago");
+				} else if (($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") && $row['Contado'] <= 0) {
+					$Documento .= "<span class='badge bg-info text-dark'>" . lang("Pago");
+				} else {
+					$Documento .= "<span class='badge bg-info text-dark'>" . lang("Vuelto");
+				}
 
-                $Documento .= " " . $Medio . "</span>";
-                if ($Tipo01D) $Documento .= " <span class='badge bg-success'>" . $Tipo01D[1] . "</span>";
-                // $Documento .= "<br><span class='badge bg-warning text-dark'>" . $Tipa . "</span>";
-                // $Documento .= "<br><span class='badge bg-light text-dark'>Nro. " . strtoupper(str_pad($row['IdTxCompany'], 8, "0", STR_PAD_LEFT)) . "</span>";
-                $Documento .= '<br>' . number_format($row['Contado'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format($row['Contado'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
-            }
-            if (round($row['Credito']) <> 0 && $row['item'] > 1) {
-                $Documento .= "<span class='badge bg-danger text-light'>" . lang("Crédito") . "</span>";
-                $Documento .= '<br>' . number_format(($row['Credito'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format($row['Credito'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
-            }
-            if (trim($row['tiporetencion']) == "0" && $row['item'] > 1 && round($row['Retencion']) <> 0) $Documento .= lang("Ret. Impto");
-            if (trim($row['tiporetencion']) == "1" && $row['item'] > 1 && round($row['Retencion']) <> 0) {
-                $Documento .= lang("Ret. I.S.L.R");
-                $Nombre = "";
-                $query2 = "SELECT Nombre FROM PosUpRetencion WHERE TipoRet = 1 and IdCompany=" . $_POST["CompanyActual"] . " AND NumLit = '" . $row["numret"] . "' ";
-                if ($result2 = mysqli_query($conn, $query2)) {
-                    while ($row2 = mysqli_fetch_assoc($result2)) {
-                        $Nombre = $row2["Nombre"];
-                    }
-                }
-                $Documento .= " (" . $Nombre . ") ";
-            }
-            if (trim($row['tiporetencion']) == "2" && $row['item'] > 1 && round($row['Retencion']) <> 0) $Documento .= lang("Ret. Mun");
-            if ($row['item'] > 1 && round($row['Retencion']) <> 0) $Documento .= '<br>' . number_format(($row['Retencion'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format($row['Retencion'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+				$Documento .= " " . $Medio . "</span>";
+				if ($Tipo01D) $Documento .= " <span class='badge bg-success'>" . $Tipo01D[1] . "</span>";
+				// $Documento .= "<br><span class='badge bg-warning text-dark'>" . $Tipa . "</span>";
+				// $Documento .= "<br><span class='badge bg-light text-dark'>Nro. " . strtoupper(str_pad($row['IdTxCompany'], 8, "0", STR_PAD_LEFT)) . "</span>";
+				$Documento .= '<br>' . number_format($row['Contado'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format($row['Contado'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+			}
+			if (round($row['Credito'], 4) != 0 && $row['item'] > 1) {
+				$Documento .= "<span class='badge bg-danger text-light'>" . lang("Crédito") . "</span>";
+				$Documento .= '<br>' . number_format(($row['Credito'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format($row['Credito'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+			}
+			if (trim($row['tiporetencion']) == "0" && $row['item'] > 1 && round($row['Retencion'], 4) != 0) $Documento .= lang("Ret. Impto");
+			if (trim($row['tiporetencion']) == "1" && $row['item'] > 1 && round($row['Retencion'], 4) != 0) {
+				$Documento .= lang("Ret. I.S.L.R");
+				$Nombre = "";
+				$query2 = "SELECT Nombre FROM PosUpRetencion WHERE TipoRet = 1 and IdCompany=" . $_POST["CompanyActual"] . " AND NumLit = '" . $row["numret"] . "' ";
+				if ($result2 = mysqli_query($conn, $query2)) {
+					while ($row2 = mysqli_fetch_assoc($result2)) {
+						$Nombre = $row2["Nombre"];
+					}
+				}
+				$Documento .= " (" . $Nombre . ") ";
+			}
+			if (trim($row['tiporetencion']) == "2" && $row['item'] > 1 && round($row['Retencion']) <> 0) $Documento .= lang("Ret. Mun");
+			if ($row['item'] > 1 && round($row['Retencion'], 4) != 0) {
+				if ($isUsdRet) {
+					$usdRet = $row['Retencion'];
+					$bcvRet = $usdRet * $row['tasaDef'];
+					$Documento .= '<br>' . $_POST["MonedaP"] . ' ' . number_format($usdRet, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . $_POST["MonedaS"] . ' ' . number_format($bcvRet, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+				} else {
+					$Documento .= '<br>' . number_format(($row['Retencion'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format($row['Retencion'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+				}
+			}
+
+			if ($row['item'] <= 1) {
+				if ($row["IdBarcode"] <> $row["IdDef"]) {
+					$Documento .= $row['titulo'];
+					// if ($row['titulodef'] <> "") $Documento .= "<br>(" . $row['titulodef'] . "-";
+					// if ($row['idtxDef'] <> "" && $row['titulodef'] <> "") $Documento .=  str_pad($row['idtxDef'], 6, "0", STR_PAD_LEFT) . ") ";
+					$Documento .= "<br>";
+				}
+
+				$Documento .= '' . number_format(abs($row['Credito']) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format(abs($row['Credito']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+				if ($row["IdBarcode"] <> $row["IdDef"]) {
+
+					$Documento .= "<br><span class='badge bg-warning text-dark'>" . $Tipa . "</span>";
+					$Documento .= " <span class='badge bg-light text-dark'>Nro. " . strtoupper(str_pad($row['IdTxCompany'], 8, "0", STR_PAD_LEFT)) . "</span>";
+				}
+			}
 
 
-            if ($row['item'] <= 1) {
-                if ($row["IdBarcode"] <> $row["IdDef"]) {
-                    $Documento .= $row['titulo'];
-                    // if ($row['titulodef'] <> "") $Documento .= "<br>(" . $row['titulodef'] . "-";
-                    // if ($row['idtxDef'] <> "" && $row['titulodef'] <> "") $Documento .=  str_pad($row['idtxDef'], 6, "0", STR_PAD_LEFT) . ") ";
-                    $Documento .= "<br>";
-                }
 
-                $Documento .= '' . number_format(abs($row['Credito']) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' x ' . number_format($row['tasaDef'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . ' = ' . number_format(abs($row['Credito']), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
-                if ($row["IdBarcode"] <> $row["IdDef"]) {
+			$button = "";
 
-                    $Documento .= "<br><span class='badge bg-warning text-dark'>" . $Tipa . "</span>";
-                    $Documento .= " <span class='badge bg-light text-dark'>Nro. " . strtoupper(str_pad($row['IdTxCompany'], 8, "0", STR_PAD_LEFT)) . "</span>";
-                }
-            }
+			if ($row["Idtipotx"] === "25") $button .= "<button class='btn btn-light' title='" . lang("Eliminar") . "' onclick='EliminarAnticipo(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)'><i class='fa fa-times'></i></button>";
+			if ($row["item"] === "1") {
+				$button .= "<button class='btn btn-light text-bottom' type='button' onclick='Impresion(`" . $IdEstacion . "`,`" . $Idtipotx . "`,`" . $idtx . "`,`1`,`1`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
+			} else if (trim($row['tiporetencion']) == "0" && $row['item'] > 1 && round($row['Retencion']) <> 0) {
+				$button .= "<button class='btn btn-light  text-bottom' type='button' onclick='ImpresionOp4(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
+			} else if (trim($row['tiporetencion']) == "1" && $row['item'] > 1 && round($row['Retencion']) <> 0) {
+				$button .= "<button class='btn btn-light  text-bottom' type='button' onclick='ImpresionOp5(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
+			} else if (trim($row['tiporetencion']) == "2" && $row['item'] > 1 && round($row['Retencion'], 4) != 0) {
+			} else if ($row["item"] > 1 && (round($row['Contado'], 4) != 0) or (round($row['Credito'], 4) != 0)) {
+				if ($post["CajaC"] !== "0") {
+					$button .= "<button class='btn btn-light text-bottom' type='button' onclick='ImpresionOp4(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
+				}
+			} else if ($row["item"] > 1 && round($row['Contado']) == 0 && round($row['Credito']) == 0) {
+				$button .= "<button class='btn btn-light  text-bottom' type='button' onclick='ImpresionOp4(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
+			}
 
+			if ($row["item"] > 1 && $post["userperfil"] <= 2000) $button .= "<button class='btn btn-light text-bottom' type='button' onclick='DeletePay(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`," . ($row["Anticipo"] <> 0 ? "true" : "false") . ")' title='" . lang("Borrar Pago") . "'> <i class='fa fa-trash'></i></button>";
 
+			$Monto = 0;
+			if (round($row['Contado']) <> 0 && $row['item'] > 1) {
+				$Monto = $row['Contado'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
+			} else if (round($row['Credito']) <> 0 && $row['item'] > 1) {
+				$Monto = $row['Credito'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
+			} else if (round($row['Retencion'], 4) != 0 && $row['item'] > 1) {
+				$Monto = $isUsdRet ? $row['Retencion'] : ($row['Retencion'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1));
+			} else if ($row['item'] <= 1) {
+				$Monto = $row['MontoPagar'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
+			}
 
-            $button = "";
+			if ($row["pagado"] == 1 && $row["Idtipotx"] === "2" && $row["item"] > 1 && $row["Retencion"] > 0) $button .= "<button class='btn btn-light' title='" . lang("Eliminar") . "' onclick='Eliminar(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)'><i class='fa fa-times'></i></button>";
+			
+			// Aseguramos que la tasa nunca sea 0 para evitar divisiones fatales (inf)
+            $tasa_segura = ($row["tasaDef"] > 0) ? $row["tasaDef"] : 1;
 
-            if ($row["Idtipotx"] === "25") $button .= "<button class='btn btn-light' title='" . lang("Eliminar") . "' onclick='EliminarAnticipo(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)'><i class='fa fa-times'></i></button>";
-            if ($row["item"] === "1") {
-                $button .= "<button class='btn btn-light text-bottom' type='button' onclick='Impresion(`" . $IdEstacion . "`,`" . $Idtipotx . "`,`" . $idtx . "`,`1`,`1`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
-            } else if (trim($row['tiporetencion']) == "0" && $row['item'] > 1 && round($row['Retencion']) <> 0) {
-                $button .= "<button class='btn btn-light  text-bottom' type='button' onclick='ImpresionOp4(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
-            } else if (trim($row['tiporetencion']) == "1" && $row['item'] > 1 && round($row['Retencion']) <> 0) {
-                $button .= "<button class='btn btn-light  text-bottom' type='button' onclick='ImpresionOp5(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
-            } else if (trim($row['tiporetencion']) == "2" && $row['item'] > 1 && round($row['Retencion']) <> 0) {
-            } else if ($row["item"] > 1 && (round($row['Contado']) <> 0) or (round($row['Credito']) <> 0)) {
-                if ($post["CajaC"] !== "0") {
-                    $button .= "<button class='btn btn-light text-bottom' type='button' onclick='OpenUp(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
-                }
-            } else if ($row["item"] > 1 && round($row['Contado']) == 0 && round($row['Credito']) == 0) {
-                $button .= "<button class='btn btn-light  text-bottom' type='button' onclick='ImpresionOp4(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)' title='" . lang("Vista Previa") . "'> <i class='fa fa-print'></i></button>";
-            }
+            $MontoCont = 0;
+            if (round($row['Contado'], 4) != 0) { $MontoCont = ($row['Contado'] / $tasa_segura); }
+            if (round($row['Retencion'], 4) != 0) { $MontoCont = $row['Retencion']; } 
+            if ((round($row['Retencion'], 4) == 0) and (round($row['Contado'], 4) == 0)) { $MontoCont = ($row['Contado'] / $tasa_segura); }
 
-            if ($row["item"] > 1 && $post["userperfil"] <= 2000) $button .= "<button class='btn btn-light text-bottom' type='button' onclick='DeletePay(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`," . ($row["Anticipo"] <> 0 ? "true" : "false") . ")' title='" . lang("Borrar Pago") . "'> <i class='fa fa-trash'></i></button>";
+            // NUEVO: Generador Visual para Débito y Crédito (2 líneas siempre)
+            $str_debito = "";
+            $str_credito = "";
+            
+            // Es una Retención
+            if ($row['item'] > 1 && trim($row['tiporetencion']) != "") {
+                $usd = number_format($row['Retencion'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+                $bcv = number_format($row['MontoPagar'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+                $str_debito = $usd . ($tasaDef > 1 ? "<br>" . $bcv : "");
+                $str_credito = "0.00 <br> 0.00";
+            } 
+            // Es la Factura original (Crédito)
+            else if ($row['item'] == 1) {
+                $usd = number_format($row['Credito'] / $tasaDef, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+                $bcv = number_format($row['Credito'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+                $str_credito = $usd . ($tasaDef > 1 ? "<br>" . $bcv : "");
+                $str_debito = "0.00 <br> 0.00";
+            } 
+            // Es un Pago Normal (Débito)
+			else {
+				$usd = number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+				$bcv = number_format($row['Contado'], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]);
+				$str_debito = $usd . ($tasaDef > 1 ? "<br>" . $bcv : "");
+				$str_credito = "0.00 <br> 0.00";
+			}
 
-            $Monto = 0;
+			// RESTAURAMOS EL SALDO OCULTO PARA EL MODAL
+			$Credito2 = $CreditoTxP;
+			$Credito2 += ($ContadoTxP * -1);
 
-            if (round($row['Contado']) <> 0 && $row['item'] > 1) {
-                $Monto = $row['Contado'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
-            } else if (round($row['Credito']) <> 0 && $row['item'] > 1) {
-                $Monto = $row['Credito'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
-            } else if (round($row['Retencion']) <> 0 && $row['item'] > 1) {
-                $Monto = $row['Retencion'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1);
-            } else if ($row['item'] <= 1) {
-                $Monto = $row['MontoPagar'];
-            }
+			if ($post["MostrarTodos"] === "1" || ($post["MostrarTodos"] === "0" && $row["pagado"] == 0)) {
 
-            if ($row["pagado"] == 1 && $row["Idtipotx"] === "2" && $row["item"] > 1 && $row["Retencion"] > 0) $button .= "<button class='btn btn-light' title='" . lang("Eliminar") . "' onclick='Eliminar(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)'><i class='fa fa-times'></i></button>";
-            $MontoCont = "";
-            if (round($row['Contado']) <> 0) $MontoCont .= ($row['Contado'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1));
+				if ($row["tasaDef"] > 0) {
+					// 1. Extraemos la fecha garantizada desde Fecha3 (Formato: DD/MM/YYYY)
+					$fecha_str = $row['Fecha3']; 
+					$fecha_ymd = substr($fecha_str, 6, 4) . '-' . substr($fecha_str, 3, 2) . '-' . substr($fecha_str, 0, 2);
+					
+					// 2. Validamos si es una retención nueva (ISLR después del 9 de Marzo)
+					$es_ret_usd = (trim($row['tiporetencion']) == "1" && strtotime($fecha_ymd) >= strtotime('2026-03-09'));
+					
+					// 3. Calculamos la retención en USD puros
+					$ret_calculada = $es_ret_usd ? $row["Retencion"] : ($row["Retencion"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1));
+					
+					// 4. APLICAMOS AL SALDO DIRECTAMENTE
+					$Saldo = $Saldo + ROUND($ret_calculada, 2);
+					
+					if ($row['item'] > 1) {
+						$Saldo = $Saldo + ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+					} else if ($row["Idtipotx"] === "4" || $row["Idtipotx"] === "5") {
+						$Saldo = $Saldo + ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+					}
 
-            if (round($row['Retencion']) <> 0) $MontoCont .= ($row['Retencion'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1));
+					if ($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") {
+						$Saldo = $Saldo - ROUND((abs($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+					} else {
+						$Saldo = $Saldo - ROUND((($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
+					}
+				}
 
-            if ((round($row['Retencion']) == 0) and (round($row['Contado']) == 0)) $MontoCont .= ($row['Contado'] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1));
-            // if ($row["item"] === "1" && $row["Detalle"] === "0" && $m === 1) $button .= "<button class='btn btn-light' title='" . lang("Eliminar") . "' onclick='EliminarTX(`" . $row["IdBarcode"] . "`, `" . $Tipa . "`)'><i class='fa fa-times'></i></button>";
+				if ($row["Dias_Vencidos"] >= 0) {
+					$SaldoVencido += ROUND($row["Credito"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), 2) - ROUND($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), 2);
+				}
+				if ($row["pagado"] == 0) {
+					$ContadoTotal2 += ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
 
-            if ($post["MostrarTodos"] === "1" || ($post["MostrarTodos"] === "0" && $row["pagado"] == 0)) {
-                if ($row["tasaDef"] > 0) {
-                    $Saldo = $Saldo + ROUND(($row["Retencion"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-                    if ($row['item'] > 1) {
-                        $Saldo = $Saldo + ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-                    } else if ($row["Idtipotx"] === "4" || $row["Idtipotx"] === "5") {
-                        $Saldo = $Saldo + ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-                    }
-
-                    if ($row["Idtipotx"] === "7" || $row["Idtipotx"] === "28") {
-                        $Saldo = $Saldo - ROUND((abs($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-                    } else {
-
-                        $Saldo = $Saldo - ROUND((($row["Credito"]) / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-                    }
-                }
-
-                if ($row["Dias_Vencidos"] >= 0) {
-                    $SaldoVencido += ROUND($row["Credito"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), 2) - ROUND($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), 2);
-                }
-                if ($row["pagado"] == 0) {
-                    $ContadoTotal2 += ROUND(($row["Contado"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1)), 2);
-
-                    if ($row["Idtipotx"] === "2" || $row["Idtipotx"] === "7") {
-                        if ($row["Retencion"] > 0 && $row["item"] > 1) $button .= "<button class='btn btn-light' title='" . lang("Eliminar") . "' onclick='Eliminar(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)'><i class='fa fa-times'></i></button>";
-                        if ($row["item"] <= 1) {
-                            $button .= "
+					if ($row["Idtipotx"] === "2" || $row["Idtipotx"] === "7") {
+						if ($row["Retencion"] > 0 && $row["item"] > 1) $button .= "<button class='btn btn-light' title='" . lang("Eliminar") . "' onclick='Eliminar(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $row["item"] . "`)'><i class='fa fa-times'></i></button>";
+						if ($row["item"] <= 1) {
+							$button .= "
 								<button class='btn btn-light' title='" . lang("Pago") . "' onclick='Abonos(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ROUND($ContadoTxP, 2) . "`,`" . ROUND(abs($CreditoTxP), 2) . "`,`" . $tasa . "`)'><i class='fa fa-money'></i></button>
 								<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ROUND($ContadoTxP, 2) . "`,`" . ROUND($CreditoTxP, 2) . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>
-								<button class='btn btn-light' title='" . lang("Retencion Impuesto") . "' onclick='Retenciones(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $Retencion . "`,`" . ($Credito) . "`)'><i class='fa fa-calculator'></i></button>
-								<button class='btn btn-light' title='" . lang("Retencion I.S.R.L") . "' onclick='Retenciones2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $Retencion . "`,`" . ($Credito) . "`)'><i class='fa fa-sticky-note'></i></button>
+								
+								
 							";
-                            if (($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)) > 0) {
-                                $array[$row["IdDef"]] = [
-                                    "Caja" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
-                                    "Documento" => $Documento,
-                                    "ExtraData" => $ExtraData,
-                                    "Fecha" => $row['Fecha2'],
-                                    "Monto" => "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($Monto, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($Monto * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                    "Debito" => number_format($MontoCont  / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                    "Credito" => number_format($Credito / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($Credito, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                    "Saldo" => number_format(ROUND($Saldo, 2), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
-                                    "Contado" => ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)),
-                                    "Credito2" => ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)),
-                                    "Titulo" => $row['titulo'],
-                                    "Tipo" => $row['Tipo'],
-                                    "Etiqueta" => $row['etiqueta'],
-                                    "Idtx" => str_pad($row['Idtx'], 6, "0", STR_PAD_LEFT),
-                                    "IdBarcode" => $row["IdBarcode"],
-                                    "tasa" => $row["tasaDef"],
-                                    "IdtxF" => $idtx,
-                                    "Idtipotx" => $Idtipotx,
-                                    "IdEstacion" => $IdEstacion,
-                                ];
-                            }
-                        }
-                    } else if (($row["Idtipotx"] <> "3" && $row["Idtipotx"] <> "27") && $row["item"] == 1) {
-                        if (($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)) > 0) {
-                            if ($post["CajaC"] !== "0") {
+							 
+								$vbnm="<button class='btn btn-light' title='" . lang("Retencion I.S.R.L") . "' onclick='RetencionesISLRnew(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $Retencion . "`,`" . ($Credito) . "`)'><i class='fa fa-sticky-note'></i></button>";
+								$button .=$vbnm;
+								$vbnm="<button class='btn btn-light' title='" . lang("Retencion Impuesto") . "' onclick='Retenciones(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $Retencion . "`,`" . ($Credito) . "`)'><i class='fa fa-calculator'></i></button>";
+								$button .=$vbnm;
+							
+							if (($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)) > 0) {
+								$array[$row["IdDef"]] = [
+									"Caja" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
+									"Documento" => $Documento,
+									"ExtraData" => $ExtraData,
+									"Fecha" => $row['Fecha2'],
+									"Monto" => "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($Monto, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($Monto * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+									"Debito" => ($isUsdRet && round($row['Retencion'], 4) != 0) 
+										? (number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""))
+										: (number_format($MontoCont / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : "")),
+									"Credito" => number_format($Credito / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($Credito, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+									"Saldo" => number_format(ROUND($Saldo, 2), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
+									"Contado" => ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)),
+									"Credito2" => ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)),
+									"Titulo" => $row['titulo'],
+									"Tipo" => $row['Tipo'],
+									"Etiqueta" => $row['etiqueta'],
+									"Idtx" => str_pad($row['Idtx'], 6, "0", STR_PAD_LEFT),
+									"IdBarcode" => $row["IdBarcode"],
+									"tasa" => $row["tasaDef"],
+									"IdtxF" => $idtx,
+									"Idtipotx" => $Idtipotx,
+									"IdEstacion" => $IdEstacion,
+								];
+							}
+						}
+					} else if (($row["Idtipotx"] <> "3" && $row["Idtipotx"] <> "27") && $row["item"] == 1) {
+						if (($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)) > 0) {
+							if ($post["CajaC"] !== "0") {
 
-                                $button .= "<button class='btn btn-light' title='" . lang("Pago") . "' onclick='Abonos(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)) . "`,`" . ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)) . "`,`" . $tasa . "`)'><i class='fa fa-money'></i></button>";
-                            }
-                            $array[$row["IdDef"]] = [
-                                "Caja" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
-                                "Documento" => $Documento,
-                                "ExtraData" => $ExtraData,
-                                "Fecha" => $row['Fecha2'],
-                                "Monto" => "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($Monto, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($Monto * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                "Debito" => number_format($MontoCont  / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                "Credito" => number_format($Credito / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($Credito, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                "Saldo" => number_format(ROUND($Saldo, 2), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
-                                "Contado" => ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)),
-                                "Credito2" => ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)),
-                                "Titulo" => $row['titulo'],
-                                "Tipo" => $row['Tipo'],
-                                "Etiqueta" => $row['etiqueta'],
-                                "Idtx" => str_pad($row['Idtx'], 6, "0", STR_PAD_LEFT),
-                                "IdBarcode" => $row["IdBarcode"],
-                                "tasa" => $row["tasaDef"],
-                                "IdtxF" => $idtx,
-                                "Idtipotx" => $Idtipotx,
-                                "IdEstacion" => $IdEstacion,
-                            ];
-                        }
-                        if (($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)) > 0) {
-                            if ($post["CajaC"] !== "0") {
+								$button .= "<button class='btn btn-light' title='" . lang("Pago") . "' onclick='Abonos(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)) . "`,`" . ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)) . "`,`" . $tasa . "`)'><i class='fa fa-money'></i></button>";
+							}
+							$array[$row["IdDef"]] = [
+								"Caja" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
+								"Documento" => $Documento,
+								"ExtraData" => $ExtraData,
+								"Fecha" => $row['Fecha2'],
+								"Monto" => "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($Monto, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($Monto * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+								"Debito" => number_format($MontoCont  / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+								"Credito" => number_format($Credito / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($Credito, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+								"Saldo" => number_format(ROUND($Saldo, 2), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
+								"Contado" => ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)),
+								"Credito2" => ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2)),
+								"Titulo" => $row['titulo'],
+								"Tipo" => $row['Tipo'],
+								"Etiqueta" => $row['etiqueta'],
+								"Idtx" => str_pad($row['Idtx'], 6, "0", STR_PAD_LEFT),
+								"IdBarcode" => $row["IdBarcode"],
+								"tasa" => $row["tasaDef"],
+								"IdtxF" => $idtx,
+								"Idtipotx" => $Idtipotx,
+								"IdEstacion" => $IdEstacion,
+							];
+						}
+						if (($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)) > 0) {
+							if ($post["CajaC"] !== "0") {
 
-                                $button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)) . "`,`" . ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2))  . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
-                            }
-                        }
-                    } else if (($row["Idtipotx"] === "3" || $row["Idtipotx"] === "27") && $row["item"] == 1) {
-                        if ($post["CajaC"] !== "0") {
-                            if (ROUND($CreditoTxP, 2) < 0) {
-                                $array[$row["IdDef"]] = [
-                                    "Caja" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
-                                    "Documento" => $Documento,
-                                    "ExtraData" => $ExtraData,
-                                    "Fecha" => $row['Fecha2'],
-                                    "Monto" => "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($Monto, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($Monto * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                    "Debito" => number_format($MontoCont  / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                    "Credito" => number_format($Credito / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($Credito, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                                    "Saldo" => number_format(ROUND($Saldo, 2), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
-                                    "Contado" => ($ContadoTxP * -1 < 0 ? 0 : ROUND($ContadoTxP * -1, 2)),
-                                    "Credito2" => ($CreditoTxP * -1 < 0 ? 0 : ROUND($CreditoTxP * -1, 2)),
-                                    "Titulo" => $row['titulo'],
-                                    "Tipo" => $row['Tipo'],
-                                    "Etiqueta" => $row['etiqueta'],
-                                    "Idtx" => str_pad($row['Idtx'], 6, "0", STR_PAD_LEFT),
-                                    "IdBarcode" => $row["IdBarcode"],
-                                    "tasa" => $row["tasaDef"],
-                                    "IdtxF" => $idtx,
-                                    "Idtipotx" => $Idtipotx,
-                                    "IdEstacion" => $IdEstacion,
-                                ];
-                                $button .= "<button class='btn btn-light' title='" . lang("Pago") . "' onclick='Abonos(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ($ContadoTxP * -1 < 0 ? 0 : ROUND($ContadoTxP * -1, 2)) . "`,`" . ($CreditoTxP * -1 < 0 ? 0 : ROUND($CreditoTxP * -1, 2)) . "`,`" . $tasa . "`)'><i class='fa fa-money'></i></button>";
-                            }
+								$button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ($ContadoTxP < 0 ? 0 : ROUND($ContadoTxP, 2)) . "`,`" . ($CreditoTxP < 0 ? 0 : ROUND($CreditoTxP, 2))  . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
+							}
+						}
+					} else if (($row["Idtipotx"] === "3" || $row["Idtipotx"] === "27") && $row["item"] == 1) {
+						if ($post["CajaC"] !== "0") {
+							if (ROUND($CreditoTxP, 2) < 0) {
+								$array[$row["IdDef"]] = [
+									"Caja" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
+									"Documento" => $Documento,
+									"ExtraData" => $ExtraData,
+									"Fecha" => $row['Fecha2'],
+									"Monto" => "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($Monto, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($Monto * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+									"Debito" => number_format($MontoCont  / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+									"Credito" => number_format($Credito / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($Credito, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+									"Saldo" => number_format(ROUND($Saldo, 2), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
+									"Contado" => ($ContadoTxP * -1 < 0 ? 0 : ROUND($ContadoTxP * -1, 2)),
+									"Credito2" => ($CreditoTxP * -1 < 0 ? 0 : ROUND($CreditoTxP * -1, 2)),
+									"Titulo" => $row['titulo'],
+									"Tipo" => $row['Tipo'],
+									"Etiqueta" => $row['etiqueta'],
+									"Idtx" => str_pad($row['Idtx'], 6, "0", STR_PAD_LEFT),
+									"IdBarcode" => $row["IdBarcode"],
+									"tasa" => $row["tasaDef"],
+									"IdtxF" => $idtx,
+									"Idtipotx" => $Idtipotx,
+									"IdEstacion" => $IdEstacion,
+								];
+								$button .= "<button class='btn btn-light' title='" . lang("Pago") . "' onclick='Abonos(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ($ContadoTxP * -1 < 0 ? 0 : ROUND($ContadoTxP * -1, 2)) . "`,`" . ($CreditoTxP * -1 < 0 ? 0 : ROUND($CreditoTxP * -1, 2)) . "`,`" . $tasa . "`)'><i class='fa fa-money'></i></button>";
+							}
 
-                            if (ROUND($ContadoTxP, 2) < 0) $button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ROUND($CreditoTxP, 2) . "`,`" . ROUND($ContadoTxP, 2) . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
-                        }
-                    }
-                } else {
-                    if ($post["CajaC"] !== "0") {
-                        if ($row["pagado"] == 1 && $row["Idtipotx"] === "2" && $row["item"] <= 1) {
-                            $button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $ContadoTxP . "`,`" . $CreditoTxP . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
-                        } else if ($row["pagado"] == 1 && $row["Idtipotx"] !== "25" && $row["item"] == 1) $button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $ContadoTxP . "`,`" . $CreditoTxP . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
-                    }
-                }
+							if (ROUND($ContadoTxP, 2) < 0) $button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . ROUND($CreditoTxP, 2) . "`,`" . ROUND($ContadoTxP, 2) . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
+						}
+					}
+				} else {
+					if ($post["CajaC"] !== "0") {
+						if ($row["pagado"] == 1 && $row["Idtipotx"] === "2" && $row["item"] <= 1) {
+							$button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $ContadoTxP . "`,`" . $CreditoTxP . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
+						} else if ($row["pagado"] == 1 && $row["Idtipotx"] !== "25" && $row["item"] == 1) $button .= "<button class='btn btn-light' title='" . lang("Credito") . "' onclick='Creditos2(`" . $idtx . "`,`" . $Idtipotx . "`,`" . $IdEstacion . "`,`" . $ContadoTxP . "`,`" . $CreditoTxP . "`,`" . $tasa . "`)'><i class='fa fa-credit-card'></i></button>";
+					}
+				}
 
-                $tableResponse[] = [
-                    "etiqueta" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
-                    "documento3" => $Documento3,
-                    "documento2" => $Documento2,
-                    "documento" => $Documento,
-                    "extradata" => $ExtraData,
-                    "fechatabla" => $row['Fecha2'],
-                    "monto" => "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($row["MontoPagar"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($row["MontoPagar"] * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                    "contable" => number_format($row["Contado"]  / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($row["Contado"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                    "credito" => number_format($row["Credito"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($row["Credito"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
-                    "saldo" => number_format($SaldoShow, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
-                    "btn" => "	<div class='btn-group'>
+				$tableResponse[] = [
+					"etiqueta" => "<span class='badge bg-dark text-light'>" . $row["etiqueta"] . " No. " . $row["cajaDef"] . "</span><br><span class='badge bg-primary text-light'><i class='fa fa-user'></i> " . $row['Usuario'] . "</span>",
+					"documento3" => $Documento3,
+					"documento2" => $Documento2,
+					"documento" => $Documento,
+					"extradata" => $ExtraData,
+					"fechatabla" => $row['Fecha2'],
+					"monto" => ($row["tiporetencion"] != "" && $row["item"] > 1) 
+    					? "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($row["MontoPagar"] / ($row['tasaDef'] > 0 ? $row['tasaDef'] : 1), $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($row["MontoPagar"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : "")
+    					: "<strong>" . $_POST["MonedaP"] . "</strong> " . number_format($row["MontoPagar"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> <strong>" . $_POST["MonedaS"] . "</strong> " . (number_format($row["MontoPagar"] * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+					"contable" => number_format($MontoCont, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($MontoCont * $row["tasaDef"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+					"credito" => number_format($row["Credito"] / ($row["tasaDef"] > 0 ? $row["tasaDef"] : 1), $_POST["CD"], $_POST["SimDec"], $_POST['SimMil']) . " " . ($row['tasaDef'] > 1 ? "<br> " . (number_format($row["Credito"], $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"])) : ""),
+					"saldo" => number_format($SaldoShow, $_POST["CD"], $_POST["SimDec"], $_POST["SimMil"]),
+					"btn" => "	<div class='btn-group'>
 						<div>
 							" . $button . "
 							<button class='btn btn-light' type='button' title='" . lang("Ver Imagen") . "' onclick='Recibir4(`" . ($IdEstacion . $Idtipotx . $idtx) . "`,`" . $row["Tipo"] . "N°: " . str_pad($row["Idtx"], 10, "0", STR_PAD_LEFT) . "`);'><i class='fa fa-image'></i></button>
 						</div>
 					</div>",
-                    "span" => [
-                        // "ContadoAct" => $Contado,
-                        // "CreditoAct" => $Credito2,
-                        // "TasaAct" => $tasa,
-                        // "IdtxAct" => $idtx,
-                        // "IdtipotxAct" => $Idtipotx,
-                        // "IdEstacionAct" => $IdEstacion,
-                        // "RetenidoActualmente" => $Retencion,
-                        // "RetenidoActualmente2" => $Retencion2,
-                        // "RetenidoActualmente3" => $Retencion3,
-                        "IdDef" => $row["IdDef"],
-                        "CreditoTxP" => $CreditoTxP,
-                        "ContadoTxP" => $ContadoTxP,
-                        "CreditoTxPx" => $CreditoTxP2,
-                        "ContadoTxPx" => $ContadoTxP2,
-                        "MontoAPagarqk" => $MontoAPagar,
-                        "MontoAPagarqkx" => $MontoAPagar2,
-                        "ItemAct" => $row["item"],
-                        "RetencionAct" => $row["Retencion"],
-                        "IdtipotxP" => $Idtipotx,
-                        "Saldo" => ($row["contadot"] - $row["creditot"])
-                    ],
-                ];
-            }
-        }
-    }
+					"span" => [
+						"ContadoAct" => $Contado,
+						"CreditoAct" => $Credito2,
+						"TasaAct" => $tasa,
+						"IdtxAct" => $idtx,
+						"IdtipotxAct" => $Idtipotx,
+						"IdEstacionAct" => $IdEstacion,
+						"RetenidoActualmente" => $Retencion,
+						"RetenidoActualmente2" => $Retencion2,
+						"RetenidoActualmente3" => $Retencion3,
+						"IdDef" => $row["IdDef"],
+						"CreditoTxP" => $CreditoTxP,
+						"ContadoTxP" => $ContadoTxP,
+						"CreditoTxPx" => $CreditoTxP2,
+						"ContadoTxPx" => $ContadoTxP2,
+						"MontoAPagarqk" => $MontoAPagar,
+						"MontoAPagarqkx" => $MontoAPagar2,
+						"ItemAct" => $row["item"],
+						"RetencionAct" => $row["Retencion"],
+						"IdtipotxP" => $Idtipotx,
+						"Saldo" => ($row["contadot"] - $row["creditot"])
+					],
+				];
+			}
+		}
+	}
 
 
-    $ab = [];
+	$ab = [];
 
-    foreach ($array as $value) {
-        $ab[] = $value;
-    }
-    return json_encode([
-        "data" => $tableResponse,
-        "general" => [
-            "SaldoDadoVencido" => abs($SaldoVencido),
-            "SaldoTotal" => abs(ROUND($Saldo, 2)),
-            "MontoTotalA" => ($ContadoTotal2 + abs(ROUND($Saldo, 2))),
-            "ContadoTotalA" => $ContadoTotal2,
-            "CreditoTotalA" => abs(ROUND($Saldo, 2)),
-            "query" => $query,
-        ],
-        "array" => $ab,
+	foreach ($array as $value) {
+		$ab[] = $value;
+	}
+	return json_encode([
+		"data" => $tableResponse,
+		"general" => [
+			"SaldoDadoVencido" => abs($SaldoVencido),
+			"SaldoTotal" => abs(ROUND($Saldo, 2)),
+			"MontoTotalA" => ($ContadoTotal2 + abs(ROUND($Saldo, 2))),
+			"ContadoTotalA" => $ContadoTotal2,
+			"CreditoTotalA" => abs(ROUND($Saldo, 2)),
+			"query" => $query,
+		],
+		"array" => $ab,
 
-    ], JSON_UNESCAPED_UNICODE);
+	], JSON_UNESCAPED_UNICODE);
 }
+
+
 function EliminarTx($conn, $post)
 {
-    $IdCompany = -1;
-    $Idtipotx = -1;
-    $Idtx = -1;
-    $IdEstacion = -1;
-    $query = "SELECT IdCompany,Idtipotx,Idtx,IdEstacion from PosUpTxC WHERE IdBarcode = " . $post["IdBarcode"] . "";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $IdCompany = $row['IdCompany'];
-            $Idtipotx = $row['Idtipotx'];
-            $Idtx = $row['Idtx'];
-            $IdEstacion = $row['IdEstacion'];
-        }
-        mysqli_free_result($result);
-    }
+	$IdCompany = -1;
+	$Idtipotx = -1;
+	$Idtx = -1;
+	$IdEstacion = -1;
+	$query = "SELECT IdCompany,Idtipotx,Idtx,IdEstacion from PosUpTxC WHERE IdBarcode = " . $post["IdBarcode"] . "";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$IdCompany = $row['IdCompany'];
+			$Idtipotx = $row['Idtipotx'];
+			$Idtx = $row['Idtx'];
+			$IdEstacion = $row['IdEstacion'];
+		}
+		mysqli_free_result($result);
+	}
 
-    if ($IdCompany !== -1 && $Idtipotx !== -1 && $Idtx !== -1 && $IdEstacion !== -1) {
-        $statement = "DELETE FROM PosUpTxP WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
-        $result =  mysqli_query($conn, $statement);
+	if ($IdCompany !== -1 && $Idtipotx !== -1 && $Idtx !== -1 && $IdEstacion !== -1) {
+		$statement = "DELETE FROM PosUpTxP WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
+		$result =  mysqli_query($conn, $statement);
 
-        if ($result === true) {
+		if ($result === true) {
 
-            $statement = "DELETE FROM PosUpTxC WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
-            $result =  mysqli_query($conn, $statement);
-            if ($result === true) return 1;
-        }
-    }
-    return 0;
+			$statement = "DELETE FROM PosUpTxC WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "'";
+			$result =  mysqli_query($conn, $statement);
+			if ($result === true) return 1;
+		}
+	}
+	return 0;
 }
 
 function EliminarPago($conn, $post)
 {
-    $IdCompany = $post['CompanyActual'];
-    $Idtipotx = $post['Idtipotx'];
-    $Idtx = $post['Idtx'];
-    $IdEstacion = $post['IdEstacion'];
-    $item = $post['item'];
+	$IdCompany = $post['CompanyActual'];
+	$Idtipotx = $post['Idtipotx'];
+	$Idtx = $post['Idtx'];
+	$IdEstacion = $post['IdEstacion'];
+	$item = $post['item'];
 
-    $MontoPagar = 0;
-    $query = "SELECT MontoPagar, Contado, tasa, EfectivoD FROM PosUpTxP 
+	$MontoPagar = 0;
+	$query = "SELECT MontoPagar, Contado, tasa, EfectivoD FROM PosUpTxP 
 		WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "' and item = '" . $item . "'";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $MontoPagar = $row["MontoPagar"];
-            $tasa = $row["tasa"];
-            $IdBarcode = $row["EfectivoD"];
-        }
-        mysqli_free_result($result);
-    }
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$MontoPagar = $row["MontoPagar"];
+			$tasa = $row["tasa"];
+			$IdBarcode = $row["EfectivoD"];
+		}
+		mysqli_free_result($result);
+	}
 
 
-    $query = "SELECT Contado,Credito,tasa, IdBen FROM PosUpTxC WHERE IdCompany=" . $IdCompany . " and Idtx='" . $Idtx . "' and Idtipotx='" . $Idtipotx . "' and IdEstacion='" . $IdEstacion . "'";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $tasa = 1;
-            if ($row['tasa'] > 1) {
-                $tasa = $row['tasa'];
-            }
-            $ContadoTxC = $row['Contado'] - ($MontoPagar * $tasa);
-            $CreditoTxC = $row['Credito'] + ($MontoPagar * $tasa);
-            // $IdBen = $row["IdBen"];
-        }
-        mysqli_free_result($result);
-    }
-    $conn->autocommit(FALSE);
-    if ($post['Anticipo'] === "true") {
-        $TxP = [];
-        $query = "SELECT IdCompany, Idtipotx, Idtx, IdEstacion, Item, Fectxserver, Fectxclient, MontoPagar, ROUND(IF(Idtipotx in (7,27,28), Contado * -1, Contado),2) as Contado, Credito, Efectivo, Vuelto, Tarjeta, TarjetaD, Cheque, ChequeD, Tipo01, Tipo01D, Tipo02, Tipo02D, Tipo03, Tipo03D, Tipo04, Tipo04D,Login, IdcompanyUser, IdResponsable,Caja,TxfecVence,DAmpliado,Referencia,tasa,TarjetaB,ChequeB,Tipo01B,Tipo02B,Tipo03B,Tipo04B,ROUND(IF(Idtipotx in (7,27,28), Anticipo * -1, Anticipo),2) as Anticipo,AnticipoD,AnticipoB FROM PosUpTxP WHERE IdCompany=" . $IdCompany . " and Idtx='" . $Idtx . "' and Idtipotx='" . $Idtipotx . "' and IdEstacion='" . $IdEstacion . "'";
-        if ($result = mysqli_query($conn, $query)) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $TxP = $row;
-            }
-            mysqli_free_result($result);
-        }
+	$query = "SELECT Contado,Credito,tasa, IdBen FROM PosUpTxC WHERE IdCompany=" . $IdCompany . " and Idtx='" . $Idtx . "' and Idtipotx='" . $Idtipotx . "' and IdEstacion='" . $IdEstacion . "'";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$tasa = 1;
+			if ($row['tasa'] > 1) {
+				$tasa = $row['tasa'];
+			}
+			$ContadoTxC = $row['Contado'] - ($MontoPagar * $tasa);
+			$CreditoTxC = $row['Credito'] + ($MontoPagar * $tasa);
+			// $IdBen = $row["IdBen"];
+		}
+		mysqli_free_result($result);
+	}
+	$conn->autocommit(FALSE);
+	if ($post['Anticipo'] === "true") {
+		$TxP = [];
+		$query = "SELECT IdCompany, Idtipotx, Idtx, IdEstacion, Item, Fectxserver, Fectxclient, MontoPagar, ROUND(IF(Idtipotx in (7,27,28), Contado * -1, Contado),2) as Contado, Credito, Efectivo, Vuelto, Tarjeta, TarjetaD, Cheque, ChequeD, Tipo01, Tipo01D, Tipo02, Tipo02D, Tipo03, Tipo03D, Tipo04, Tipo04D,Login, IdcompanyUser, IdResponsable,Caja,TxfecVence,DAmpliado,Referencia,tasa,TarjetaB,ChequeB,Tipo01B,Tipo02B,Tipo03B,Tipo04B,ROUND(IF(Idtipotx in (7,27,28), Anticipo * -1, Anticipo),2) as Anticipo,AnticipoD,AnticipoB FROM PosUpTxP WHERE IdCompany=" . $IdCompany . " and Idtx='" . $Idtx . "' and Idtipotx='" . $Idtipotx . "' and IdEstacion='" . $IdEstacion . "'";
+		if ($result = mysqli_query($conn, $query)) {
+			while ($row = mysqli_fetch_assoc($result)) {
+				$TxP = $row;
+			}
+			mysqli_free_result($result);
+		}
 
-        $query = "SELECT a.Idtipotx,a.Idtx,a.IdEstacion,a.MontoPagar,
+		$query = "SELECT a.Idtipotx,a.Idtx,a.IdEstacion,a.MontoPagar,
 		a.tasa
 		FROM PosUpTxP a 
 		inner join PosUpTxC b on b.IdCompany = a.IdCompany 
@@ -1304,34 +1467,34 @@ function EliminarPago($conn, $post)
 		AND b.Idtipotx = a.Idtipotx 
 		AND b.IdEstacion = a.IdEstacion 
 		WHERE b.IdBarcode = '" . $IdBarcode . "'";
-        if ($result = mysqli_query($conn, $query)) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $IdtipotxTXC = $row["Idtipotx"];
-                $IdtxTXC = $row["Idtx"];
-                $IdEstacionTXC = $row["IdEstacion"];
-                $MontoPagar = $row["MontoPagar"];
-                $Monto = $TxP["Anticipo"] / $TxP["tasa"];
-                $Anticipo = ($Monto * $row["tasa"]);
-            }
-            mysqli_free_result($result);
-        }
-        foreach (
-            ["UPDATE PosUpTxP SET MontoPagar=? WHERE IdCompany=? AND Idtx=? AND Idtipotx=? AND IdEstacion=?" => [
-                $MontoPagar - $Anticipo,
-                $post["CompanyActual"],
-                $IdtxTXC,
-                $IdtipotxTXC,
-                $IdEstacionTXC
-            ],] as $query => $params
-        ) {
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param(str_repeat("s", count($params)), ...$params);
-            if (!$stmt->execute()) {
-            }
-            $stmt->close();
-        }
-    }
-    /*
+		if ($result = mysqli_query($conn, $query)) {
+			while ($row = mysqli_fetch_assoc($result)) {
+				$IdtipotxTXC = $row["Idtipotx"];
+				$IdtxTXC = $row["Idtx"];
+				$IdEstacionTXC = $row["IdEstacion"];
+				$MontoPagar = $row["MontoPagar"];
+				$Monto = $TxP["Anticipo"] / $TxP["tasa"];
+				$Anticipo = ($Monto * $row["tasa"]);
+			}
+			mysqli_free_result($result);
+		}
+		foreach (
+			["UPDATE PosUpTxP SET MontoPagar=? WHERE IdCompany=? AND Idtx=? AND Idtipotx=? AND IdEstacion=?" => [
+				$MontoPagar - $Anticipo,
+				$post["CompanyActual"],
+				$IdtxTXC,
+				$IdtipotxTXC,
+				$IdEstacionTXC
+			],] as $query => $params
+		) {
+			$stmt = $conn->prepare($query);
+			$stmt->bind_param(str_repeat("s", count($params)), ...$params);
+			if (!$stmt->execute()) {
+			}
+			$stmt->close();
+		}
+	}
+	/*
 	if ($post['Anticipo'] === "true") {
 		$TxP = [];
 		$query = "SELECT IdCompany, Idtipotx, Idtx, IdEstacion, Item, Fectxserver, Fectxclient, MontoPagar, ROUND(IF(Idtipotx in (7,27,28), Contado * -1, Contado),2) as Contado, Credito, Efectivo, Vuelto, Tarjeta, TarjetaD, Cheque, ChequeD, Tipo01, Tipo01D, Tipo02, Tipo02D, Tipo03, Tipo03D, Tipo04, Tipo04D,Login, IdcompanyUser, IdResponsable,Caja,TxfecVence,DAmpliado,Referencia,tasa,TarjetaB,ChequeB,Tipo01B,Tipo02B,Tipo03B,Tipo04B,ROUND(IF(Idtipotx in (7,27,28), Anticipo * -1, Anticipo),2) as Anticipo,AnticipoD,AnticipoB FROM PosUpTxP WHERE IdCompany=" . $IdCompany . " and Idtx='" . $Idtx . "' and Idtipotx='" . $Idtipotx . "' and IdEstacion='" . $IdEstacion . "'";
@@ -1426,27 +1589,27 @@ function EliminarPago($conn, $post)
 	}
 	*/
 
-    $statement2 = "update PosUpTxC set Cobrado='" . $ContadoTxC . "',Contado='" . $ContadoTxC . "',Credito=" . $CreditoTxC . " 
+	$statement2 = "update PosUpTxC set Cobrado='" . $ContadoTxC . "',Contado='" . $ContadoTxC . "',Credito=" . $CreditoTxC . " 
 		where IdCompany=" . trim($IdCompany) . " and Idtx=" . trim($Idtx) . " and Idtipotx=" . trim($Idtipotx) . " and IdEstacion='" . trim($IdEstacion) . "'";
-    $resultado2 =  mysqli_query($conn, $statement2);
+	$resultado2 =  mysqli_query($conn, $statement2);
 
 
-    $statement = "DELETE FROM PosUpTxP WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "' and item = '" . $item . "'";
-    $result =  mysqli_query($conn, $statement);
+	$statement = "DELETE FROM PosUpTxP WHERE IdCompany = " . $IdCompany . " and Idtipotx = " . $Idtipotx . " and Idtx = " . $Idtx . " and IdEstacion = '" . $IdEstacion . "' and item = '" . $item . "'";
+	$result =  mysqli_query($conn, $statement);
 
-    if ($resultado2 && $result) {
-        $conn->commit();
-        return json_encode(["status" => true,]);
-    } else {
-        $conn->rollback();
-        return json_encode(["status" => false,]);
-    }
+	if ($resultado2 && $result) {
+		$conn->commit();
+		return json_encode(["status" => true,]);
+	} else {
+		$conn->rollback();
+		return json_encode(["status" => false,]);
+	}
 }
 
 function AnticipadosCrud($conn, $post, $request)
 {
 
-    $sql = "SELECT ROUND(abs(a.Contado/b.tasa),2) as Contado,ROUND(abs(a.MontoPagar/b.tasa),2) as MontoPagar,a.Referencia,DATE_FORMAT(a.Fectxclient,'%d/%m/%Y %h:%i:%s %p') as Fecha,b.IdBarcode,
+	$sql = "SELECT ROUND(abs(a.Contado/b.tasa),2) as Contado,ROUND(abs(a.MontoPagar/b.tasa),2) as MontoPagar,a.Referencia,DATE_FORMAT(a.Fectxclient,'%d/%m/%Y %h:%i:%s %p') as Fecha,b.IdBarcode,
 	if(if(b.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(b.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(b.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 0,b.IdtxCompany,if(if(b.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(b.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(b.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 1,b.Idtx,b.Referencia)) as IdtxDef,
 	IF(a.Contado > 0, 1, 0) as TipoAnticipo 
 	FROM PosUpTxP a 
@@ -1454,40 +1617,40 @@ function AnticipadosCrud($conn, $post, $request)
 	left join PosUpTxC b on b.IdCompany=a.IdCompany and a.Idtipotx=b.Idtipotx and a.Idtx=b.Idtx and a.IdEstacion=b.IdEstacion
 	WHERE a.IdCompany = " . trim($post["CompanyActual"]) . " AND a.IdResponsable = '" . trim($post['IdBen']) . "' and a.Idtipotx=25 
 	and ROUND(ABS(a.Contado),2) != ROUND(ABS(a.MontoPagar),2)";
-    $query = mysqli_query($conn, $sql);
-    $totalData = mysqli_num_rows($query);
-    $totalFilter = $totalData;
-    if (!empty($request['search']['value'])) {
-        $sql .= " AND ( if(if(b.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(b.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(b.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 0,b.IdtxCompany,if(if(b.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(b.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(b.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 1,b.Idtx,b.Referencia)) Like '%" . $request['search']['value'] . "%' )";
-    }
-    $query = mysqli_query($conn, $sql);
-    $totalData = mysqli_num_rows($query);
-    $sql .= " ORDER BY Fecha ASC  LIMIT " .
-        $request['start'] . "  ," . $request['length'] . "  ";
-    $query = mysqli_query($conn, $sql);
-    $data = array();
-    while ($row = mysqli_fetch_array($query)) {
-        $subdata = array();
-        $tag = "";
-        if ($row["TipoAnticipo"] == 1) {
-            $tag = "<span class='badge bg-success text-light'>" . lang("Anticipo Para Ventas") . "</span>";
-        } else {
-            $tag = "<span class='badge bg-danger text-light'>" . lang("Anticipo Para Compras") . "</span>";
-        }
+	$query = mysqli_query($conn, $sql);
+	$totalData = mysqli_num_rows($query);
+	$totalFilter = $totalData;
+	if (!empty($request['search']['value'])) {
+		$sql .= " AND ( if(if(b.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(b.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(b.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 0,b.IdtxCompany,if(if(b.Idtipotx in (1,2,3,4,5,6,11,12,13,15,21,22,23,24,25,26,31,35,36,37),ee.NumTxViewVTA,if(b.Idtipotx in (7,14,20,27,28),ee.NumTxViewCOM,if(b.Idtipotx in (8,9,10,16,17,18,19,29,30,32,33,34,39),ee.NumTxViewINV,''))) = 1,b.Idtx,b.Referencia)) Like '%" . $request['search']['value'] . "%' )";
+	}
+	$query = mysqli_query($conn, $sql);
+	$totalData = mysqli_num_rows($query);
+	$sql .= " ORDER BY Fecha ASC  LIMIT " .
+		$request['start'] . "  ," . $request['length'] . "  ";
+	$query = mysqli_query($conn, $sql);
+	$data = array();
+	while ($row = mysqli_fetch_array($query)) {
+		$subdata = array();
+		$tag = "";
+		if ($row["TipoAnticipo"] == 1) {
+			$tag = "<span class='badge bg-success text-light'>" . lang("Anticipo Para Ventas") . "</span>";
+		} else {
+			$tag = "<span class='badge bg-danger text-light'>" . lang("Anticipo Para Compras") . "</span>";
+		}
 
-        $subdata[] = $tag . "<span class='badge bg-light text-dark'>#" . str_pad($row["IdtxDef"], 6, "0", STR_PAD_LEFT)  . "</span> " . (trim($row['Referencia']) !== "" ? "<span class='badge bg-dark text-light'>" .  $row['Referencia'] . "</span>" : "") . " <span class='badge bg-success text-light'><i class='fa fa-calendar'></i> " . $row['Fecha'] . "</span>";
-        $subdata[] = "<div class='text-end'>" . number_format(abs($row['MontoPagar']), $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . " / " . number_format(abs($row['Contado']), $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . "</div>";
-        $subdata[] = "<div class='btn-group'><button class='btn btn-outline-danger px-1' type='button' onclick='DeleteAnticipo(`" . $row['IdBarcode'] . "`);'><i class='fa fa-trash'></i> " . lang("Eliminar") . "</button></div>";
-        $data[] = $subdata;
-    }
-    $json_data = array(
-        "draw"              =>  intval($request['draw']),
-        "recordsTotal"      =>  intval($totalData),
-        "recordsFiltered"   =>  intval($totalFilter),
-        "data"              =>  $data,
-        "sql" => $sql,
-    );
-    return json_encode($json_data);
+		$subdata[] = $tag . "<span class='badge bg-light text-dark'>#" . str_pad($row["IdtxDef"], 6, "0", STR_PAD_LEFT)  . "</span> " . (trim($row['Referencia']) !== "" ? "<span class='badge bg-dark text-light'>" .  $row['Referencia'] . "</span>" : "") . " <span class='badge bg-success text-light'><i class='fa fa-calendar'></i> " . $row['Fecha'] . "</span>";
+		$subdata[] = "<div class='text-end'>" . number_format(abs($row['MontoPagar']), $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . " / " . number_format(abs($row['Contado']), $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . "</div>";
+		$subdata[] = "<div class='btn-group'><button class='btn btn-outline-danger px-1' type='button' onclick='DeleteAnticipo(`" . $row['IdBarcode'] . "`);'><i class='fa fa-trash'></i> " . lang("Eliminar") . "</button></div>";
+		$data[] = $subdata;
+	}
+	$json_data = array(
+		"draw"              =>  intval($request['draw']),
+		"recordsTotal"      =>  intval($totalData),
+		"recordsFiltered"   =>  intval($totalFilter),
+		"data"              =>  $data,
+		"sql" => $sql,
+	);
+	return json_encode($json_data);
 }
 
 /*
@@ -1501,10 +1664,10 @@ if ($_POST["Accion"] === "RefreshTable") {
 */
 
 if ($_POST["Accion"] == "3") {
-    include "ambienteconsultas.php";
-    $conn = conectar();
-    $SaldoAnticipo = 0;
-    $query3 = "select
+	include "ambienteconsultas.php";
+	$conn = conectar();
+	$SaldoAnticipo = 0;
+	$query3 = "select
 	sum(((ABS(a.Contado))-ABS(a.MontoPagar)) / IF(a.tasa <= 0,1,a.tasa)) as Total
 from
 	PosUpTxP a
@@ -1514,14 +1677,14 @@ where
 	and a.Idtipotx = 25
     and Contado > 0
 ";
-    if ($result3 = mysqli_query($conn, $query3)) {
-        while ($row3 = mysqli_fetch_assoc($result3)) {
-            $SaldoAnticipo = $SaldoAnticipo + $row3['Total'];
-        }
-        mysqli_free_result($result3);
-    }
-    $SaldoAnticipo2 = 0;
-    $query3 = "select
+	if ($result3 = mysqli_query($conn, $query3)) {
+		while ($row3 = mysqli_fetch_assoc($result3)) {
+			$SaldoAnticipo = $SaldoAnticipo + $row3['Total'];
+		}
+		mysqli_free_result($result3);
+	}
+	$SaldoAnticipo2 = 0;
+	$query3 = "select
 	sum(((ABS(a.Contado))-ABS(a.MontoPagar)) / IF(a.tasa <= 0,1,a.tasa)) as Total
 from
 	PosUpTxP a
@@ -1531,535 +1694,537 @@ where
 	and a.Idtipotx = 25
     and Contado < 0
 ";
-    if ($result3 = mysqli_query($conn, $query3)) {
-        while ($row3 = mysqli_fetch_assoc($result3)) {
-            $SaldoAnticipo2 = $SaldoAnticipo2 + $row3['Total'];
-        }
-        mysqli_free_result($result3);
-    }
-    $query2 = "SELECT Nombre,Fono,Direccion,Comuna,email,TipoCredito FROM PosUpclientes WHERE IdCompany='" . trim($_POST['CompanyActual']) . "' and RUT='" . trim($_POST['IdBen']) . "'";
-    if ($result2 = mysqli_query($conn, $query2)) {
-        while ($row2 = mysqli_fetch_assoc($result2)) {
-        ?>
-            <div class="row">
-                <div class="card bg-light border-0 shadow-sm mb-4 col-lg-4 col-md-6 col-sm-12 col-12 px-0" style="border-radius: 10px;">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center px-4" style=" border-bottom: 1px solid #dee2e6;">
-                        <h5 class="mb-0"><?php echo lang("Beneficiario"); ?></h5>
-                    </div>
-                    <div class="card-body px-4">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="text-secondary" style="font-size: 0.6rem;"><?php echo $_POST['litfiscal']; ?></div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $_POST['IdBen']; ?></div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Nombre"); ?></div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;" id="NameBeneficairio"><?php echo $row2['Nombre']; ?></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Teléfono"); ?></div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['Fono']; ?></div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Dirección"); ?></div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['Direccion']; ?></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Comuna"); ?></div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['Comuna']; ?></div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Email"); ?></div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['email']; ?></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Límite De Crédito"); ?></div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo number_format($row2['TipoCredito'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-secondary d-flex justify-content-between align-items-center" style="font-size: 0.6rem;">
-                                    <?php echo lang("Saldo Anticipo"); ?>
-                                    <button class="btn btn-outline-dark btn-sm p-1" type="button" onclick="AnticipadosCrud();" style="font-size: 0.6rem;">
-                                        <i class="fa fa-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="font-weight-bold" style="font-size: 0.75rem;">
-                                    <span class="badge bg-success text-light"><?php echo lang("Venta") . ": " . number_format($SaldoAnticipo, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-                                    /
-                                    <span class="badge bg-danger text-light"><?php echo lang("Compra") . ": " . number_format($SaldoAnticipo2, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card bg-warning text-dark border-0 shadow-sm mb-4 col-lg-4 col-md-6 col-sm-12 col-12 px-0" style="border-radius: 10px;">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center px-4" style=" border-bottom: 1px solid #dee2e6;">
-                        <h5 class="mb-0"><?php echo lang("Totales"); ?></h5>
-                    </div>
-                    <div class="card-body px-4">
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Monto"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="Monto001" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="Monto002" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Débito"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="Monto003" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="Monto004" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Crédito"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="Monto005" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="Monto006" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row" style="display: none;">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Saldo"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="Monto007" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="Monto008" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("S. Vencido"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="SaldoPCXXXX" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="SaldoPC2XXXX" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card bg-primary text-light border-0 shadow-sm mb-4 col-lg-4 col-md-6 col-sm-12 col-12 px-0 d-none" style="border-radius: 10px;" id="divmayor">
-                    <div class="card-header bg-white text-dark d-flex justify-content-between align-items-center px-4" style=" border-bottom: 1px solid #dee2e6;">
-                        <h5 class="mb-0"><?php echo lang("Movimiento"); ?></h5>
-                    </div>
-                    <div class="card-body px-4 ">
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Monto"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="MontoPC" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="MontoPC2" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Débito"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="DebitoPC" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="DebitoPC2" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Crédito"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="CreditoPC" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="CreditoPC2" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row" style="display: none;">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Saldo"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="SaldoPC" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="SaldoPC2" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="dashleft col-4 text-start">
-                                <div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Emisión"); ?> </div>
-                            </div>
-                            <div class="dashright col-8 text-end">
-                                <div class="dashletg" id="EmisionPC" style="font-size: 0.6rem;"></div>
-                                <div class="dashletp" id="SaldoPC2XXXX" style="font-size: 0.6rem;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+	if ($result3 = mysqli_query($conn, $query3)) {
+		while ($row3 = mysqli_fetch_assoc($result3)) {
+			$SaldoAnticipo2 = $SaldoAnticipo2 + $row3['Total'];
+		}
+		mysqli_free_result($result3);
+	}
+	$query2 = "SELECT Nombre,Fono,Direccion,Comuna,email,TipoCredito FROM PosUpclientes WHERE IdCompany='" . trim($_POST['CompanyActual']) . "' and RUT='" . trim($_POST['IdBen']) . "'";
+	if ($result2 = mysqli_query($conn, $query2)) {
+		while ($row2 = mysqli_fetch_assoc($result2)) {
+		?>
+			<div class="row">
+				<div class="card bg-light border-0 shadow-sm mb-4 col-lg-4 col-md-6 col-sm-12 col-12 px-0" style="border-radius: 10px;">
+					<div class="card-header bg-white d-flex justify-content-between align-items-center px-4" style=" border-bottom: 1px solid #dee2e6;">
+						<h5 class="mb-0"><?php echo lang("Beneficiario"); ?></h5>
+					</div>
+					<div class="card-body px-4">
+						<div class="row">
+							<div class="col-6">
+								<div class="text-secondary" style="font-size: 0.6rem;"><?php echo $_POST['litfiscal']; ?></div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $_POST['IdBen']; ?></div>
+							</div>
+							<div class="col-6">
+								<div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Nombre"); ?></div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;" id="NameBeneficairio"><?php echo $row2['Nombre']; ?></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-6">
+								<div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Teléfono"); ?></div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['Fono']; ?></div>
+							</div>
+							<div class="col-6">
+								<div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Dirección"); ?></div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['Direccion']; ?></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-6">
+								<div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Comuna"); ?></div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['Comuna']; ?></div>
+							</div>
+							<div class="col-6">
+								<div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Email"); ?></div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo $row2['email']; ?></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-6">
+								<div class="text-secondary" style="font-size: 0.6rem;"><?php echo lang("Límite De Crédito"); ?></div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;"><?php echo number_format($row2['TipoCredito'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></div>
+							</div>
+							<div class="col-6">
+								<div class="text-secondary d-flex justify-content-between align-items-center" style="font-size: 0.6rem;">
+									<?php echo lang("Saldo Anticipo"); ?>
+									<button class="btn btn-outline-dark btn-sm p-1" type="button" onclick="AnticipadosCrud();" style="font-size: 0.6rem;">
+										<i class="fa fa-eye"></i>
+									</button>
+								</div>
+								<div class="font-weight-bold" style="font-size: 0.75rem;">
+									<span class="badge bg-success text-light"><?php echo lang("Venta") . ": " . number_format($SaldoAnticipo, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+									/
+									<span class="badge bg-danger text-light"><?php echo lang("Compra") . ": " . number_format($SaldoAnticipo2, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card bg-warning text-dark border-0 shadow-sm mb-4 col-lg-4 col-md-6 col-sm-12 col-12 px-0" style="border-radius: 10px;">
+					<div class="card-header bg-white d-flex justify-content-between align-items-center px-4" style=" border-bottom: 1px solid #dee2e6;">
+						<h5 class="mb-0"><?php echo lang("Totales"); ?></h5>
+					</div>
+					<div class="card-body px-4">
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Monto"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="Monto001" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="Monto002" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Débito"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="Monto003" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="Monto004" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Crédito"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="Monto005" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="Monto006" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row" style="display: none;">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Saldo"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="Monto007" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="Monto008" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("S. Vencido"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="SaldoPCXXXX" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="SaldoPC2XXXX" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card bg-primary text-light border-0 shadow-sm mb-4 col-lg-4 col-md-6 col-sm-12 col-12 px-0 d-none" style="border-radius: 10px;" id="divmayor">
+					<div class="card-header bg-white text-dark d-flex justify-content-between align-items-center px-4" style=" border-bottom: 1px solid #dee2e6;">
+						<h5 class="mb-0"><?php echo lang("Movimiento"); ?></h5>
+					</div>
+					<div class="card-body px-4 ">
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Monto"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="MontoPC" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="MontoPC2" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Débito"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="DebitoPC" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="DebitoPC2" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Crédito"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="CreditoPC" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="CreditoPC2" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row" style="display: none;">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Saldo"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="SaldoPC" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="SaldoPC2" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="dashleft col-4 text-start">
+								<div class="dashletg" style="font-size: 0.75rem;"><?php echo lang("Emisión"); ?> </div>
+							</div>
+							<div class="dashright col-8 text-end">
+								<div class="dashletg" id="EmisionPC" style="font-size: 0.6rem;"></div>
+								<div class="dashletp" id="SaldoPC2XXXX" style="font-size: 0.6rem;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <span id="LimiCreditoA" style="display: none;"><?php echo $row2["TipoCredito"]; ?></span>
-    <?php
-        }
-        mysqli_free_result($result);
-    }
+			<span id="LimiCreditoA" style="display: none;"><?php echo $row2["TipoCredito"]; ?></span>
+	<?php
+		}
+		mysqli_free_result($result);
+	}
 }
 
 if ($_POST["Accion"] == "4") {
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    $Fecha = $_POST['Fecha'];
-    $año = substr($Fecha, 0, 4);
-    $mes = substr($Fecha, 5, 2);
-    $Codigo = $año . $mes;
-    $query = "select concat('" . $Codigo . "',LPAD(max(CAST(replace(Referencia,'" . $Codigo . "','') AS UNSIGNED)+1), 8, '0')) as df2  from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and left(Referencia,LENGTH('" . $Codigo . "')) = '" . $Codigo . "' and tiporetencion = 0";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $Cod = $row['df2'];
-        }
-        mysqli_free_result($result);
-    }
-    if (trim($Cod) == "") {
-        $Cod = $Codigo . str_pad("1", 8, "0", STR_PAD_LEFT);
-    }
-    echo $Cod;
+	$Fecha = $_POST['Fecha'];
+	$año = substr($Fecha, 0, 4);
+	$mes = substr($Fecha, 5, 2);
+	$Codigo = $año . $mes;
+	$query = "select concat('" . $Codigo . "',LPAD(max(CAST(replace(Referencia,'" . $Codigo . "','') AS UNSIGNED)+1), 8, '0')) as df2  from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and left(Referencia,LENGTH('" . $Codigo . "')) = '" . $Codigo . "' and tiporetencion = 0";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$Cod = $row['df2'];
+		}
+		mysqli_free_result($result);
+	}
+	if (trim($Cod) == "") {
+		$Cod = $Codigo . str_pad("1", 8, "0", STR_PAD_LEFT);
+	}
+	echo $Cod;
 }
 
 if ($_POST["Accion"] == "5") {
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    $query = "SELECT total,tasa,Idtx,Idtipotx,(impuesto*tasa) as impuesto,(imponible*tasa) as imponible,(excento*tasa) as excento,DATE_FORMAT(Fectxclient,'%Y-%m-%d') as fecha FROM PosUpTxC where IdCompany=" . trim($_POST["CompanyActual"]) . " and Idtx='" . $_POST["Idtx"] . "' and Idtipotx='" . $_POST["Idtipotx"] . "' and IdEstacion='" . $_POST["IdEstacion"] . "'";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $impuesto = $row['impuesto'];
-            $imponible = $row['imponible'];
-            $excento = $row['excento'];
-            $fecha = $row['fecha'];
-            $Idtipotx = $row['Idtipotx'];
-            $Idtx = $row['Idtx'];
-            $total = $row['total'];
-            $totaltasa = $row['total'] * $row['tasa'];
-            $tasa = $row['tasa'];
-        }
-        mysqli_free_result($result);
-    }
-    $CreditoActual = $_POST["CreditoActual"];
-    $RetenidoActual = $impuesto - $_POST['RetenidoActual'];
-    if ($CreditoActual > $RetenidoActual) {
-        $MontoMaximiliano = $RetenidoActual;
-    } else {
-        if ($CreditoActual < $RetenidoActual) {
-            $MontoMaximiliano = $CreditoActual;
-        }
-    }
-    ?>
-    <span id="ImpuActTxC"><?php echo $impuesto; ?></span>
-    <span id="ImpoActTxC"><?php echo $imponible; ?></span>
-    <span id="ExcActTxC"><?php echo $excento; ?></span>
-    <span id="FectxActTxC"><?php echo $fecha; ?></span>
-    <span id="totalTxC"><?php echo number_format($total, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="totaltasaTxC"><?php echo number_format($totaltasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="tasaTxC"><?php echo number_format($tasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="RetenidoActualTXCDUD"><?php echo number_format($MontoMaximiliano, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="IdtipotxActTxC"><?php echo $Idtipotx; ?></span>
-    <span id="IdtxActTxC"><?php echo $Idtx; ?></span>
+	$query = "SELECT total,tasa,Idtx,Idtipotx,(impuesto*tasa) as impuesto,(imponible*tasa) as imponible,(excento*tasa) as excento,DATE_FORMAT(Fectxclient,'%Y-%m-%d') as fecha FROM PosUpTxC where IdCompany=" . trim($_POST["CompanyActual"]) . " and Idtx='" . $_POST["Idtx"] . "' and Idtipotx='" . $_POST["Idtipotx"] . "' and IdEstacion='" . $_POST["IdEstacion"] . "'";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$impuesto = $row['impuesto'];
+			$imponible = $row['imponible'];
+			$excento = $row['excento'];
+			$fecha = $row['fecha'];
+			$Idtipotx = $row['Idtipotx'];
+			$Idtx = $row['Idtx'];
+			$total = $row['total'];
+			$totaltasa = $row['total'] * $row['tasa'];
+			$tasa = $row['tasa'];
+		}
+		mysqli_free_result($result);
+	}
+	$CreditoActual = $_POST["CreditoActual"];
+	$RetenidoActual = $impuesto - $_POST['RetenidoActual'];
+	if ($CreditoActual > $RetenidoActual) {
+		$MontoMaximiliano = $RetenidoActual;
+	} else {
+		if ($CreditoActual < $RetenidoActual) {
+			$MontoMaximiliano = $CreditoActual;
+		}
+	}
+	?>
+	<span id="ImpuActTxC"><?php echo $impuesto; ?></span>
+	<span id="ImpoActTxC"><?php echo $imponible; ?></span>
+	<span id="ExcActTxC"><?php echo $excento; ?></span>
+	<span id="FectxActTxC"><?php echo $fecha; ?></span>
+	<span id="totalTxC"><?php echo number_format($total, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="totaltasaTxC"><?php echo number_format($totaltasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="tasaTxC"><?php echo number_format($tasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="RetenidoActualTXCDUD"><?php echo number_format($MontoMaximiliano, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="IdtipotxActTxC"><?php echo $Idtipotx; ?></span>
+	<span id="IdtxActTxC"><?php echo $Idtx; ?></span>
 <?php
 }
 
 if ($_POST["Accion"] == "6") {
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    $Fecha = $_POST['Fecha'];
-    $año = substr($Fecha, 0, 4);
-    $mes = substr($Fecha, 5, 2);
-    $Codigo = $año . $mes;
-    $query = "select concat('" . $Codigo . "',LPAD(max(CAST(replace(Referencia,'" . $Codigo . "','') AS UNSIGNED)+1), 8, '0')) as df2  from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and left(Referencia,LENGTH('" . $Codigo . "')) = '" . $Codigo . "' and tiporetencion = 1";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $Cod = $row['df2'];
-        }
-        mysqli_free_result($result);
-    }
-    if (trim($Cod) == "") {
-        $Cod = $Codigo . str_pad("1", 8, "0", STR_PAD_LEFT);
-    }
-    echo $Cod;
+	$Fecha = $_POST['Fecha'];
+	$año = substr($Fecha, 0, 4);
+	$mes = substr($Fecha, 5, 2);
+	$Codigo = $año . $mes;
+	$query = "select concat('" . $Codigo . "',LPAD(max(CAST(replace(Referencia,'" . $Codigo . "','') AS UNSIGNED)+1), 8, '0')) as df2  from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and left(Referencia,LENGTH('" . $Codigo . "')) = '" . $Codigo . "' and tiporetencion = 1";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$Cod = $row['df2'];
+		}
+		mysqli_free_result($result);
+	}
+	if (trim($Cod) == "") {
+		$Cod = $Codigo . str_pad("1", 8, "0", STR_PAD_LEFT);
+	}
+	echo $Cod;
 }
 
 if ($_POST["Accion"] == "7") {
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    $query = "SELECT total,tasa,Idtx,Idtipotx,(impuesto*tasa) as impuesto,(imponible*tasa) as imponible,(excento*tasa) as excento,DATE_FORMAT(Fectxclient,'%Y-%m-%d') as fecha FROM PosUpTxC where IdCompany=" . trim($_POST["CompanyActual"]) . " and Idtx='" . $_POST["Idtx"] . "' and Idtipotx='" . $_POST["Idtipotx"] . "' and IdEstacion='" . $_POST["IdEstacion"] . "'";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $impuesto = $row['impuesto'];
-            $imponible = $row['imponible'];
-            $excento = $row['excento'];
-            $fecha = $row['fecha'];
-            $Idtipotx = $row['Idtipotx'];
-            $Idtx = $row['Idtx'];
-            $total = $row['total'];
-            $totaltasa = $row['total'] * $row['tasa'];
-            $tasa = $row['tasa'];
-        }
-        mysqli_free_result($result);
-    }
+	$query = "SELECT total,tasa,Idtx,Idtipotx,(impuesto*tasa) as impuesto,(imponible*tasa) as imponible,(excento*tasa) as excento,DATE_FORMAT(Fectxclient,'%Y-%m-%d') as fecha FROM PosUpTxC where IdCompany=" . trim($_POST["CompanyActual"]) . " and Idtx='" . $_POST["Idtx"] . "' and Idtipotx='" . $_POST["Idtipotx"] . "' and IdEstacion='" . $_POST["IdEstacion"] . "'";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$impuesto = $row['impuesto'];
+			$imponible = $row['imponible'];
+			$excento = $row['excento'];
+			$fecha = $row['fecha'];
+			$Idtipotx = $row['Idtipotx'];
+			$Idtx = $row['Idtx'];
+			$total = $row['total'];
+			$totaltasa = $row['total'] * $row['tasa'];
+			$tasa = $row['tasa'];
+		}
+		mysqli_free_result($result);
+	}
 ?>
-    <span id="ImpuActTxC2"><?php echo $impuesto; ?></span>
-    <span id="ImpoActTxC2"><?php echo $imponible; ?></span>
-    <span id="ExcActTxC2"><?php echo $excento; ?></span>
-    <span id="FectxActTxC2"><?php echo $fecha; ?></span>
-    <span id="totalTxC2"><?php echo number_format($total, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="totaltasaTxC2"><?php echo number_format($totaltasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="tasaTxC2"><?php echo number_format($tasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="RetenidoActualTXCDUD2"><?php echo number_format($impuesto - $_POST['RetenidoActual'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
-    <span id="IdtipotxActTxC2"><?php echo $Idtipotx; ?></span>
-    <span id="IdtxActTxC2"><?php echo $Idtx; ?></span>
-    <?php
+	<span id="ImpuActTxC2"><?php echo $impuesto; ?></span>
+	<span id="ImpoActTxC2"><?php echo $imponible; ?></span>
+	<span id="ExcActTxC2"><?php echo $excento; ?></span>
+	<span id="FectxActTxC2"><?php echo $fecha; ?></span>
+	<span id="totalTxC2"><?php echo number_format($total, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="totaltasaTxC2"><?php echo number_format($totaltasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="tasaTxC2"><?php echo number_format($tasa, $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="RetenidoActualTXCDUD2"><?php echo number_format($impuesto - $_POST['RetenidoActual'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']); ?></span>
+	<span id="IdtipotxActTxC2"><?php echo $Idtipotx; ?></span>
+	<span id="IdtxActTxC2"><?php echo $Idtx; ?></span>
+	<?php
 }
 
 if ($_POST['Accion'] == '8') {
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    if ($_POST["Ini"] == "0") {
-    ?>
-        <table class="table nowrap" id="AnticipoSelecTable" cellspacing="0" style="width:100%">
-            <thead>
-                <tr>
-                    <th class="text-start">#</th>
-                    <th class="text-start"><?php echo lang("Fecha"); ?></th>
-                    <th class="text-start"><?php echo lang("Referencia"); ?></th>
-                    <th class="text-end"><?php echo lang("Monto") . " (" . $_POST["MonedaP"] . ")"; ?></th>
-                    <th class="text-end"><?php echo lang("Usado") . " (" . $_POST["MonedaP"] . ")"; ?></th>
-                    <th class="text-start"><?php echo lang("Opciones"); ?></th>
-                </tr>
-            </thead>
-        </table>
-    <?php
-    }
-    if ($_POST["Ini"] == "1") {
-        $request = $_REQUEST;
-        $col = array(
-            0   =>  'Idtx',
-            1   =>  'Fectxclient',
-            2   =>  'Referencia',
-            3   =>  'Contado',
-            4   =>  'MontoPagar',
-            5   =>  'Credito',
-        );
-        if ($_POST["Idtipotx"] === "7") {
+	if ($_POST["Ini"] == "0") {
+	?>
+		<table class="table nowrap" id="AnticipoSelecTable" cellspacing="0" style="width:100%">
+			<thead>
+				<tr>
+					<th class="text-start">#</th>
+					<th class="text-start"><?php echo lang("Fecha"); ?></th>
+					<th class="text-start"><?php echo lang("Referencia"); ?></th>
+					<th class="text-end"><?php echo lang("Monto") . " (" . $_POST["MonedaP"] . ")"; ?></th>
+					<th class="text-end"><?php echo lang("Usado") . " (" . $_POST["MonedaP"] . ")"; ?></th>
+					<th class="text-start"><?php echo lang("Opciones"); ?></th>
+				</tr>
+			</thead>
+		</table>
+	<?php
+	}
+	if ($_POST["Ini"] == "1") {
+		$request = $_REQUEST;
+		$col = array(
+			0   =>  'Idtx',
+			1   =>  'Fectxclient',
+			2   =>  'Referencia',
+			3   =>  'Contado',
+			4   =>  'MontoPagar',
+			5   =>  'Credito',
+		);
+		if ($_POST["Idtipotx"] === "7") {
 
-            $sql = "SELECT a.Idtx,(abs(a.Contado)/b.tasa) as Contado, (abs(a.MontoPagar)/b.tasa) as MontoPagar,a.Referencia,DATE_FORMAT(a.Fectxclient,'%Y-%m-%d') as Fectxclient,a.IdEstacion,a.Idtipotx FROM PosUpTxP a inner join PosUpTxC b on a.IdCompany=b.IdCompany and a.Idtipotx=b.Idtipotx and a.Idtx=b.Idtx and a.IdEstacion=b.IdEstacion  WHERE a.IdCompany = " . trim($_POST["CompanyActual"]) . " AND a.IdResponsable = '" . trim($_POST['IdBen']) . "' and a.Idtipotx=25 and a.Contado < 0 and ABS(a.Contado)!=ABS(a.MontoPagar)";
-        } else {
-            $sql = "SELECT a.Idtx,(a.Contado/b.tasa) as Contado, (a.MontoPagar/b.tasa) as MontoPagar,a.Referencia,DATE_FORMAT(a.Fectxclient,'%Y-%m-%d') as Fectxclient,a.IdEstacion,a.Idtipotx FROM PosUpTxP a inner join PosUpTxC b on a.IdCompany=b.IdCompany and a.Idtipotx=b.Idtipotx and a.Idtx=b.Idtx and a.IdEstacion=b.IdEstacion  WHERE a.IdCompany = " . trim($_POST["CompanyActual"]) . " AND a.IdResponsable = '" . trim($_POST['IdBen']) . "' and a.Idtipotx=25 and a.Contado > 0 and ROUND(a.Contado,2) != ROUND(a.MontoPagar,2)
+			$sql = "SELECT a.Idtx,(abs(a.Contado)/b.tasa) as Contado, (abs(a.MontoPagar)/b.tasa) as MontoPagar,a.Referencia,DATE_FORMAT(a.Fectxclient,'%Y-%m-%d') as Fectxclient,a.IdEstacion,a.Idtipotx FROM PosUpTxP a inner join PosUpTxC b on a.IdCompany=b.IdCompany and a.Idtipotx=b.Idtipotx and a.Idtx=b.Idtx and a.IdEstacion=b.IdEstacion  WHERE a.IdCompany = " . trim($_POST["CompanyActual"]) . " AND a.IdResponsable = '" . trim($_POST['IdBen']) . "' and a.Idtipotx=25 and a.Contado < 0 and ABS(a.Contado)!=ABS(a.MontoPagar)";
+		} else {
+			$sql = "SELECT a.Idtx,(a.Contado/b.tasa) as Contado, (a.MontoPagar/b.tasa) as MontoPagar,a.Referencia,DATE_FORMAT(a.Fectxclient,'%Y-%m-%d') as Fectxclient,a.IdEstacion,a.Idtipotx FROM PosUpTxP a inner join PosUpTxC b on a.IdCompany=b.IdCompany and a.Idtipotx=b.Idtipotx and a.Idtx=b.Idtx and a.IdEstacion=b.IdEstacion  WHERE a.IdCompany = " . trim($_POST["CompanyActual"]) . " AND a.IdResponsable = '" . trim($_POST['IdBen']) . "' and a.Idtipotx=25 and a.Contado > 0 and ROUND(a.Contado,2) != ROUND(a.MontoPagar,2)
 			";
-        }
-        $query = mysqli_query($conn, $sql);
-        $totalData = mysqli_num_rows($query);
-        $totalFilter = $totalData;
-        if (!empty($request['search']['value'])) {
-            if (!empty($request['search']['value'])) {
-                $sql .= " AND ( Idtx Like '%" . $request['search']['value'] . "%'";
-                $sql .= " OR Fectxclient Like '%" . $request['search']['value'] . "%' ";
-                $sql .= " OR Referencia Like '%" . $request['search']['value'] . "%' )";
-            }
-        }
-        $query = mysqli_query($conn, $sql);
-        $totalData = mysqli_num_rows($query);
-        if ($col[$request['order'][0]['column']] && $request['order'][0]['dir']) {
-            $sql .= " ORDER BY " . $col[$request['order'][0]['column']] . "   " . $request['order'][0]['dir'] . "";
-        }
+		}
+		$query = mysqli_query($conn, $sql);
+		$totalData = mysqli_num_rows($query);
+		$totalFilter = $totalData;
+		if (!empty($request['search']['value'])) {
+			if (!empty($request['search']['value'])) {
+				$sql .= " AND ( Idtx Like '%" . $request['search']['value'] . "%'";
+				$sql .= " OR Fectxclient Like '%" . $request['search']['value'] . "%' ";
+				$sql .= " OR Referencia Like '%" . $request['search']['value'] . "%' )";
+			}
+		}
+		$query = mysqli_query($conn, $sql);
+		$totalData = mysqli_num_rows($query);
+		if ($col[$request['order'][0]['column']] && $request['order'][0]['dir']) {
+			$sql .= " ORDER BY " . $col[$request['order'][0]['column']] . "   " . $request['order'][0]['dir'] . "";
+		}
 
-        $sql .= " LIMIT " . $request['start'] . "  ," . $request['length'] . "  ";
-        $query = mysqli_query($conn, $sql);
-        $data = array();
-        while ($row = mysqli_fetch_array($query)) {
-            $subdata = array();
-            $subdata[] = $row['Idtx'];
-            $subdata[] = $row['Fectxclient'];
-            $subdata[] = $row['Referencia'];
-            $subdata[] = "<div class='text-end'>" . number_format($row['Contado'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . "</div>";
-            $subdata[] = "<div class='text-end'>" . number_format($row['MontoPagar'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . "</div>";
-            $subdata[] = "<div class='btn-group'><button class='btn btn-outline-dark' type='button' title='" . lang("Seleccionar Registro") . "' onclick='TomarComoPago(`" . $row['Idtx'] . "`,`" . $row["Idtipotx"] . "`,`" . $row["IdEstacion"] . "`,`" . $row["Contado"] . "`,`" . $row["MontoPagar"] . "`);'><i class='fa fa-arrow-right'></i> " . lang("Usar") . "</button></div>";
-            $data[] = $subdata;
-        }
-        $json_data = array(
-            "draw"              =>  intval($request['draw']),
-            "recordsTotal"      =>  intval($totalData),
-            "recordsFiltered"   =>  intval($totalFilter),
-            "data"              =>  $data,
-        );
-        echo json_encode($json_data);
-    }
+		$sql .= " LIMIT " . $request['start'] . "  ," . $request['length'] . "  ";
+		$query = mysqli_query($conn, $sql);
+		$data = array();
+		while ($row = mysqli_fetch_array($query)) {
+			$subdata = array();
+			$subdata[] = $row['Idtx'];
+			$subdata[] = $row['Fectxclient'];
+			$subdata[] = $row['Referencia'];
+			$subdata[] = "<div class='text-end'>" . number_format($row['Contado'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . "</div>";
+			$subdata[] = "<div class='text-end'>" . number_format($row['MontoPagar'], $_POST['CD'], $_POST['SimDec'], $_POST['SimMil']) . "</div>";
+			$subdata[] = "<div class='btn-group'><button class='btn btn-outline-dark' type='button' title='" . lang("Seleccionar Registro") . "' onclick='TomarComoPago(`" . $row['Idtx'] . "`,`" . $row["Idtipotx"] . "`,`" . $row["IdEstacion"] . "`,`" . $row["Contado"] . "`,`" . $row["MontoPagar"] . "`);'><i class='fa fa-arrow-right'></i> " . lang("Usar") . "</button></div>";
+			$data[] = $subdata;
+		}
+		$json_data = array(
+			"draw"              =>  intval($request['draw']),
+			"recordsTotal"      =>  intval($totalData),
+			"recordsFiltered"   =>  intval($totalFilter),
+			"data"              =>  $data,
+		);
+		echo json_encode($json_data);
+	}
 }
 
 if ($_POST['Accion'] == '9') {
-    include "ambienteconsultas.php";
-    $conn = conectar();
-    if ($_POST["Idtipotx"] === "7") {
-        $query3 = "select sum(ABS(Contado)-ABS(MontoPagar)) as Total from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and IdResponsable='" . trim($_POST['IdBen']) . "' and Idtipotx=25 and Contado < 0 and ABS(Contado)!=ABS(MontoPagar)";
-    } else {
-        $query3 = "select sum((Contado)-MontoPagar) as Total from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and IdResponsable='" . trim($_POST['IdBen']) . "' and Contado > 0 and Idtipotx=25 and ROUND(Contado,2) != ROUND(MontoPagar,2)";
-    }
-    $SaldoAnticipo = 0;
-    if ($result3 = mysqli_query($conn, $query3)) {
-        while ($row3 = mysqli_fetch_assoc($result3)) {
-            $SaldoAnticipo = $SaldoAnticipo + $row3['Total'];
-        }
-        mysqli_free_result($result3);
-    }
-    if ($SaldoAnticipo > 0) {
-        echo 1;
-    } else {
-        echo 0;
-    }
+	include "ambienteconsultas.php";
+	$conn = conectar();
+	if ($_POST["Idtipotx"] === "7") {
+		$query3 = "select sum(ABS(Contado)-ABS(MontoPagar)) as Total from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and IdResponsable='" . trim($_POST['IdBen']) . "' and Idtipotx=25 and Contado < 0 and ABS(Contado)!=ABS(MontoPagar)";
+	} else {
+		$query3 = "select sum((Contado)-MontoPagar) as Total from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and IdResponsable='" . trim($_POST['IdBen']) . "' and Contado > 0 and Idtipotx=25 and ROUND(Contado,2) != ROUND(MontoPagar,2)";
+	}
+	$SaldoAnticipo = 0;
+	if ($result3 = mysqli_query($conn, $query3)) {
+		while ($row3 = mysqli_fetch_assoc($result3)) {
+			$SaldoAnticipo = $SaldoAnticipo + $row3['Total'];
+		}
+		mysqli_free_result($result3);
+	}
+	if ($SaldoAnticipo > 0) {
+		echo 1;
+	} else {
+		echo 0;
+	}
 }
 
 if ($_POST['Accion'] == '10') {
-    include "ambienteconsultas.php";
-    $conn = conectar();
+	include "ambienteconsultas.php";
+	$conn = conectar();
 
-    if ($_POST['Editar'] == "NO") {
-        $query = "select coalesce(CONCAT(year(FectxClient),'-',lpad(month(FectxClient),2,'0'),'-',lpad(mid(max(Referencia),9,10)+1,10,'0')),CONCAT(year(FectxClient),'-',month(FectxClient),'-','00000000001')) as refnew from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and montoretencion > 0";
-        //echo $query;
-        if ($result = mysqli_query($conn, $query)) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $refnew = $row['refnew'];
-            }
-            mysqli_free_result($result);
-        }
-        echo $refnew;
-    }
-    if ($_POST['Editar'] == 'SI') {
-        $conn = conectar();
-        $query = "SELECT a.DAmpliado,a.Referencia FROM PosUpTxP a WHERE a.IdCompany='" . trim($_POST['CompanyActual']) . "' and a.Idtx='" . $_POST['Idtx'] . "' and a.Idtipotx='" . $_POST['Idtipotx'] . "' and a.IdEstacion='" . $_POST['IdEstacion'] . "' and a.Item='" . $_POST['Item'] . "'";
-        //echo $query;
-        $DAmpliado = "";
-        $Referencia = "";
-        if ($result = mysqli_query($conn, $query)) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $DAmpliado = $row['DAmpliado'];
-                $Referencia = $row['Referencia'];
-            }
-            mysqli_free_result($result);
-        }
-    ?>
-        <span style='display:none;' id='Dampliadoactual'><?php echo $DAmpliado; ?></span>
-        <span style='display:none;' id='Referenciactual'><?php echo $Referencia; ?></span>
+	if ($_POST['Editar'] == "NO") {
+		$query = "select coalesce(CONCAT(year(FectxClient),'-',lpad(month(FectxClient),2,'0'),'-',lpad(mid(max(Referencia),9,10)+1,10,'0')),CONCAT(year(FectxClient),'-',month(FectxClient),'-','00000000001')) as refnew from PosUpTxP where IdCompany = " . trim($_POST["CompanyActual"]) . " and montoretencion > 0";
+		//echo $query;
+		if ($result = mysqli_query($conn, $query)) {
+			while ($row = mysqli_fetch_assoc($result)) {
+				$refnew = $row['refnew'];
+			}
+			mysqli_free_result($result);
+		}
+		echo $refnew;
+	}
+	if ($_POST['Editar'] == 'SI') {
+		$conn = conectar();
+		$query = "SELECT a.DAmpliado,a.Referencia FROM PosUpTxP a WHERE a.IdCompany='" . trim($_POST['CompanyActual']) . "' and a.Idtx='" . $_POST['Idtx'] . "' and a.Idtipotx='" . $_POST['Idtipotx'] . "' and a.IdEstacion='" . $_POST['IdEstacion'] . "' and a.Item='" . $_POST['Item'] . "'";
+		//echo $query;
+		$DAmpliado = "";
+		$Referencia = "";
+		if ($result = mysqli_query($conn, $query)) {
+			while ($row = mysqli_fetch_assoc($result)) {
+				$DAmpliado = $row['DAmpliado'];
+				$Referencia = $row['Referencia'];
+			}
+			mysqli_free_result($result);
+		}
+	?>
+		<span style='display:none;' id='Dampliadoactual'><?php echo $DAmpliado; ?></span>
+		<span style='display:none;' id='Referenciactual'><?php echo $Referencia; ?></span>
 <?php
-    }
+	}
 }
 
 if ($_POST["Accion"] == "11") {
-    include "ambiente.php";
-    $conn = conectar();
+	include "ambiente.php";
+	$conn = conectar();
 
-    $control = $_POST["nroControl"];
-    $numz = $_POST["numz"];
-    $Fectxclient = $_POST["Fectxclient"];
-    $TxfecVence = $_POST["TxfecVence"];
-    $Idtipotx = $_POST["Idtipotx"];
-    $IdBen = $_POST["IdBen"];
-    $DAmpliado = $_POST["DAmpliado"];
-    $Referencia = $_POST["Referencia"];
-    $IdImpuesto = $_POST["IdImpuesto"];
-    $Tasa = abs($_POST["Tasa"]);
+	$control = $_POST["nroControl"];
+	$numz = $_POST["numz"];
+	$Fectxclient = $_POST["Fectxclient"];
+	$TxfecVence = $_POST["TxfecVence"];
+	$Idtipotx = $_POST["Idtipotx"];
+	$IdBen = $_POST["IdBen"];
+	$DAmpliado = $_POST["DAmpliado"];
+	$Referencia = $_POST["Referencia"];
+	$IdImpuesto = $_POST["IdImpuesto"];
+	$Tasa = abs($_POST["Tasa"]);
 
-    $Imponible = abs($_POST["Imponible"]);
-    $Impuesto = abs($_POST["Impuesto"]);
-    $Exento = abs($_POST["Exento"]);
-    $SubTotal = abs($Exento + $Impuesto + $Imponible);
-    $Total = abs($Exento + $Impuesto + $Imponible);
-    $token = sha1($_POST['correo']);
-    $IdEstacion = $_POST['IdEstacion'];
-    $IdUser = $_POST['IdUser'];
+	$Imponible = abs($_POST["Imponible"]);
+	$Impuesto = abs($_POST["Impuesto"]);
+	$Exento = abs($_POST["Exento"]);
+	$SubTotal = abs($Exento + $Impuesto + $Imponible);
+	$Total = abs($Exento + $Impuesto + $Imponible);
+	$token = sha1($_POST['correo']);
+	$IdEstacion = $_POST['IdEstacion'];
+	$IdUser = $_POST['IdUser'];
 
 
-    if ($Idtipotx == 1) {
-        $ttx = "numboleta";
-    }
+	if ($Idtipotx == 1) {
+		$ttx = "numboleta";
+	}
 
-    if ($Idtipotx == 2) {
-        $ttx = "numfactura";
-    }
+	if ($Idtipotx == 2) {
+		$ttx = "numfactura";
+	}
 
-    if ($Idtipotx == 15) {
-        $ttx = "numnota";
-    }
+	if ($Idtipotx == 15) {
+		$ttx = "numnota";
+	}
 
-    if ($Idtipotx == 22) {
-        $ttx = "numnec";
-    }
+	if ($Idtipotx == 22) {
+		$ttx = "numnec";
+	}
 
-    if ($Idtipotx == 7) {
-        $ttx = "numcom";
-    }
+	if ($Idtipotx == 7) {
+		$ttx = "numcom";
+	}
 
-    if ($Idtipotx == 28) {
-        $ttx = "numguiacompra";
-    }
+	if ($Idtipotx == 28) {
+		$ttx = "numguiacompra";
+	}
 
-    $newIdtx = "";
-    $query = "SELECT max(IdTxCompany)+1 as newIdtx from PosUpTxC where IdCompany = '" . $_POST["CompanyActual"] . "' and idtipotx='" . $Idtipotx . "'";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $newIdtx = $row['newIdtx'];
-        }
-        mysqli_free_result($result);
-    }
+	$newIdtx = "";
+	$query = "SELECT max(IdTxCompany)+1 as newIdtx from PosUpTxC where IdCompany = '" . $_POST["CompanyActual"] . "' and idtipotx='" . $Idtipotx . "'";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$newIdtx = $row['newIdtx'];
+		}
+		mysqli_free_result($result);
+	}
 
-    if (trim($newIdtx) === "") $newIdtx = 1;
+	if (trim($newIdtx) === "") $newIdtx = 1;
 
-    $conn->autocommit(FALSE);
+	$conn->autocommit(FALSE);
 
-    $query = "SELECT prefac," . $ttx . "+1 as Idtx FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'";
-    if ($result = mysqli_query($conn, $query)) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $prefac = $row['prefac'];
-            $Idtx = $row['Idtx'];
-        }
-        mysqli_free_result($result);
-    }
+	$query = "SELECT prefac," . $ttx . "+1 as Idtx FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'";
+	if ($result = mysqli_query($conn, $query)) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			$prefac = $row['prefac'];
+			$Idtx = $row['Idtx'];
+		}
+		mysqli_free_result($result);
+	}
 
-    $statement = "insert into PosUpTxC (IdCompany, Idtipotx, Idtx, Fectxserver, Fectxclient,  IdUser, IdUserAutDcto, SubTotal, Dcto, Total, Costo, Margen, DctoAplicado, MargenDcto, Items, IdEstacion, Contado, Credito, Cobrado,IdCompanyUserAutDcto, IdCompanyUser,IdtipotxPadre, IdtxPadre, IdEstacionPadre,IdAlmO,IdAlmD,motivo,DAmpliado,IdBen,Referencia,excento,imponible,impuesto,totalimp,numctrol,TxfecVence,tasa,UserVendedor,IdTxCompany,TrackIdDTE,añolibro,meslibro) values ((SELECT Id FROM PosUpCompany where token='" . $token . "'),'" . $Idtipotx . "',(SELECT " . $ttx . "+1 FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'),now(),'" . $Fectxclient . "','" . $IdUser . "','','" . $SubTotal . "','0','" . $Total . "','0','0','0','0','1','" . $IdEstacion . "','0','" . ($Total * $Tasa) . "','0','','" . $_POST["userCompany"] . "','0','0','0','" . $_POST['IdAlm'] . "','" . $_POST['IdAlm'] . "','','" . $DAmpliado . "','" . $IdBen . "','" . $Referencia . "','" . $Exento . "','" . $Imponible . "','" . $Impuesto . "','" . ($Imponible + $Impuesto) . "','" . $control . "','" . $TxfecVence . "','" . $Tasa . "','0','" . $newIdtx . "','" . $numz . "', '" . $_POST["ano"] . "', '" . $_POST["mes"] . "')";
-    $statamen1 = $statement;
-    $resultado1 =  mysqli_query($conn, $statement);
+	$statement = "insert into PosUpTxC (IdCompany, Idtipotx, Idtx, Fectxserver, Fectxclient,  IdUser, IdUserAutDcto, SubTotal, Dcto, Total, Costo, Margen, DctoAplicado, MargenDcto, Items, IdEstacion, Contado, Credito, Cobrado,IdCompanyUserAutDcto, IdCompanyUser,IdtipotxPadre, IdtxPadre, IdEstacionPadre,IdAlmO,IdAlmD,motivo,DAmpliado,IdBen,Referencia,excento,imponible,impuesto,totalimp,numctrol,TxfecVence,tasa,UserVendedor,IdTxCompany,TrackIdDTE,añolibro,meslibro) values ((SELECT Id FROM PosUpCompany where token='" . $token . "'),'" . $Idtipotx . "',(SELECT " . $ttx . "+1 FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'),now(),'" . $Fectxclient . "','" . $IdUser . "','','" . $SubTotal . "','0','" . $Total . "','0','0','0','0','1','" . $IdEstacion . "','0','" . ($Total * $Tasa) . "','0','','" . $_POST["userCompany"] . "','0','0','0','" . $_POST['IdAlm'] . "','" . $_POST['IdAlm'] . "','','" . $DAmpliado . "','" . $IdBen . "','" . $Referencia . "','" . $Exento . "','" . $Imponible . "','" . $Impuesto . "','" . ($Imponible + $Impuesto) . "','" . $control . "','" . $TxfecVence . "','" . $Tasa . "','0','" . $newIdtx . "','" . $numz . "', '" . $_POST["ano"] . "', '" . $_POST["mes"] . "')";
+	$statamen1 = $statement;
+	$resultado1 =  mysqli_query($conn, $statement);
 
-    $statement = "insert into PosUpTxP (IdCompany, Idtipotx, Idtx, IdEstacion, Item, Fectxserver, Fectxclient, MontoPagar, Contado, Credito, Efectivo,Vuelto, Tarjeta, TarjetaD, Cheque, ChequeD, Tipo01, Tipo01D, Tipo02, Tipo02D, Tipo03, Tipo03D, Tipo04, Tipo04D,Login, IdcompanyUser, IdResponsable,Caja,TxfecVence,TarjetaB,ChequeB,Tipo01B,Tipo02B,Tipo03B,Tipo04B,tasa) values ";
-    $statement = $statement . "((SELECT Id FROM PosUpCompany where token='" . $token . "'),'" . $Idtipotx . "',(SELECT " . $ttx . "+1 FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'),'" . $IdEstacion . "','1',now(),'" . $Fectxclient . "','" . $Total . "','0','" . ($Total * $Tasa) . "','0','" . $Vuelto . "','0','','0','','0','','0','','0','','0','','" . $IdUser . "','" . $_POST["userCompany"] . "','" . $IdBen . "',(SELECT CajaActual FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'),'" . $TxfecVence . "','0','0','0','0','0','0','" . $Tasa . "')";
-    $statamen4 = $statamen4 . " " . $statement;
-    $resultado4 =  mysqli_query($conn, $statement);
+	$statement = "insert into PosUpTxP (IdCompany, Idtipotx, Idtx, IdEstacion, Item, Fectxserver, Fectxclient, MontoPagar, Contado, Credito, Efectivo,Vuelto, Tarjeta, TarjetaD, Cheque, ChequeD, Tipo01, Tipo01D, Tipo02, Tipo02D, Tipo03, Tipo03D, Tipo04, Tipo04D,Login, IdcompanyUser, IdResponsable,Caja,TxfecVence,TarjetaB,ChequeB,Tipo01B,Tipo02B,Tipo03B,Tipo04B,tasa) values ";
+	$statement = $statement . "((SELECT Id FROM PosUpCompany where token='" . $token . "'),'" . $Idtipotx . "',(SELECT " . $ttx . "+1 FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'),'" . $IdEstacion . "','1',now(),'" . $Fectxclient . "','" . $Total . "','0','" . ($Total * $Tasa) . "','0','" . $Vuelto . "','0','','0','','0','','0','','0','','0','','" . $IdUser . "','" . $_POST["userCompany"] . "','" . $IdBen . "',(SELECT CajaActual FROM PosUpCompanyEstacion where token='" . $IdEstacion . "'),'" . $TxfecVence . "','0','0','0','0','0','0','" . $Tasa . "')";
+	$statamen4 = $statamen4 . " " . $statement;
+	$resultado4 =  mysqli_query($conn, $statement);
 
-    $statement = "update PosUpCompanyEstacion set " . $ttx . "=" . $ttx . "+1 where token='" . $IdEstacion . "'";
-    $resultado2 = mysqli_query($conn, $statement);
-    $statamen2 = $statement;
+	$statement = "update PosUpCompanyEstacion set " . $ttx . "=" . $ttx . "+1 where token='" . $IdEstacion . "'";
+	$resultado2 = mysqli_query($conn, $statement);
+	$statamen2 = $statement;
 
-    if ($resultado1 and $resultado4 and $resultado2) {
-        $conn->commit();
-        echo $Idtx;
-    } else {
-        $conn->rollback();
-        echo "0";
-    }
-    $errorrun = false;
+	if ($resultado1 and $resultado4 and $resultado2) {
+		$conn->commit();
+		echo $Idtx;
+	} else {
+		$conn->rollback();
+		echo "0";
+	}
+	$errorrun = false;
 }
 
 if ($_POST["Accion"] === "EliminarTx") {
-    include "ambiente.php";
-    $conn = conectar();
+	include "ambiente.php";
+	$conn = conectar();
 
-    echo EliminarTx($conn, $_POST);
+	echo EliminarTx($conn, $_POST);
 }
+
+
 
 ?>

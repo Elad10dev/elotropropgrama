@@ -289,7 +289,7 @@ $fechaHAS3 = $_POST["FechaHastares"];
                     <div class="page"></div>
                 </div><br>
                 <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                <div class="FechaI">-</div>
+                <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
             </div>
         </div>
         <div class="encabezado" style="">
@@ -454,7 +454,7 @@ $fechaHAS3 = $_POST["FechaHastares"];
         " . $Order . "
     ";
         }
-
+        echo $query;
         if ($result = mysqli_query($conn, $query)) {
             $n = 0;
             while ($row = mysqli_fetch_assoc($result)) {
@@ -705,7 +705,7 @@ $fechaHAS3 = $_POST["FechaHastares"];
                                 <div class="page"></div>
                             </div><br>
                             <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                            <div class="FechaI">-</div>
+                            <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                         </div>
                     </div>
                     <div class="encabezado" style="">

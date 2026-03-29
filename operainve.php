@@ -289,7 +289,7 @@ session_start();
                     <div class="page"></div>
                 </div><br>
                 <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                <div class="FechaI">-</div>
+                <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
             </div>
         </div>
 
@@ -693,6 +693,7 @@ session_start();
                                 $entUni1 = intval($row4['InvInicial']);
                                 $entUni2 = round(($row4['InvInicial'] - intval($row4['InvInicial'])) * $row4['CantP1']);
                             }
+                            mysqli_free_result($result4);
                         }
                     }
 
@@ -970,7 +971,7 @@ session_start();
                                 <div class="page"></div>
                             </div><br>
                             <div class="FechaI"><img style="width: 30%;" src="img/AZUL.svg" /></div><br><br>
-                            <div class="FechaI">-</div>
+                            <div class="FechaI">https://PosUp.cl Email: info@posup.cl</div>
                         </div>
                     </div>
 

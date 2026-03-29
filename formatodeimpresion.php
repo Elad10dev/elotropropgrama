@@ -8,6 +8,15 @@ $Idtipotx = trim($_POST["Idtipotx"]);
 $IdEstacion = trim($_POST["IdEstacion"]);
 $Item = trim($_POST["Item"]);
 $Logotipo = trim($_SESSION["Logotipo"]);
+// =========================================================================
+// ENRUTADOR SENIOR: Si es ISLR (Tipo 7), cargamos el diseño nuevo y salimos
+// =========================================================================
+if ($Idtipotx == '7') {
+    include 'formatodeimpresion_islr.php';
+    exit; // Detenemos la ejecución aquí para que no imprima el IVA de abajo
+}
+// =========================================================================
+
 
 $query = "SELECT a.tasa as tasa2,e.Moneda3,e.Moneda4,e.FactorDolarZelle,e.FactorDolarPaypal,e.FactorDolarCash,e.SimMil,e.MonedaS,e.SimDec,e.CD,e.MonedaP,e.litfiscal,e.fresolucionb,e.nresolucionb,e.fresolucion,e.nresolucion,a.montoretencion,DATE_FORMAT(a.Fectxclient,'%m') as meh,a.Referencia,DATE_FORMAT(a.Fectxclient,'%Y') as ano,a.Contado,a.Credito,e.IDFiscal,a.DAmpliado,e.comercio,e.correorep as email,e.Telefono as Fono,e.direccion as Direccion,DATE_FORMAT(a.Fectxclient,'%d/%m/%Y') as Fectxclient,a.IdResponsable,b.Nombre as Beneficiario,c.TitCto,c.Titulo FROM PosUpTxP a inner join PosUpclientes b on b.Rut=a.IdResponsable and a.IdCompany=b.IdCompany inner join PosUpTx c on a.Idtipotx=c.Idtipotx inner join PosUpCompany e on a.Idcompany=e.Id WHERE a.IdCompany=" . $CompanyActual . " and a.Idtipotx = " . $Idtipotx . " and a.IdEstacion = '" . $IdEstacion . "' and a.Idtx = " . $Idtx . " and item='" . $Item . "'";
 if ($result = mysqli_query($conn, $query)) {
@@ -27,21 +36,7 @@ if ($result = mysqli_query($conn, $query)) {
         $Año = $row['ano'];
         $Referencia = $row['Referencia'];
         $Retencion = $row['montoretencion'];
-        $NombrePag = $row["Titulo"] . " - " . str_pad($idtxdefin, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
-        if ($DTE !== "0") {
-            $idtxdefin = $DTE;
-            $NombrePag = $row["Titulo"] . " - " . str_pad($DTE, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
-        }
-
-        if (trim($_POST["Idtipotx"]) === "22" || trim($_POST["Idtipotx"]) === "15") {
-            $Titulo = "";
-            $TitCto = "";
-            if ($DTE !== "0") {
-                $NombrePag =  str_pad($idtxdefin, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
-            } else {
-                $NombrePag =  str_pad($DTE, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
-            }
-        }
+        $Titulo = $row['Titulo'];
         $NameCompany = $row['comercio'];
         $LitFis = $row['litfiscal'];
         $MonedaP = $row['MonedaP'];
@@ -225,13 +220,9 @@ if (($Item > 1) and ($Retencion <> 0)) {
 ?>
     <style>
         @media print {
-
             @page {
                 margin: 0;
-            }
-
-            body {
-                margin: 1cm;
+                size: auto;
             }
 
             .nomostrar {
@@ -430,7 +421,7 @@ if (($Item > 1) and ($Retencion <> 0)) {
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($imponible * $tasa, $CD, $SimDec, $SimMil); ?></div>
                                 <div style='float:left; width:5%; border: solid 1px black; text-align: right;'><?php echo number_format($polcentaje, 2, ".", ""); ?></div>
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($impuesto * $tasa, $CD, $SimDec, $SimMil); ?></div>
-                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion * $tasa, $CD, $SimDec, $SimMil); ?></div>
+                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion , $CD, $SimDec, $SimMil); ?></div>
                             </div>
                             <div style='width:100%; font-size: 6px;'>
                                 <div style='float:left; width:5%; border: solid 1px black;'><strong style='visibility:hidden;'>-</strong></div>
@@ -505,7 +496,7 @@ if (($Item > 1) and ($Retencion <> 0)) {
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($imponible * $tasa, $CD, $SimDec, $SimMil); ?></div>
                                 <div style='float:left; width:5%; border: solid 1px black; text-align: right;'><?php echo number_format($polcentaje, 2, ".", ""); ?></div>
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($impuesto * $tasa, $CD, $SimDec, $SimMil); ?></div>
-                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion * $tasa, $CD, $SimDec, $SimMil); ?></div>
+                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion , $CD, $SimDec, $SimMil); ?></div>
                             </div>
                         </div>
                     </td>
@@ -646,7 +637,7 @@ if (($Item > 1) and ($Retencion <> 0)) {
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($imponible * $tasa, $CD, $SimDec, $SimMil); ?></div>
                                 <div style='float:left; width:5%; border: solid 1px black; text-align: right;'><?php echo number_format($polcentaje, 2, ".", ""); ?></div>
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($impuesto * $tasa, $CD, $SimDec, $SimMil); ?></div>
-                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion * $tasa, $CD, $SimDec, $SimMil); ?></div>
+                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion, $CD, $SimDec, $SimMil); ?></div>
                             </div>
                             <div style='width:100%; font-size: 6px;'>
                                 <div style='float:left; width:5%; border: solid 1px black;'><strong style='visibility:hidden;'>-</strong></div>
@@ -721,7 +712,7 @@ if (($Item > 1) and ($Retencion <> 0)) {
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($imponible * $tasa, $CD, $SimDec, $SimMil); ?></div>
                                 <div style='float:left; width:5%; border: solid 1px black; text-align: right;'><?php echo number_format($polcentaje, 2, ".", ""); ?></div>
                                 <div style='float:left; width:9%; border: solid 1px black; text-align: right;'><?php echo number_format($impuesto * $tasa, $CD, $SimDec, $SimMil); ?></div>
-                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion * $tasa, $CD, $SimDec, $SimMil); ?></div>
+                                <div style='float:left; width:8%; border: solid 1px black; text-align: right;'><?php echo number_format($Retencion , $CD, $SimDec, $SimMil); ?></div>
                             </div>
                         </div>
                     </td>

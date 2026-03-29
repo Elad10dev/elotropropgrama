@@ -2560,33 +2560,19 @@ $calc = $calcTotal / $n;
                         " . $price8 . "
                         " . $price9 . "
                         " . $price10 . "
-                        a.CantP1,h.Cantidad
+                        a.CantP1,sum(h.Cantidad) as Cantidad
                         FROM PosUpProducto a
-                        left join (
-                            select dt.CodIdBasico,sum(dt.Cantidad) as Cantidad from 
-                                (select f.IdCompany,f.CodIdBasico,sum(f.Cantidad) as Cantidad
-                                    from posupproductostockmest f
-                                    where f.IdCompany = " . $_POST["CompanyActual"] . " 
-                                    " . (!empty($almacenes) ? " and f.IdAlm in (" . implode(",", $almacenes) . ")" : "") . "
-                                    group by f.IdCompany,f.CodIdBasico
-                                union all
-                                    SELECT a.IdCompany, a.CodIdBasico,sum(a.Cant * (if(a.Idtipotx in (" . $Suminv . "),1,0) + if(a.Idtipotx in (" . $Resinv . "),-1,0))) as Cantidad
-                                    from
-                                    posuptxd a				
-                                    where a.IdCompany=" . $_POST["CompanyActual"] . " and a.FecTxClient BETWEEN '" . $firstDayOfMonth . " 00:00:00' AND '" . $LastDayOfMonth . " 23:59:59'
-                            and a.idtipotx in (" . $Operainv . ") 
-                                    " . (!empty($almacenes) ? " and a.IdAlm in (" . implode(",", $almacenes) . ")" : "") . "
-                                    group by a.IdCompany,a.CodIdBasico
-                                ) as dt
-                                group by dt.IdCompany, dt.CodIdBasico
-                        ) h on a.CodIdBasico = h.CodIdBasico
+                        left join inv_existencias h on h.IdCompany = a.IdCompany and h.CodIdBasico = a.CodIdBasico
                         left join PosUpc_marcas b on a.IdCompany = b.IdCompany and a.Marca = b.idmarca 
                         left join PosUpvarios e on a.IdCompany=e.IdCompany and a.Idfamilia=e.IdVarios and e.TIPOITEM= 2
                         where a.IdCompany= " . $_POST["CompanyActual"] . " 
                         and a.EsCompuesto in (20,1,0) 
                         " . $beetween . " 
                         " . $buscar . "
+                        " . (!empty($almacenes) ? " and h.IdAlm in (" . implode(",", $almacenes) . ")" : "") . "
+                    group by a.CodIdBasico
                     ";
+
                     $n = 0;
                     $m = 0;
 

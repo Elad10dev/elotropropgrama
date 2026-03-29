@@ -134,7 +134,6 @@ function inventario(n) {
       PerfilVentas: document.getElementById("PerfilVentas").innerHTML,
       login: document.getElementById("userlogin").innerHTML,
       sucursal: document.getElementById("sucursal").innerHTML,
-      IdAlmVta: document.getElementById("IdAlmVta").innerHTML,
       userperfil: document.getElementById("userperfil").innerHTML,
       Company: document.getElementById("CompanyActual").innerHTML,
       CIdPlan: document.getElementById("CIdPlan").innerHTML,
@@ -289,6 +288,165 @@ function ListaLPRESres(n) {
     $("#apps-modalz").modal("hide");
     $("#apps-modal129").modal("show");
   });
+}
+
+/* ===============================================================
+   FUNCIÓN: MODO PDF (Abre modal y modifica botón Preliminar)
+   =============================================================== */
+function inventarioPDF(n) {
+    // 1. Recolectar datos
+    var datos = {
+        Accion: n,
+        IdiomaActual: $("#IdiomaActual").html(),
+        litfiscal: $("#litfiscal").html(),
+        direccion: $("#direccionActSe").html(),
+        NameCompany: $("#NameCompany").html(),
+        PerfilVentas: $("#PerfilVentas").html(),
+        login: $("#userlogin").html(),
+        sucursal: $("#sucursal").html(),
+        userperfil: $("#userperfil").html(),
+        CompanyActual: $("#CompanyActual").html(), // Cambiado a CompanyActual para consistencia
+        CIdPlan: $("#CIdPlan").html(),
+        IdCompanyGrp: $("#IdCompanyGrp").html(),
+        CD: $("#CD").html(),
+        SimDec: $("#SimDec").html(),
+        SimMil: $("#SimMil").html()
+    };
+
+    // 2. Llamar al modal de parámetros
+    $.ajax({
+        type: "POST",
+        url: "appsmodalinventario.php",
+        data: datos
+    }).done(function (msg) {
+        $("#prueba1").html(msg);
+        
+        var $modal = $("#prueba1");
+        var $form = $modal.find("form");
+        var $btnPreliminar = $modal.find("button:has(.fa-print)");
+
+        if ($btnPreliminar.length > 0) {
+            // Estética del botón para PDF
+            $btnPreliminar.removeClass("btn-outline-primary").addClass("btn-danger text-white");
+            $btnPreliminar.find("i").removeClass("fa-print").addClass("fa-file-pdf-o");
+            $btnPreliminar.html($btnPreliminar.html().replace("Preliminar", " Generar PDF"));
+
+            // Limpiar eventos y asignar nueva lógica de redirección
+            $btnPreliminar.removeAttr("onclick").off("click").on("click", function(e) {
+                e.preventDefault();
+                
+                var urlDestino = "";
+
+                // --- MAPEO DINÁMICO DE ARCHIVOS INDEPENDIENTES ---
+                switch(parseInt(n)) {
+                    case 1:  urlDestino = "reporte_productos_pdf.php"; break;
+                    case 2:  urlDestino = "reporte_reposicion_pdf.php"; break;
+                    case 3:  urlDestino = "reporte_analisis_productos_pdf.php"; break;
+                    case 4:  urlDestino = "reporte_listaprecios_pdf.php"; break;
+                    case 5:  urlDestino = "reporte_fisico_pdf.php"; break;
+                    case 6:  urlDestino = "reporte_analisisfamilia_pdf.php"; break;
+                    case 7:  urlDestino = "reporte_analisis_marca_pdf.php"; break;
+                    case 8:  urlDestino = "reporte_operaciones_pdf.php"; break;
+                    case 9:  urlDestino = "reporte_historial_seriales_pdf.php"; break;
+                    case 10: urlDestino = "reporte_detallado_pdf.php"; break;
+                    case 11: urlDestino = "reporte_resumido_pdf.php"; break;
+                    case 12: urlDestino = "reporte_fiscal_pdf.php"; break;
+                    case 13: urlDestino = "reporte_produccion_pdf.php"; break;
+                    case 15: urlDestino = "reporte_listaprecios_avanzado1167_pdf.php"; break;
+                    case 16: urlDestino = "reporte_listaprecios_avanzado_pdf.php"; break;
+                    case 18: urlDestino = "reporte_listaprecios_avanzado1167_pdf.php"; break;
+                    default:
+                        alert("Este reporte aún no tiene un archivo PDF independiente asignado.");
+                        return;
+                }
+
+                // Configurar y enviar formulario
+                $form.attr("action", urlDestino);
+                $form.attr("target", "_blank");
+                $form[0].submit();
+            });
+        }
+
+        $("#apps-modalz").modal("show");
+    });
+}
+
+function inventarioExcel(n) {
+    // 1. Recolectar datos (Idéntico a tu función original)
+    var datos = {
+        Accion: n,
+        IdiomaActual: $("#IdiomaActual").html(),
+        litfiscal: $("#litfiscal").html(),
+        direccion: $("#direccionActSe").html(),
+        NameCompany: $("#NameCompany").html(),
+        PerfilVentas: $("#PerfilVentas").html(),
+        login: $("#userlogin").html(),
+        sucursal: $("#sucursal").html(),
+        userperfil: $("#userperfil").html(),
+        CompanyActual: $("#CompanyActual").html(),
+        CIdPlan: $("#CIdPlan").html(),
+        IdCompanyGrp: $("#IdCompanyGrp").html(),
+        CD: $("#CD").html(),
+        SimDec: $("#SimDec").html(),
+        SimMil: $("#SimMil").html()
+    };
+
+    // 2. Llamar al modal de parámetros
+    $.ajax({
+        type: "POST",
+        url: "appsmodalinventario.php",
+        data: datos
+    }).done(function (msg) {
+        $("#prueba1").html(msg);
+        
+        var $modal = $("#prueba1");
+        var $form = $modal.find("form");
+        var $btnPreliminar = $modal.find("button:has(.fa-print)");
+
+        if ($btnPreliminar.length > 0) {
+            // Estética del botón para EXCEL (Verde)
+            $btnPreliminar.removeClass("btn-outline-primary btn-danger").addClass("btn-success text-white");
+            $btnPreliminar.find("i").removeClass("fa-print fa-file-pdf-o").addClass("fa-file-excel-o");
+            $btnPreliminar.html($btnPreliminar.html().replace("Preliminar", " Generar Excel").replace("Generar PDF", "Generar Excel"));
+
+            // Limpiar eventos y asignar nueva lógica de redirección a archivos Excel
+            $btnPreliminar.removeAttr("onclick").off("click").on("click", function(e) {
+                e.preventDefault();
+                
+                var urlDestino = "";
+
+                // --- MAPEO DINÁMICO DE ARCHIVOS EXCEL ---
+                switch(parseInt(n)) {
+                    case 1:  urlDestino = "reporte_productos_excel.php"; break;
+                    case 2:  urlDestino = "reporte_reposicion_excel.php"; break;
+                    case 3:  urlDestino = "reporte_analisis_productos_excel.php"; break;
+                    case 4:  urlDestino = "reporte_listaprecios_excel.php"; break;
+                    case 5:  urlDestino = "reporte_fisico_excel.php"; break;
+                    case 6:  urlDestino = "reporte_analisisfamilia_excel.php"; break;
+                    case 7:  urlDestino = "reporte_analisis_marca_excel.php"; break;
+                    case 8:  urlDestino = "reporte_operaciones_excel.php"; break;
+                    case 9:  urlDestino = "reporte_historial_seriales_excel.php"; break;
+                    case 10: urlDestino = "reporte_detallado_excel.php"; break;
+                    case 11: urlDestino = "reporte_resumido_excel.php"; break;
+                    case 12: urlDestino = "reporte_fiscal_excel.php"; break;
+                    case 13: urlDestino = "reporte_produccion_excel.php"; break;
+                    case 15: urlDestino = "reporte_listaprecios_avanzado1167_excel.php"; break;
+                    case 16: urlDestino = "reporte_listaprecios_avanzado_excel.php"; break;
+                    case 18: urlDestino = "reporte_listaprecios_avanzado1167_excel.php"; break;
+                    default:
+                        alert("Este reporte aún no tiene un archivo Excel independiente asignado.");
+                        return;
+                }
+
+                // Configurar y enviar formulario para descargar Excel
+                $form.attr("action", urlDestino);
+                $form.attr("target", "_self"); // '_self' es mejor para descargar archivos directamente
+                $form[0].submit();
+            });
+        }
+
+        $("#apps-modalz").modal("show");
+    });
 }
 
 function AXmodal(n) {

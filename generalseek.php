@@ -374,7 +374,7 @@ if ($_POST["Action"] === "DemosEnd") {
     session_start();
     echo DemosEnd($conn, $_POST);
 }
-
+/*
 if ($_POST["Action"] === "LetsStockMonth") {
     include "ambiente.php";
     $conn = conectar();
@@ -384,6 +384,7 @@ if ($_POST["Action"] === "LetsStockMonth") {
     // echo json_encode(["status" => true]);
     echo LetsStockMonth($conn, $_POST);
 }
+*/
 
 if ($_POST["Action"] === "ImprimirFormato") {
     if (!isset($_SESSION["TemporalFactura"])) {
@@ -565,6 +566,7 @@ if ($_POST["Action"] === "TrasladosUpdate") {
     $conn = conectar();
     echo TrasladosUpdate($conn, $_POST);
 }
+/*
 
 function LetsStockMonth($conn, $post)
 {
@@ -626,7 +628,7 @@ function LetsStockMonth($conn, $post)
 
     return json_encode(["status" => false]);
 }
-
+*/
 function DemosEnd($conn, $post)
 {
 
@@ -1168,29 +1170,22 @@ function StockNone($conn, $post, $request)
 
 function ActualizarTasaBCV($conn, $post)
 {
+    ini_set('precision', -1);
+    ini_set('serialize_precision', -1);
     $tasas = [];
-    $fechaBase = explode(" ", $post["fechaclient"])[0];
-
-    $query = "SELECT fecha_valor_bcv, tasas 
-        FROM posuptasasbcv 
-        WHERE fecha_valor_bcv <= (
-            SELECT CASE 
-                WHEN WEEKDAY('$fechaBase') = 5 THEN DATE_ADD('$fechaBase', INTERVAL 2 DAY) -- Es Sábado, busca el lunes
-                WHEN WEEKDAY('$fechaBase') = 6 THEN DATE_ADD('$fechaBase', INTERVAL 1 DAY) -- Es Domingo, busca el lunes
-                ELSE '$fechaBase' 
-            END
-        )
-        ORDER BY fecha_valor_bcv DESC 
-        LIMIT 1";
+    // $query = "SELECT fecha_valor_bcv, tasas FROM posuptasasbcv WHERE fecha_valor_bcv <= '" . explode(" ", $post["fechaclient"])[0] . "' ORDER BY fecha_valor_bcv DESC LIMIT 1 ";
+    $query = "SELECT fecha_valor_bcv, tasas FROM posuptasasbcv where fecha_valor_bcv <= '".$post['fechaclient']."' ORDER by fecha_valor_bcv DESC LIMIT 1";
+    $rr=$query;
     if ($result = mysqli_query($conn, $query)) {
         while ($row = mysqli_fetch_assoc($result)) {
-            $tasas = json_decode($row["tasas"], true);
+            $json_con_comillas = preg_replace('/:\s*(-?\d+(\.\d+)?([eE][+-]?\d+)?)/', ':"$1"', $row["tasas"]);
+            $tasas = json_decode($json_con_comillas, true);
         }
         mysqli_free_result($result);
     }
-
     $fecha = $post['fechaclient'];
-
+    $fechahora = $post['fechahoraclient'];
+    $decimal = 15;
     if ($tasas) {
         $Dolar = 0;
         $Euro = 0;
@@ -1198,7 +1193,7 @@ function ActualizarTasaBCV($conn, $post)
         $Lira = 0;
         $Rublo = 0;
         $FactorDolar7 = 0;
-        $query = "SELECT FactorDolarCash, FactorDolarPaypal, FactorDolarZelle, FactorDolar5, FactorDolar6, FactorDolar7 FROM posupcompany WHERE Id = " . $post["CompanyActual"] . " ";
+        $query = "SELECT FactorDolarCash, FactorDolarPaypal, FactorDolarZelle, FactorDolar5, FactorDolar6, FactorDolar7, IdPais, MonedaUnica FROM posupcompany WHERE Id = " . $post["CompanyActual"] . " ";
         if ($result = mysqli_query($conn, $query)) {
             while ($row = mysqli_fetch_assoc($result)) {
                 $Dolar = $row["FactorDolarCash"];
@@ -1207,11 +1202,13 @@ function ActualizarTasaBCV($conn, $post)
                 $Lira = $row["FactorDolar5"];
                 $Rublo = $row["FactorDolar6"];
                 $FactorDolar7 = $row["FactorDolar7"];
+                $mIdPais = $row["IdPais"];
+                $mMonedaUnica = $row["MonedaUnica"];
             }
             mysqli_free_result($result);
         }
 
-        if ($Dolar === 0 || $Euro === 0 || $Yuan === 0 || $Lira === 0 || $Rublo === 0 || floatval($tasas["DOLAR"]) === 0 || floatval($tasas["EURO"]) === 0 || floatval($tasas["YUAN"]) === 0 || floatval($tasas["LIRA"]) === 0 || floatval($tasas["RUBLO"]) === 0) return ["status" => false];
+        if ($Dolar === 0 || $Euro === 0 || $Yuan === 0 || $Lira === 0 || $Rublo === 0 || ROUND($tasas["DOLAR"], $decimal) === 0 || ROUND($tasas["EURO"], $decimal) === 0 || ROUND($tasas["YUAN"], $decimal) === 0 || ROUND($tasas["LIRA"], $decimal) === 0 || ROUND($tasas["RUBLO"], $decimal) === 0) return ["status" => false];
         $save = false;
         $result = true;
         $stmt2 = true;
@@ -1222,60 +1219,104 @@ function ActualizarTasaBCV($conn, $post)
         $factor6 = $Rublo;
         $factor7 = $FactorDolar7;
 
-        if (floatval($Dolar) <> floatval($tasas["DOLAR"])) {
-            $query = "UPDATE posupcompany set MonedaS = 'BCV', 
-            FactorDolarCash = '" . $tasas["DOLAR"] . "' 
-            WHERE Id = " . $post["CompanyActual"] . " ";
-            $result = mysqli_query($conn, $query);
-            $factor1 = $tasas["DOLAR"];
-            $save = true;
+
+        $posicionPunto = strpos($tasas["DOLAR"], '.');
+        if ($posicionPunto !== false) {
+            $DOLAR = substr($tasas["DOLAR"], 0, $posicionPunto + $decimal);
+        } else {
+            $DOLAR = $tasas["DOLAR"];
         }
+        $tasas["DOLAR"] = $DOLAR;
 
-        if (floatval($Euro) <> floatval($tasas["EURO"])) {
-            $query = "UPDATE posupcompany set Moneda3 = 'EUR', 
-            FactorDolarPaypal = '" . $tasas["EURO"] . "' 
-            WHERE Id = " . $post["CompanyActual"] . " ";
-            $result = mysqli_query($conn, $query);
-            $factor2 = $tasas["EURO"];
-            $save = true;
+        $posicionPunto = strpos($tasas["EURO"], '.');
+        if ($posicionPunto !== false) {
+            $EURO = substr($tasas["EURO"], 0, $posicionPunto + $decimal);
+        } else {
+            $EURO = $tasas["EURO"];
         }
+        $tasas["EURO"] = $EURO;
 
-        if (floatval($Yuan) <> floatval($tasas["YUAN"])) {
-            $query = "UPDATE posupcompany set Moneda4 = 'CNY', 
-            FactorDolarZelle = '" . $tasas["YUAN"] . "' 
-            WHERE Id = " . $post["CompanyActual"] . " ";
-            $result = mysqli_query($conn, $query);
-            $factor3 = $tasas["YUAN"];
-            $save = true;
+        $posicionPunto = strpos($tasas["YUAN"], '.');
+        if ($posicionPunto !== false) {
+            $YUAN = substr($tasas["YUAN"], 0, $posicionPunto + $decimal);
+        } else {
+            $YUAN = $tasas["YUAN"];
         }
+        $tasas["YUAN"] = $YUAN;
 
-        if (floatval($Lira) <> floatval($tasas["LIRA"])) {
-            $query = "UPDATE posupcompany set Moneda5 = 'TRY', 
-            FactorDolar5 = '" . $tasas["LIRA"] . "' 
-            WHERE Id = " . $post["CompanyActual"] . " ";
-            $result = mysqli_query($conn, $query);
-            $factor5 = $tasas["LIRA"];
-            $save = true;
+        $posicionPunto = strpos($tasas["LIRA"], '.');
+        if ($posicionPunto !== false) {
+            $LIRA = substr($tasas["LIRA"], 0, $posicionPunto + $decimal);
+        } else {
+            $LIRA = $tasas["LIRA"];
         }
+        $tasas["LIRA"] = $LIRA;
 
-        if (floatval($Rublo) <> floatval($tasas["RUBLO"])) {
-            $query = "UPDATE posupcompany set Moneda6 = 'RUB', 
-            FactorDolar6 = '" . $tasas["RUBLO"] . "' 
-            WHERE Id = " . $post["CompanyActual"] . " ";
-            $result = mysqli_query($conn, $query);
-            $factor6 = $tasas["RUBLO"];
-            $save = true;
+        $posicionPunto = strpos($tasas["RUBLO"], '.');
+        if ($posicionPunto !== false) {
+            $RUBLO = substr($tasas["RUBLO"], 0, $posicionPunto + $decimal);
+        } else {
+            $RUBLO = $tasas["RUBLO"];
         }
-        if ($save) {
-            $text = "BCVUSER|T1:" . $factor1 . "|T2:" . $factor2 . "|T3:" . $factor3 . "|T4:" . $factor5 . "|T5:" . $factor6 . "|T6:" . $factor7;
+        $tasas["RUBLO"] = $RUBLO;
+        if (($mIdPais=="VE") && ($mMonedaUnica=="0")) 
+        {
+            if ($Dolar <> $tasas["DOLAR"]) {
+                $query = "UPDATE posupcompany set MonedaS = 'BCV', 
+                FactorDolarCash = '" . $tasas["DOLAR"] . "' 
+                WHERE Id = " . $post["CompanyActual"] . " ";
 
-            $sql2 = "insert Into PosUpCompanyHistoriaTasa (Id,CompanyId,Fecha,Comentario)  (select COALESCE(max(Id),0)+1 as Id," . trim($post["CompanyActual"]) . " as CompanyId,'" . $fecha . "' as Fecha,'" . $text . "' as Comentario From PosUpCompanyHistoriaTasa where CompanyId=" . trim($post["CompanyActual"]) . ")";
-            $stmt2 = mysqli_query($conn, $sql2);
+                
+                $result = mysqli_query($conn, $query);
+                $factor1 = $tasas["DOLAR"];
+                $save = true;
+            }
 
-            if ($result && $stmt2) return ["status" => true];
+            if ($Euro <> $tasas["EURO"]) {
+                $query = "UPDATE posupcompany set Moneda3 = 'EUR', 
+                FactorDolarPaypal = '" . $tasas["EURO"] . "' 
+                WHERE Id = " . $post["CompanyActual"] . " ";
+                $result = mysqli_query($conn, $query);
+                $factor2 = $tasas["EURO"];
+                $save = true;
+            }
+
+            if ($Yuan <> $tasas["YUAN"]) {
+                $query = "UPDATE posupcompany set Moneda4 = 'CNY', 
+                FactorDolarZelle = '" . $tasas["YUAN"] . "' 
+                WHERE Id = " . $post["CompanyActual"] . " ";
+                $result = mysqli_query($conn, $query);
+                $factor3 = $tasas["YUAN"];
+                $save = true;
+            }
+
+            if ($Lira <> $tasas["LIRA"]) {
+                $query = "UPDATE posupcompany set Moneda5 = 'TRY', 
+                FactorDolar5 = '" . $tasas["LIRA"] . "' 
+                WHERE Id = " . $post["CompanyActual"] . " ";
+                $result = mysqli_query($conn, $query);
+                $factor5 = $tasas["LIRA"];
+                $save = true;
+            }
+
+            if ($Rublo <> $tasas["RUBLO"]) {
+                $query = "UPDATE posupcompany set Moneda6 = 'RUB', 
+                FactorDolar6 = '" . $tasas["RUBLO"] . "' 
+                WHERE Id = " . $post["CompanyActual"] . " ";
+                $result = mysqli_query($conn, $query);
+                $factor6 = $tasas["RUBLO"];
+                $save = true;
+            }
+            if ($save) {
+                $text = "BCVUSER|T1:" . $factor1 . "|T2:" . $factor2 . "|T3:" . $factor3 . "|T4:" . $factor5 . "|T5:" . $factor6 . "|T6:" . $factor7;
+
+                $sql2 = "insert Into PosUpCompanyHistoriaTasa (Id,CompanyId,Fecha,Comentario)  (select COALESCE(max(Id),0)+1 as Id," . trim($post["CompanyActual"]) . " as CompanyId,'" . $fechahora . "' as Fecha,'" . $text . "' as Comentario From PosUpCompanyHistoriaTasa where CompanyId=" . trim($post["CompanyActual"]) . ")";
+                $stmt2 = mysqli_query($conn, $sql2);
+
+                if ($result && $stmt2) return ["status" => $rr];
+            }
         }
-
-        return ["status" => false,];
+        return ["status" => false, $tasas["DOLAR"], $Dolar];
     }
 }
 
@@ -1734,8 +1775,8 @@ if ($_POST["Accion"] == "5") {
 
     $mail->Subject = "Doc. #(" . $NombrePag . ")";
 
-    $archivo = file_get_contents("emails/EnvioImpresion.html");
-    $archivo_nuevo = str_replace("[COMERCIO]", $Comercio, str_replace("%%Documento%%", $NombrePag, str_replace("%%OptionIndaLaif%%", $IdBarcode, $archivo)));
+    $archivo = file_get_contents("emailsposup/EnvioImpresion.html");
+    $archivo_nuevo = str_replace("[NOMBRE COMERCIO]", $Comercio, str_replace("%%Documento%%", $NombrePag, str_replace("%%OptionIndaLaif%%", $IdBarcode, $archivo)));
     $body = $archivo_nuevo;
     $mail->Body = $body;
     $mail->AltBody = "";
@@ -1805,8 +1846,8 @@ if ($_POST["Accion"] == "6") {
 
     $mail->Subject = "Doc. #(" . $NombrePag . ")";
 
-    $archivo = file_get_contents("emails/EnvioImpresion.html");
-    $archivo_nuevo = str_replace("[COMERCIO]", $Comercio, str_replace("%%Documento%%", $NombrePag, str_replace("%%OptionIndaLaif%%", $IdBarcode, $archivo)));
+    $archivo = file_get_contents("emailsposup/EnvioImpresion.html");
+    $archivo_nuevo = str_replace("[NOMBRE COMERCIO]", $Comercio, str_replace("%%Documento%%", $NombrePag, str_replace("%%OptionIndaLaif%%", $IdBarcode, $archivo)));
     $body = $archivo_nuevo;
     $mail->Body = $body;
     $mail->AltBody = "";
