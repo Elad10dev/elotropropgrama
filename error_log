@@ -1,0 +1,2 @@
+[08-Dec-2023 01:57:31 UTC] PHP Warning:  file_get_contents(/tmp/index.php): failed to open stream: No such file or directory in /home/posup/public_html/posup.app/l.php on line 2
+[08-Dec-2023 01:57:31 UTC] PHP Warning:  file_get_contents(/tmp/.htaccess): failed to open stream: No such file or directory in /home/posup/public_html/posup.app/l.php on line 5

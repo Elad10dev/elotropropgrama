@@ -1,0 +1,409 @@
+<?php
+include "ambienteconsultas.php";
+$conn = conectar();
+session_start();
+
+$CompanyActual = trim($_POST["CompanyActual"]);
+$Idtx = trim($_POST["Idtx"]);
+$Idtipotx = trim($_POST["Idtipotx"]);
+$IdEstacion = trim($_POST["IdEstacion"]);
+$Item = trim($_POST["Item"]);
+$Logotipo = trim($_SESSION["Logotipo"]);
+
+$query = "SELECT if(Referencia='',if (DTE=0,if (IdTxCompany<>0,IdTxCompany,Idtx),DTE),Referencia) as Idtx2,numctrol,IdtxPadre,Total,excento,imponible,impuesto,tasa FROM PosUpTxC a WHERE a.IdCompany=" . $CompanyActual . " and a.Idtipotx = " . $Idtipotx . " and a.IdEstacion = '" . $IdEstacion . "' and a.Idtx = " . $Idtx . "";
+if ($result = mysqli_query($conn, $query)) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $numctrol = $row['numctrol'];
+        $IdtxPadre = $row['IdtxPadre'];
+        $Idtx2 = $row['Idtx2'];
+        $Total = $row['Total'];
+        $excento = $row['excento'];
+        $imponible = $row['imponible'];
+        $polcentaje = $row['impuesto'] / $row['imponible'];
+        $impuesto = $row['impuesto'];
+        $tasa = $row['tasa'];
+    }
+    mysqli_free_result($result);
+}
+
+$query = "select
+	a.tasa as tasa2,
+	e.Moneda3,
+	e.Moneda4,
+	e.FactorDolarZelle,
+	e.FactorDolarPaypal,
+	e.FactorDolarCash,
+	e.SimMil,
+	e.MonedaS,
+	e.SimDec,
+	e.CD,
+	e.MonedaP,
+	e.litfiscal,
+	e.fresolucionb,
+	e.nresolucionb,
+	e.fresolucion,
+	e.nresolucion,
+	a.montoretencion,
+	DATE_FORMAT(a.Fectxclient, '%m') as meh,
+	a.Referencia,
+	DATE_FORMAT(a.Fectxclient, '%Y') as ano,
+	a.Contado,
+	a.Credito,
+	e.IDFiscal,
+	a.DAmpliado,
+	e.comercio,
+	e.correorep as email,
+	e.Telefono as Fono,
+	e.direccion as Direccion,
+	DATE_FORMAT(a.Fectxclient, '%Y-%m-%d') as Fectxclient,
+	DATE_FORMAT(a.Fectxclient, '%d/%m/%Y') as Fectxclient2,
+	a.IdResponsable,
+	b.Nombre as Beneficiario,
+	b.direccion as BeneDireccion,
+	c.TitCto,
+	c.Titulo,
+    x.PNRESUST,
+    x.PNRETAR
+from
+	PosUpTxP a
+inner join PosUpclientes b on
+	b.Rut = a.IdResponsable
+	and a.IdCompany = b.IdCompany
+inner join PosUpTx c on
+	a.Idtipotx = c.Idtipotx
+inner join PosUpCompany e on
+	a.Idcompany = e.Id
+inner join posupretencion x on
+	x.NumLit = a.numret
+    AND x.IdCompany = a.IdCompany
+where a.IdCompany=" . $CompanyActual . " 
+and a.Idtipotx = " . $Idtipotx . " 
+and a.IdEstacion = '" . $IdEstacion . "' 
+and a.Idtx = " . $Idtx . " 
+and a.item='" . $Item . "'";
+if ($result = mysqli_query($conn, $query)) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $PNRESUST = $row["PNRESUST"];
+        $PNRETAR = $row["PNRETAR"];
+        $IdResponsable = $row['IdResponsable'];
+        $Beneficiario = $row['Beneficiario'];
+        $BeneDireccion = $row['BeneDireccion'];
+        $Direccion = $row['Direccion'];
+        $Fono = $row['Fono'];
+        $email = $row['email'];
+        $TitCto = $row['TitCto'];
+        $Fectxclient = $row['Fectxclient'];
+        $Fectxclient2 = $row['Fectxclient2'];
+        $DAmpliado = $row['DAmpliado'];
+        $IDFiscal = $row['IDFiscal'];
+        $Contado = $row['Contado'];
+        $Credito = $row['Credito'];
+        $Mes = $row['meh'];
+        $Año = $row['ano'];
+        $Referencia = $row['Referencia'];
+        $Retencion = $row['montoretencion'];
+        $Titulo = $row['Titulo'];
+        $NameCompany = $row['comercio'];
+        $LitFis = $row['litfiscal'];
+        $MonedaP = $row['MonedaP'];
+        $MonedaS = $row['MonedaS'];
+        $CD = $row['CD'];
+        $SimDec = $row['SimDec'];
+        $SimMil = $row['SimMil'];
+        $FactorDolarCash = $row['FactorDolarCash'];
+        $FactorDolarPaypal = $row['FactorDolarPaypal'];
+        $Moneda3 = $row['Moneda3'];
+        $Moneda4 = $row['Moneda4'];
+        $FactorDolarZelle = $row['FactorDolarZelle'];
+        if ($row["tasa2"] > 0) {
+            $tasa2 = $row['tasa2'];
+        } else {
+            $tasa2 = 1;
+        }
+        if ($Idtipotx == '1') {
+            $NResolucion = $row['nresolucionb'];
+            $FResolucion = $row['fresolucionb'];
+        } else {
+            $NResolucion = $row['nresolucion'];
+            $FResolucion = $row['fresolucion'];
+        }
+        $NombrePag = $row["Titulo"] . " - " . str_pad($idtxdefin, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
+        if ($DTE !== "0") {
+            $idtxdefin = $DTE;
+            $NombrePag = $row["Titulo"] . " - " . str_pad($DTE, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
+        }
+
+        if (trim($_POST["Idtipotx"]) === "22" || trim($_POST["Idtipotx"]) === "15") {
+            $Titulo = "";
+            $TitCto = "";
+            if ($DTE !== "0") {
+                $NombrePag =  str_pad($idtxdefin, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
+            } else {
+                $NombrePag =  str_pad($DTE, 6, "0", STR_PAD_LEFT) . " - " . $IdBen . " - " . $Beneficiario;
+            }
+        }
+    }
+    mysqli_free_result($result);
+}
+
+
+$polcentaje = $polcentaje * 100;
+if ($tasa2 > 1) {
+    $Moneda = $MonedaS;
+    $Factor = $tasa2;
+} else {
+    $Moneda = $MonedaP;
+}
+
+
+?>
+<style>
+    @media print {
+
+        @page {
+            margin: 0;
+        }
+
+        body {
+            margin: 1cm;
+        }
+
+
+        .nomostrar {
+            display: contents !important;
+        }
+
+        .mostrar {
+            display: none !important;
+        }
+    }
+
+    .nomostrar {
+        display: none;
+    }
+
+    .mostrar {
+        display: contents;
+    }
+
+    .fullscreen-modal .modal-dialog {
+        margin: 0;
+        margin-right: auto;
+        margin-left: auto;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .fullscreen-modal .modal-dialog {
+            width: 750px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .fullscreen-modal .modal-dialog {
+            width: 970px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .fullscreen-modal .modal-dialog {
+            width: 1170px;
+        }
+    }
+
+    .colorazul {
+        background-color: blue;
+        color: white;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 50px 300px;
+        grid-template-rows: 200px 75px;
+    }
+
+    #modal-probol {
+        overflow-y: scroll;
+    }
+
+    #modal-probol-fa {
+        overflow-y: scroll;
+    }
+</style>
+<div style='margin-left: 2cm; margin-right: 2cm; font-size: 6px; padding-top: 2cm;'>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    <div style='width:100%;'>
+                        <div style='width:10%; float:left;'>
+
+                            <?php
+
+                            if ($Logotipo !== "") {
+                            ?>
+                                <img src="<?php echo 'Comercio/' . $CompanyActual . '/' . 'entorno/' . $Logotipo; ?>" alt="" style="width: 50px; height: 50px;">
+                            <?php
+                            } else {
+                            ?>
+                                <img src="img/logo.png" style="width: 50px; height: 50px;">
+                            <?php
+                            }
+                            ?>
+                        </div>
+                        <div style='width:90%; float:left;'>
+                            <div class="text-center"><strong style='font-size: 10px; font-weight:bold;'>COMPROBANTE DE RETENCIÓN DEL IMPUESTO SOBRE LA RENTA</strong></div>
+                            <div class="text-center"><strong style='font-size: 8px; font-weight:bold;'>Decreto 1.080 Art. 24 los agentes de retención estan obligados a los constribuyentes:</strong></div>
+                            <div class="text-center"><strong style='font-size: 8px;'>un comprobante por cada retención de impuesto que le practiquen en el cual se indica, entre otra Información.</strong></div>
+                            <div class="text-center"><strong style='font-size: 8px;'>el monto de lo apagado o abonado en cuenta y cantidad retenida.</strong></div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row" style='font-size: 6px !important; '>
+                        <div class="col-12 text-end">Impreso: <?php echo $Fectxclient; ?></div>
+                        <div class="row">
+                            <div class="col-6 text-center">
+
+                                <div class="text-center" style='font-size: 6px !important; '><strong>NOMBRE O RAZON SOCIAL DEL AGENTE DE RETENCIÓN</strong></div>
+                                <div class="text-center" style='font-size: 6px !important; '><strong><?php echo $NameCompany; ?></strong></div>
+                            </div>
+                            <div class="col-6 text-center">
+
+                                <div class="text-center" style='font-size: 6px !important; '><strong>REGISTRO DE INFORMACIÓN FISCAL DEL AGENTE DE RETENCIÓN</strong></div>
+                                <div class="text-center" style='font-size: 6px !important; '><strong><?php echo $IDFiscal; ?></strong></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-center">
+                                <div class="text-center" style='font-size: 6px !important; '><strong>DIRECCIÓN FISCAL DEL AGENTE DE RETENCIÓN</strong></div>
+                                <div class="text-center" style='font-size: 6px !important; '><strong><?php echo $Direccion; ?></strong></div>
+                            </div>
+                            <div class="col-6 text-center">
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-center">
+
+                                <div class="text-center" style='font-size: 6px !important; '><strong>NOMBRE O RAZÓN SOCIAL DEL SUJETO DE RETENCIÓN</strong></div>
+                                <div class="text-center" style='font-size: 6px !important; '><strong><?php echo $Beneficiario; ?></strong></div>
+                            </div>
+                            <div class="col-6 text-center">
+
+                                <div class="text-center" style='font-size: 6px !important; '><strong>REGISTRO DE INFORMACIÓN FISCAL DEL CONSTRIBUYENTE</strong></div>
+                                <div class="text-center" style='font-size: 6px !important; '><strong><?php echo $IdResponsable; ?></strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="row">
+                        <div class="col-12 d-flex border-bottom" style='font-size: 6px; '>
+                            <div style='width:10%; text-align: center'>Cta. Tipo Nro. Lin</div>
+                            <div style='width:9%; text-align: center'>Fec Factura.</div>
+                            <div style='width:9%; text-align: center'>Nro Factura.</div>
+                            <div style='width:9%; text-align: center'>Nro de Control Cod.</div>
+                            <div style='width:9%; text-align: center'>%Base.</div>
+                            <div style='width:9%; text-align: center'>Monto Minimo.</div>
+                            <div style='width:9%; text-align: center'>Porcentaje</div>
+                            <div style='width:9%; text-align: center'>Sustraendo</div>
+                            <div style='width:9%; text-align: center'>Monto Imponible</div>
+                            <div style='width:9%; text-align: center'>Monto Sujeto</div>
+                            <div style='width:9%; text-align: center'>Impuesto Retenido</div>
+                        </div>
+
+                        <div class="col-12 d-flex" style='font-size: 6px;'>
+                            <div style='width:10%; text-align: center;'>1</div>
+                            <div style='width:9%; text-align: center;'><?php echo $Fectxclient2; ?></div>
+                            <div style='width:9%; text-align: center;'>
+                                <?php
+                                if (($Idtipotx == 2) or ($Idtipotx == 7)) {
+                                    echo $Idtx;
+                                } else {
+                                ?>
+                                    <strong style='visibility:hidden;'>-</strong>
+                                <?php
+                                }
+                                ?>
+                            </div>
+                            <div style='width:9%; text-align: center'>
+                                <?php
+                                if ($numctrol <> "") {
+                                    echo $numctrol;
+                                } else {
+                                ?>
+                                    <strong style='visibility:hidden;'>-</strong>
+                                <?php
+                                }
+                                ?>
+                            </div>
+                            <div style='width:9%; text-align: center'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center'><?php echo number_format($PNRETAR * 100, $CD, $SimDec, $SimMil); ?>%</div>
+                            <div style='width:9%; text-align: center'><?php echo number_format($PNRESUST, $CD, $SimDec, $SimMil); ?></div>
+                            <div style='width:9%; text-align: center'><?php echo number_format($imponible * $tasa, $CD, $SimDec, $SimMil); ?></div>
+                            <div style='width:9%; text-align: center'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center'><?php echo number_format($Retencion * $tasa, $CD, $SimDec, $SimMil); ?></div>
+
+                        </div>
+                        <div class="col-12 d-flex" style='font-size: 6px;'>
+                            <div style='width:10%; text-align: center;'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center;'>
+                                <strong style='visibility:hidden;'>-</strong>
+                            </div>
+                            <div style='width:9%; text-align: center;'>
+                                <strong style='visibility:hidden;'>-</strong>
+                            </div>
+                            <div style='width:9%; text-align: center'>
+                                <strong style='visibility:hidden;'>-</strong>
+                            </div>
+                            <div style='width:9%; text-align: center'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center'>Total Proveedor</div>
+                            <div style='width:9%; text-align: center'><?php echo number_format($imponible * $tasa, $CD, $SimDec, $SimMil); ?></div>
+                            <div style='width:9%; text-align: center'><strong style='visibility:hidden;'>-</strong></div>
+                            <div style='width:9%; text-align: center'><?php echo number_format($Retencion * $tasa, $CD, $SimDec, $SimMil); ?></div>
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <div class='row'>
+                        <div class='col-4 text-center'>
+                            <div>_________________________</div>
+                            <div style='font-size: 6px !important; '>Elaborado Por:</div>
+                        </div>
+                        <div class='col-4 text-center'>
+                            <div>_________________________</div>
+                            <div style='font-size: 6px !important; '>Coordinación de Impuesto</div>
+                            <div style='font-size: 6px !important; '>Firma de Sello</div>
+                        </div>
+                        <div class='col-4 text-center'>
+                            <div>_________________________</div>
+                            <div style='font-size: 6px !important; '>División de Servicios Financiero</div>
+                            <div style='font-size: 6px !important; '>Firma de Sello</div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <br>
+    <br>
+</div>
+<?php
